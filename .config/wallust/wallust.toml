@@ -48,6 +48,7 @@ check_contrast = true
 #hypr.target = '~/.config/hypr/hypr-colors.conf'
 hyprland = { template = 'hyprland-colors.conf', target = '~/.config/hypr/hypr-colors.conf' }
 waybar = { template = 'waybar-colors.css', target = '~/.config/waybar/colors.css' }
+waypaper = { template = 'waybar-colors.css', target = '~/.config/waypaper/colors.css'}
 wlogout = { template = 'waybar-colors.css', target = '~/.config/wlogout/colors.css' }
 wofi = { template = 'waybar-colors.css', target = '~/.config/wofi/colors.css' }
 mako = { template = 'mako-colors', target = '~/.config/mako/config' }
