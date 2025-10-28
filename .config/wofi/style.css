@@ -1,0 +1,52 @@
+@import ".config/wofi/colors.css";
+
+* {
+    font-family: "Hack", monospace;
+}
+
+window {
+    background-color: alpha(@background, 0.4); /* cachydgreen */
+}
+
+#input {
+    margin: 5px;
+    border-radius: 0px;
+    border: none;
+    background-color: alpha(@background, 0.5); /* cachydgreen */
+    color: #ffffff; /* cachywhite */
+}
+
+#inner-box {
+    background-color: alpha(@foreground, 0.5); /* cachydblue */
+}
+
+#outer-box {
+    margin: 2px;
+    padding: 10px;
+    background-color: alpha(@bacbackground-alt, 0.5); /* cachydblue */
+}
+
+#scroll {
+    margin: 5px;
+}
+
+#text {
+    padding: 4px;
+    color: #ffffff;
+}
+
+#entry:nth-child(odd){
+    background-color: alpha(@color2, 0.75);
+}
+
+#entry:nth-child(even){
+    background-color: alpha(@color4, 0.75);
+}
+
+#entry:selected {
+    background-color: alpha(@color0, 0.75);
+}
+
+#text:selected {
+    background: transparent;
+}
