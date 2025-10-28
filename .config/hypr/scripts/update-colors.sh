@@ -2,7 +2,7 @@
 
 #notify-send "Running Wallust"
 wallust run $1
-convert $1 /home/ali/Pictures/current.png
+convert $1 ~/Pictures/current.png
 
 # 5. Reload Hyprland and Dunst
 #notify-send "Reloading hypr apps..."
