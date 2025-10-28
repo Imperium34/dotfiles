@@ -1,0 +1,126 @@
+@import "colors.css";
+
+* {
+    font-family: "Departure Mono", "Font Awesome 6 Free";
+    font-size: 14px;
+    min-height: 0;
+}
+
+window#waybar {
+    background: alpha(@background, 0.5);
+    border-radius: 5px;
+    color: @color7
+}
+
+window#waybar.empty,
+window#waybar.empty #window {
+    padding: 0px;
+    border: 0px;
+    background-color: transparent;
+}
+
+tooltip {
+	color: #cdd6f4;
+   background: #1e1e2e;
+	border-radius: 10px;
+	border-width: 2px;
+	border-style: solid;
+	border-color: #11111b;
+}
+
+tooltip label {
+    color: #cdd6f4;
+    padding-right: 2px;
+    padding-left: 2px;
+}
+
+.modules-right,
+.modules-left {
+	border-radius: 5px 5px 5px 5px;
+	background-color:@background-alt;
+	padding-top: 3px;
+	padding-bottom: 3px;
+	padding-right: 4px;
+	padding-left: 4px;	
+}
+
+#taskbar button,
+#workspaces button {
+    color: @color7;
+    background-color: @color2; 
+    padding: 0px 5px;
+    margin:4px 1px;
+    border-radius: 15px;
+    animation: gradient_f 20s ease-in infinite;
+    transition: all 0.5s cubic-bezier(.55,-0.68,.48,1.682);
+    
+}
+
+#taskbar button.active,
+#workspaces button.active {
+    color: @color7;
+    border-radius: 15px;
+    background-color: @color1;
+    min-width: 40px;
+    background-size: 400% 400%;
+    opacity:1;
+    transition: all 0.3s cubic-bezier(.55,-0.68,.48,1.682);
+}
+
+#workspaces button.focused {
+    color: @color5;
+}
+
+#workspaces button.urgent {
+    color: @color0;
+    border-radius: 10px;
+}
+
+#taskbar button:hover,
+#workspaces button:hover {
+    color: @color13;
+    border-radius: 15px;
+ 	padding-left: 2px;
+    padding-right: 2px;
+    animation: gradient_f 20s ease-in infinite;
+    transition: all 0.3s cubic-bezier(.55,-0.68,.48,1.682);
+}
+
+#clock
+#temperature
+#idle_inhibator
+#backlight
+#custom-storage
+#memory
+#cpu
+#battery
+#pulseaudio
+#custom-power {
+	color: @color6;
+	border-radius: 8px;
+	padding-top: 5px;
+	padding-bottom: 5px;
+	padding-right: 6px;
+	padding-left: 6px;
+}
+
+#battery.critical {
+    color: #f53c3c;
+    animation-name: blink;
+    animation-duration: 0.5s;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
+}
+
+@keyframes pulse {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+    100% {
+        opacity: 1;
+    }
+}
