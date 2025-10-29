@@ -33,7 +33,7 @@ check_contrast = true
 # Color saturation, between [1% and 100%] (OPTIONAL, disabled by default)
 # usually something higher than 50 increases the saturation and below
 # decreases it (on a scheme with strong and vivid colors)
-#saturation = 35
+saturation = 70
 
 # Alpha value for templating, by default 100 (no other use whatsoever)
 #alpha = 100
@@ -44,8 +44,7 @@ check_contrast = true
 # target: ABSOLUTE path in which to place a file with generated templated values.
 # ¡ If either one is a directory, then both SHOULD be one. !
 # zathura = { template = 'zathura', target = '~/.config/zathura/zathurarc' }
-#hypr.template = 'templates/hyprland-colors.conf'
-#hypr.target = '~/.config/hypr/hypr-colors.conf'
+alacritty = { template = 'alacritty-colors.toml', target = '~/.config/alacritty/colors.toml' }
 hyprland = { template = 'hyprland-colors.conf', target = '~/.config/hypr/hypr-colors.conf' }
 waybar = { template = 'waybar-colors.css', target = '~/.config/waybar/colors.css' }
 waypaper = { template = 'waybar-colors.css', target = '~/.config/waypaper/colors.css'}
@@ -53,4 +52,4 @@ wlogout = { template = 'waybar-colors.css', target = '~/.config/wlogout/colors.c
 wofi = { template = 'waybar-colors.css', target = '~/.config/wofi/colors.css' }
 mako = { template = 'mako-colors', target = '~/.config/mako/config' }
 firefox = { template = 'firefox-colors.css', target = '~/.mozilla/firefox/u6g6vqao.default-release/chrome/colors.css' }
-
+wallust_json = { template = 'wallust-json.hbs', target = '~/.config/wallust/wallust.json' }
