@@ -1,9 +1,9 @@
 max-visible=10
 layer=top
 font=Sarasa UI SC 10
-background-color=#231E1E80
-text-color=#F8F8F6
-border-color=#F04F3C80
+background-color=#19141980
+text-color=#EBF1F5
+border-color=#17D38780
 border-radius=5
 max-icon-size=48
 default-timeout=10000
