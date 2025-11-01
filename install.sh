@@ -39,6 +39,7 @@ UI_PACKAGES=(
     thunar
     lxappearance
     papirus-icon-theme
+    networkmanager-dmenu
 )
 
 # List of fonts
@@ -85,7 +86,8 @@ AUR_PACKAGES=(
 echo "Installing AUR packages with yay..."
 yay -S --needed --noconfirm ${AUR_PACKAGES[@]}
 
-echo "----------------------------------------------------"
+echo "---------------------------------------------------------"
 echo "  All packages installed!"
-echo "  Now, 'stow' your dotfiles and reboot."
-echo "----------------------------------------------------"
+echo "  Are you sure you want all of your config files to be"
+echo "  deleted and my configs to be stowed in their place?"
+echo "---------------------------------------------------------"

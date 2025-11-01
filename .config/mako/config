@@ -1,15 +1,9 @@
 max-visible=10
 layer=top
 font=Sarasa UI SC 10
-<<<<<<< HEAD
-background-color=#0D0E0F80
-text-color=#F1F5F9
-border-color=#8C29B280
-=======
-background-color=#26242580
-text-color=#EFE3E7
-border-color=#CA451D80
->>>>>>> 875eeab (added my tlp.conf for easier setup)
+background-color=#19141980
+text-color=#EBF1F5
+border-color=#17D38780
 border-radius=5
 max-icon-size=48
 default-timeout=10000
