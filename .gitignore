@@ -5,6 +5,7 @@
 .config/waypaper/colors.css
 .config/wlogout/colors.css
 .config/wofi/colors.css
+.config/wallust/wallust.json
 
 
 #ignore stuff related to monitors
