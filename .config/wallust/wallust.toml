@@ -51,5 +51,6 @@ waypaper = { template = 'waybar-colors.css', target = '~/.config/waypaper/colors
 wlogout = { template = 'waybar-colors.css', target = '~/.config/wlogout/colors.css' }
 wofi = { template = 'waybar-colors.css', target = '~/.config/wofi/colors.css' }
 mako = { template = 'mako-colors', target = '~/.config/mako/config' }
+cava = { template = 'cava-colors', target = '~/.config/cava/themes/wallust-colors' }
 firefox = { template = 'firefox-colors.css', target = '~/.mozilla/firefox/u6g6vqao.default-release/chrome/colors.css' }
 wallust_json = { template = 'wallust-json.hbs', target = '~/.config/wallust/wallust.json' }
