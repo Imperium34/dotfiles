@@ -1,5 +1,6 @@
 {
 "special": {
+<<<<<<< HEAD
     "background": "#0D0E0F",
     "foreground": "#F1F5F9",
     "cursor": "#D29891"
@@ -21,5 +22,28 @@
     "color13": "#E85E2F",
     "color14": "#4094EF",
     "color15": "#E2E8EF"
+=======
+    "background": "#262425",
+    "foreground": "#EFE3E7",
+    "cursor": "#969AA6"
+  },
+"colors": {
+    "color0": "#534F50",
+    "color1": "#9A3518",
+    "color2": "#205288",
+    "color3": "#9E2949",
+    "color4": "#CA451D",
+    "color5": "#295AA5",
+    "color6": "#D13567",
+    "color7": "#E0CFD4",
+    "color8": "#9C9194",
+    "color9": "#9A3518",
+    "color10": "#205288",
+    "color11": "#9E2949",
+    "color12": "#CA451D",
+    "color13": "#295AA5",
+    "color14": "#D13567",
+    "color15": "#E0CFD4"
+>>>>>>> 875eeab (added my tlp.conf for easier setup)
   }
 }
