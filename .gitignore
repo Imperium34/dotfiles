@@ -7,8 +7,10 @@
 .config/wofi/colors.css
 .config/wallust/wallust.json
 
-
-#ignore stuff related to monitors
+# ignore stuff related to monitors
 
 .config/hypr/monitors.conf
 .confit/hypr/workspaces.conf
+
+# ignore local settings
+.config/hypr/config/hyprland-local.conf
