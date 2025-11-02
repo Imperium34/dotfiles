@@ -49,7 +49,7 @@ hyprland = { template = 'hyprland-colors.conf', target = '~/.config/hypr/hypr-co
 waybar = { template = 'waybar-colors.css', target = '~/.config/waybar/colors.css' }
 waypaper = { template = 'waybar-colors.css', target = '~/.config/waypaper/colors.css'}
 wlogout = { template = 'waybar-colors.css', target = '~/.config/wlogout/colors.css' }
-wofi = { template = 'waybar-colors.css', target = '~/.config/wofi/colors.css' }
+wofi = { template = 'wofi-colors.hbs', target = '~/.config/wofi/style.css' }
 mako = { template = 'mako-colors', target = '~/.config/mako/config' }
 cava = { template = 'cava-colors', target = '~/.config/cava/themes/wallust-colors' }
 firefox = { template = 'firefox-colors.css', target = '~/.mozilla/firefox/u6g6vqao.default-release/chrome/colors.css' }
