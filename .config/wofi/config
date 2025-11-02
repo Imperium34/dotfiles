@@ -1,7 +1,10 @@
-allow_images=false
+allow_images=true
+width=450
+height=350
 hide_scroll=true
 no_actions=false
 term=alacritty
 mode=drun
 style=style.css
+color=colors
 --show
