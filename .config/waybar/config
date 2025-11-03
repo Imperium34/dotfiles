@@ -7,41 +7,34 @@
 
     "position": "top",
 
-    "height": 35,
+    "height": 30,
 
-    "margin-left": 5,
-    "margin-bottom": 0,
-    "margin-right": 5,
+    "margin-left": 10,
+    "margin-bottom": 2,
+    "margin-right": 10,
+    "margin-top": 2,
 
-    "spacing": 25,
+    "spacing": 0,
 
     "modules-left": [
-        //"custom/rofi",
+	"custom/power",
 	"clock#3",
-        //"hyprland/submap",
-        "temperature",
-        "idle_inhibitor",
-        //"mpd"
-        "custom/spotify"
+        //"custom/media",
+	"idle_inhibitor"
+	//"hyprland/window"
     ],
     "modules-center": [
-        //"hyprland/window",
 	"hyprland/workspaces"
         //"custom/weather"
         //"custom/gammastep"
    ], 
    "modules-right": [
-	"cpu",
-        "memory",
-	"custom/storage",
+   	"group/system-stats",
         "backlight",
+	"pulseaudio",
         "battery",
-        "pulseaudio",
-        //"wireplumber",
-        //"custom/screenshot_t",
 	"network",
-        "tray",
-        "custom/power"
+	"tray",
     ],
 
 
@@ -58,17 +51,18 @@
         "tooltip": false
     },
 
-    "custom/rofi": {
-        "format": "",
-        "tooltip": false,
-        "on-click-right": "nwg-drawer",
-        "on-click": "wofi --show run",
-        "on-click-middle": "pkill -9 wofi"
+    "group/system-stats": {
+        "orientation": "horizontal",
+	"drawer": {
+            "transition-duration": 500,
+            "children-class": "not-power",
+            "transition-left-to-right": false,
     },
-    "custom/screenshot_t":{
-        "format":" ",
-        "on-click": "~/.config/hypr/scripts/screenshot_full",
-        "on-click-right":"~/.config/hypr/scripts/screenshot_area"
+        "modules": [
+            "cpu",
+            "memory",
+            "custom/storage"
+        ]
     },
 
     "clock#1": {
@@ -117,7 +111,10 @@
 	"interval": 1,
         "format": "{capacity}% {icon}",
 	"format-charging": "{capacity}% {icon}󱐋",
-	"format-full": "{capacity}% {icon}",
+	"format-plugged": "{capacity}% {icon}",
+	"tooltip": true,
+	"tooltip-format": "{time} remaining",
+	"tooltip-format-charging": "Charging... ({time} to full)",
         "format-icons": [
             "󰂎",
             "󰁻",
@@ -257,7 +254,7 @@
     "cpu": {
         "interval": 1,
         //"format": " {}%", // Icon: microchip
-        "format": "{max_frequency}GHz <span color=\"darkgray\">| {usage}%</span>",
+        "format": "{max_frequency}GHz | {usage}%",
         "max-length": 13,
         "min-length": 13
     },
@@ -322,20 +319,21 @@
     },
 
     "hyprland/window": {
-        "max-length": 100,
-        "separate-outputs": true
+    	"format": "{}",
+        "separate-outputs": true,
+	"rewrite": {
+            "(.*) - Alacritty": "Alacritty  TERMINAL",
+            "(.*) - Visual Studio Code": "VS Code",
+            "(.*) - Thunar": "Thunar Thunar"
+        }
     },
 
     "pulseaudio": {
-        "scroll-step": 3, // %, can be a float
-        "format": "{icon} {volume}% {format_source}",
-        "format-bluetooth": "{volume}% {icon} {format_source}",
-        "format-bluetooth-muted": " {icon} {format_source}",
+        "scroll-step": 2, // %, can be a float
+        "format": "{volume}% {icon}",
+        "format-bluetooth": "{volume}% {icon}",
+        "format-bluetooth-muted": " {icon}",
         "format-muted": " {format_source}",
-        //"format-source": "{volume}% ",
-        //"format-source-muted": "",
-        "format-source": "",
-        "format-source-muted": "",
         "format-icons": {
             "headphone": "",
             "hands-free": "",

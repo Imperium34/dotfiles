@@ -2,13 +2,13 @@
 
 * {
     font-family: "Departure Mono", "Font Awesome 6 Free";
-    font-size: 14px;
+    font-size: 13.5px;
     min-height: 0;
 }
 
 window#waybar {
-    background: alpha(@background, 0.5);
-    border-radius: 5px;
+    background: alpha(@color0, 0);
+    border-radius: 12px;
     color: @color7
 }
 
@@ -20,51 +20,52 @@ window#waybar.empty #window {
 }
 
 tooltip {
-	color: #cdd6f4;
-   background: #1e1e2e;
-	border-radius: 10px;
-	border-width: 2px;
-	border-style: solid;
-	border-color: #11111b;
+	color: @foreground;
+	background: alpha(@background, 0.75);
+	border-radius: 15px;
 }
 
 tooltip label {
-    color: #cdd6f4;
-    padding-right: 2px;
-    padding-left: 2px;
+	color: @foreground;
+	border-radius: 15px;
+	background-color: alpha(@background, 0.75);	
 }
 
+/*
 .modules-right,
+.modules-center,
 .modules-left {
-	border-radius: 5px 5px 5px 5px;
-	background-color:@background-alt;
-	padding-top: 3px;
-	padding-bottom: 3px;
-	padding-right: 4px;
-	padding-left: 4px;	
+	border-radius: 20px;
+	border-color: @color1;
+	border-style: solid;
+	border-width: 1px;
+	background-color:alpha(@background, 0.2);
+	padding-top: 1px;
+	padding-bottom: 1px;
+	padding-right: 15px;
+	padding-left: 15px;	
 }
+*/
 
 #taskbar button,
 #workspaces button {
     color: @color7;
-    background-color: @color2; 
-    padding: 0px 5px;
-    margin:4px 1px;
+    background-color: @background-alt; 
+    padding: 2px 8px;
+    margin:4px 3px;
+    min-width: 30px;
     border-radius: 15px;
-    animation: gradient_f 20s ease-in infinite;
-    transition: all 0.5s cubic-bezier(.55,-0.68,.48,1.682);
+    transition: all 0.3s ease;
     
 }
 
 #taskbar button.active,
 #workspaces button.active {
-    color: @color7;
+    background: @color1;	
+    color: @foreground;
     border-radius: 15px;
     background-color: @color1;
     min-width: 40px;
-    background-size: 400% 400%;
-    opacity:1;
-    transition: all 0.3s cubic-bezier(.55,-0.68,.48,1.682);
 }
 
 #workspaces button.focused {
@@ -72,60 +73,62 @@ tooltip label {
 }
 
 #workspaces button.urgent {
-    color: @color0;
-    border-radius: 10px;
+    background-color: @color9;
+    color: @background;
+    animation: pulse 1s infinite alternate;
+}
+    @keyframes pulse {
+    to {
+        background-color: alpha(@color9, 0.5);
+    }
 }
 
 #taskbar button:hover,
 #workspaces button:hover {
-    color: @color13;
-    border-radius: 15px;
- 	padding-left: 2px;
-    padding-right: 2px;
-    animation: gradient_f 20s ease-in infinite;
-    transition: all 0.3s cubic-bezier(.55,-0.68,.48,1.682);
+    color: @foreground;
+    background-color: alpha(@color1, 0.4);
 }
 
-#clock
-#temperature
-#idle_inhibator
-#backlight
-#custom-storage
-#memory
-#cpu
-#battery
-#pulseaudio
+#clock,
+#temperature,
+#idle_inhibator,
+#backlight,
+#custom-storage,
+#memory,
+#cpu,
+#battery,
+#pulseaudio,
+#network,
+#idle_inhibitor {
+	background-color: @background-alt;
+	color: @foreground;
+	margin: 5px 4px;
+	padding: 2px 10px;
+	border-radius: 12px;
+	border: none;
+	transition: all 0.3s ease;
+}
+
+#cpu{min-width: 100px;}
+
 #custom-power {
-	color: @color6;
-	border-radius: 8px;
-	padding-top: 5px;
-	padding-bottom: 5px;
-	padding-right: 6px;
-	padding-left: 6px;
+    background-color: @color1;
+    color: @foreground;
+    font-weight: bold;
+    border-radius: 12px;
+}
+
+#battery.warning {
+    background-color: @color3;
+    color: @background;
 }
 
 #battery.critical {
-    color: #f53c3c;
-    animation-name: blink;
-    animation-duration: 0.5s;
-    animation-timing-function: linear;
-    animation-iteration-count: infinite;
-    animation-direction: alternate;
+    background-color: @color1;
+    color: @background;
 }
 
-@keyframes pulse {
-    0% {
-        opacity: 1;
-    }
-    50% {
-        opacity: 0.5;
-    }
-    100% {
-        opacity: 1;
-    }
-}
-
-#custom-cava {
-    font-family: "monospace";
-    font-size: 16px;
+#battery.charging {
+    background-color: @color2;
+    color: @background;
 }

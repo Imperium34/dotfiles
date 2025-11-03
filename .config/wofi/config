@@ -1,7 +1,7 @@
 allow_images=true
 width=450
 height=350
-hide_scroll=true
+hide_scroll=false
 no_actions=false
 term=alacritty
 mode=drun
