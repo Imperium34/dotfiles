@@ -14,48 +14,52 @@ echo "Installing Pacman packages..."
 
 # List of core packages
 CORE_PACKAGES=(
-    git
-    stow
-    tlp
-    jq
-    python-colorsys
-    ffmpegthumbnailer
-    tumbler
-    libwebp-pixbuf-loader
+  git
+  stow
+  tlp
+  jq
+  python-colorsys
+  ffmpegthumbnailer
+  tumbler
+  libwebp-pixbuf-loader
 )
 
 # List of UI/Hyprland packages
 UI_PACKAGES=(
-    hyprland
-    hypridle
-    hyprlock
-    waybar
-    wofi
-    wlogout
-    waypaper
-    mako
-    grim
-    slurp
-    thunar
-    lxappearance
-    papirus-icon-theme
-    networkmanager-dmenu
+  hyprland
+  hypridle
+  hyprlock
+  waybar
+  wofi
+  wlogout
+  waypaper
+  mako
+  grim
+  slurp
+  thunar
+  lxappearance
+  papirus-icon-theme
+  networkmanager-dmenu
 )
 
 # List of fonts
 FONTS=(
-    ttf-jetbrains-mono-nerd
-    ttf-font-awesome
-    noto-fonts-emoji
+  ttf-jetbrains-mono-nerd
+  ttf-font-awesome
+  noto-fonts-emoji
 )
 
 # List of applications
 APPS=(
-    firefox
-    alacritty
-    cava
-    openrgb
-    gpicview
+  firefox
+  alacritty
+  cava
+  openrgb
+  gpicview
+  neovim
+  lazyvim
+  lazygit
+  npm
 )
 
 # Install all packages from the lists
@@ -68,18 +72,18 @@ echo "Installing AUR packages..."
 sudo pacman -S --needed base-devel
 
 # Install 'yay' (an AUR helper)
-if ! command -v yay &> /dev/null; then
-    echo "yay not found. Installing yay..."
-    git clone https://aur.archlinux.org/yay.git /tmp/yay
-    (cd /tmp/yay && makepkg -si --noconfirm)
-    rm -rf /tmp/yay
+if ! command -v yay &>/dev/null; then
+  echo "yay not found. Installing yay..."
+  git clone https://aur.archlinux.org/yay.git /tmp/yay
+  (cd /tmp/yay && makepkg -si --noconfirm)
+  rm -rf /tmp/yay
 else
-    echo "yay is already installed."
+  echo "yay is already installed."
 fi
 
 # List of AUR packages
 AUR_PACKAGES=(
-    wallust
+  wallust
 )
 
 # Install AUR packages using yay

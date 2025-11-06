@@ -115,6 +115,7 @@
 	"tooltip": true,
 	"tooltip-format": "{time} remaining",
 	"tooltip-format-charging": "Charging... ({time} to full)",
+	"tooltip-format-critical": "Can you please for the love of god plug me? I am dying here man.",
         "format-icons": [
             "󰂎",
             "󰁻",
@@ -122,7 +123,7 @@
             "󰁿",
             "󰂁",
 	    "󰁹"
-        ]
+        ],
     },
     "network": {
         "format-wifi": " {essid} ({signalStrength}%)",
