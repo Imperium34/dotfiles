@@ -6,6 +6,7 @@
 .config/wlogout/colors.css
 .config/wofi/colors.css
 .config/wallust/wallust.json
+.config/cava/themes/wallust-colors
 
 # ignore stuff related to monitors
 
