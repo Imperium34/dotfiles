@@ -65,7 +65,7 @@ tooltip label {
     color: @foreground;
     border-radius: 15px;
     background-color: @color1;
-    min-width: 40px;
+    min-width: 60px;
 }
 
 #workspaces button.focused {
@@ -99,6 +99,7 @@ tooltip label {
 #battery,
 #pulseaudio,
 #network,
+#custom-notification,
 #idle_inhibitor {
 	background-color: @background-alt;
 	color: @foreground;

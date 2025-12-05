@@ -6,7 +6,7 @@ convert $1 ~/Pictures/current.png
 
 notify-send "Reloading hypr apps..."
 hyprctl reload
-killall mako && mako &
+swaync-client -rs
 killall waybar && waybar &
 if pgrep -x "openrgb" > /dev/null; then
 	~/.config/hypr/scripts/update-rgb.sh
