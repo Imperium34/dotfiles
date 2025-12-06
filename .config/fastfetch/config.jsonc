@@ -1,50 +1,77 @@
 {
-  "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/master/doc/json_schema.json",
+  "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/dev/doc/json_schema.json",
   "logo": {
     "source": "cachyos_small",
     "padding": {
-        "left": 2,
-        "top": 2}
+      "top": 4,   // Pushes the logo down to the middle (14 lines of text vs ~5 lines of logo)
+      "left": 2
+    }
   },
   "display": {
-        "separator": " ›  "
-    },
+    "separator": "  ➜  ",
+    "color": {
+        "separator": "blue" 
+    }
+  },
   "modules": [
-	"break",
-        {
-            "type": "os",
-            "key": "OS  ",
-            "keyColor": "31"  // = color1
-        },
-        {
-            "type": "kernel",
-            "key": "KER ",
-            "keyColor": "32"
-        },
-        {
-            "type": "packages",
-            "format": "{} (pacman)",
-            "key": "PKG ",
-            "keyColor": "33"
-        },
-        {
-            "type": "shell",
-            "key": "SH  ",
-            "keyColor": "34"
-        },
-        {
-            "type": "terminal",
-            "key": "TER ",
-            "keyColor": "35"
-        },
-        {
-            "type": "wm",
-            "key": "WM  ",
-            "keyColor": "36"
-        },
-	"break",
-	{    "type": "colors"
-	},
-        "break"
-    ]
+    "break",
+    {
+      "type": "os",
+      "key": " OS",
+      "keyColor": "blue"
+    },
+    {
+      "type": "kernel",
+      "key": " VER",
+      "keyColor": "green"
+    },
+    {
+      "type": "command",
+      "key": " AGE",
+      "keyColor": "yellow",
+      "text": "birth_install=$(stat -c %W /); current=$(date +%s); echo $(( (current - birth_install) / 86400 )) days" 
+      // Calculates days since root filesystem creation (Installation Date)
+    },
+    {
+      "type": "packages",
+      "key": " PKG",
+      "keyColor": "yellow"
+    },
+    {
+      "type": "uptime",
+      "key": " UP",
+      "keyColor": "red"
+    },
+    "break",
+    {
+      "type": "cpu",
+      "key": " CPU",
+      "keyColor": "cyan",
+      "format": "{1}" 
+    },
+    {
+      "type": "gpu",
+      "key": "󰢮 GPU",
+      "keyColor": "magenta",
+      "format": "{2}" 
+    },
+    {
+      "type": "memory",
+      "key": " RAM",
+      "keyColor": "white"
+    },
+    "break",
+    {
+      "type": "shell",
+      "key": " SH",
+      "keyColor": "blue"
+    },
+    {
+      "type": "wm",
+      "key": " WM",
+      "keyColor": "green"
+    },
+    "break",
+    "colors"
+  ]
 }
