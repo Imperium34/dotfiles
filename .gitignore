@@ -15,4 +15,4 @@
 .confit/hypr/workspaces.conf
 
 # ignore local settings
-.config/hypr/config/hyprland-local.conf
+.config/hypr/config/machine.conf
