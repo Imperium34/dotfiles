@@ -3,14 +3,14 @@
   "logo": {
     "source": "cachyos_small",
     "padding": {
-      "top": 4,   // Pushes the logo down to the middle (14 lines of text vs ~5 lines of logo)
+      "top": 4,
       "left": 2
     }
   },
   "display": {
     "separator": "  ➜  ",
     "color": {
-        "separator": "blue" 
+      "separator": "blue"
     }
   },
   "modules": [
@@ -29,8 +29,7 @@
       "type": "command",
       "key": " AGE",
       "keyColor": "yellow",
-      "text": "birth_install=$(stat -c %W /); current=$(date +%s); echo $(( (current - birth_install) / 86400 )) days" 
-      // Calculates days since root filesystem creation (Installation Date)
+      "text": "echo $(( ($(date +%s) - $(stat -c %W /)) / 86400 )) days"
     },
     {
       "type": "packages",
@@ -47,13 +46,13 @@
       "type": "cpu",
       "key": " CPU",
       "keyColor": "cyan",
-      "format": "{1}" 
+      "format": "{1}"
     },
     {
       "type": "gpu",
       "key": "󰢮 GPU",
       "keyColor": "magenta",
-      "format": "{2}" 
+      "format": "{2}"
     },
     {
       "type": "memory",
