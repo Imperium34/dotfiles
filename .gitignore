@@ -16,3 +16,6 @@
 
 # ignore local settings
 .config/hypr/config/machine.conf
+
+#ignore wallpapers
+wallpapers

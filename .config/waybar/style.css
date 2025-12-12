@@ -100,6 +100,7 @@ tooltip label {
 #pulseaudio,
 #network,
 #custom-notification,
+#bluetooth,
 #idle_inhibitor {
 	background-color: @background-alt;
 	color: @foreground;
