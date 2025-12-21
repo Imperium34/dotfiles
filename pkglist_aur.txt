@@ -1,0 +1,7 @@
+aylurs-gtk-shell-git
+visual-studio-code-bin
+vitetris
+wallust
+windscribe-v2-bin
+yewtube
+zoom
