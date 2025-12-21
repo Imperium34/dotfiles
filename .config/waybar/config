@@ -17,26 +17,25 @@
     "spacing": 0,
 
     "modules-left": [
-	"custom/power",
-	"clock#3",
-        //"custom/media",
-	"idle_inhibitor"
-	//"hyprland/window"
+	  "custom/power",
+	  //"idle_inhibitor"
+    "custom/media",
+    "group/system-stats"
     ],
+
     "modules-center": [
-	"hyprland/workspaces"
-        //"custom/weather"
-        //"custom/gammastep"
-   ], 
-   "modules-right": [
-   	"group/system-stats",
-        "backlight",
-	"pulseaudio",
-        "battery",
-	"bluetooth",
-	"network",
-	"custom/notification",
-	"tray",
+	  "hyprland/workspaces"
+    ],
+
+    "modules-right": [
+   	"backlight",
+    "pulseaudio",
+    "battery",
+    "network",
+    "bluetooth",
+    "tray",
+    "clock",
+	  "custom/notification"
     ],
 
 
@@ -76,32 +75,17 @@
 
     "group/system-stats": {
         "orientation": "horizontal",
-	"drawer": {
+	      "drawer": {
             "transition-duration": 500,
             "children-class": "not-power",
-            "transition-left-to-right": false,
-    },
+            "transition-left-to-right": true,
+        },
         "modules": [
+            "idle_inhibitor",
             "cpu",
             "memory",
             "disk"
         ]
-    },
-
-    "clock#1": {
-        "format": " {:%a}",
-        "tooltip": false,
-        "on-click": "gsimplecal"
-    },
-    "clock#2": {
-        "format": " {:%d-%h-%Y}",
-        "tooltip": false,
-        "on-click": "gsimplecal"
-    },
-    "clock#3": {
-        "format": "{:%H:%M %p}",
-        "tooltip": false,
-        "on-click": "gsimplecal"
     },
 
     "temperature": {
@@ -130,23 +114,23 @@
             "good": 95,
             "warning": 30,
             "critical": 15
-        },
-	"interval": 1,
-        "format": "{capacity}% {icon}",
-	"format-charging": "{capacity}% {icon}󱐋",
-	"format-plugged": "{capacity}% {icon}",
-	"tooltip": true,
-	"tooltip-format": "{time} remaining",
-	"tooltip-format-charging": "Charging... ({time} to full)",
-	"tooltip-format-critical": "Can you please for the love of god plug me? I am dying here man.",
-        "format-icons": [
-            "󰂎",
-            "󰁻",
-            "󰁽",
-            "󰁿",
-            "󰂁",
-	    "󰁹"
-        ],
+            },
+	          "interval": 1,
+            "format": "{capacity}% {icon}",
+	          "format-charging": "{capacity}% {icon}󱐋",
+	          "format-plugged": "{capacity}% {icon}",
+	          "tooltip": true,
+	          "tooltip-format": "{time} remaining\n{power}W getting used",
+	          "tooltip-format-charging": "Charging... ({time} to full)",
+	          "tooltip-format-critical": "Can you please for the love of god plug me? I am dying here man.",
+            "format-icons": [
+                "󰂎",
+                "󰁻",
+                "󰁽",
+                "󰁿",
+                "󰂁",
+	              "󰁹"
+            ],
     },
     "network": {
         "format-wifi": " {essid} ({signalStrength}%)",
@@ -155,7 +139,7 @@
         "format": "",
         "format-disconnected": "",
         //"format-alt": "{ifname}: {ipaddr}/{cidr}",
-	"on-click": "networkmanager_dmenu --style .config/wofi/style.css",
+	      "on-click": "networkmanager_dmenu --style .config/wofi/style.css",
         //"on-click": "wl-copy $(ip address show up scope global | grep inet | head -n1 | cut -d/ -f 1 | tr -d [:space:] | cut -c5-)",
         //"on-click-right": "wl-copy $(ip address show up scope global | grep inet6 | head -n1 | cut -d/ -f 1 | tr -d [:space:] | cut -c6-)",
         "tooltip-format": " {bandwidthUpBits}  {bandwidthDownBits}\n{ifname}\n{ipaddr}/{cidr}\n",
@@ -180,6 +164,7 @@
         "on-scroll-down": "brightnessctl s 5%-",
         "on-scroll-up": "brightnessctl s +5%"
     },
+
     "idle_inhibitor": {
         "format": "{icon}",
         "format-icons": {
@@ -188,6 +173,7 @@
         },
         "tooltip": "true"
     },
+
     "custom/weather": {
         "format": "{}",
         "format-alt": "{alt}: {}",
@@ -198,6 +184,7 @@
         //"exec": "~/.config/waybar/modules/weather.sh",
         "exec-if": "ping wttr.in -c1"
     },
+
     "custom/pacman": {
         "format": "<big>􏆲</big>  {}",
         "interval": 3600,                     // every hour
@@ -209,28 +196,6 @@
         "min-length": 3
     },
 
-"custom/spotify": {
-    "exec": "~/.config/waybar/mediaplayer.py --player spotify",
-    "format": "{}  ",
-    "return-type": "json",
-    "on-click": "playerctl play-pause",
-    "on-scroll-up": "playerctl next",
-    "on-scroll-down": "playerctl previous"
-},
-
-    "custom/media": {
-        "format": "{0} {1}",
-        "return-type": "json",
-        "max-length": 40,
-        "format-icons": {
-            "spotify": "",
-            "default": "🎜"
-        },
-        "escape": true,
-        //"exec": "~/.config/waybar/mediaplayer.py" // Script in resources folder
-        // "exec": "~/.config/waybar/mediaplayer.py --player spotify 2> /dev/null" // Filter player based on name
-    },
-
     "custom/power": {
         "format": " 󰐥 ",
         "tooltip": false,
@@ -238,7 +203,7 @@
     },
 
     "clock": {
-        "format": "  {:%H:%M   %e %b}",
+        "format": "{:%H:%M %p}",
         "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
         "today-format": "<b>{}</b>"
     },
@@ -249,52 +214,12 @@
         "today-format": "<b>{}</b>"
     },
 
-    "custom/gammastep": {
-      "interval": 5,
-      "return-type": "json",
-      "exec": {
-        "pre": "if unit_status=\"$(systemctl --user is-active gammastep)\"; then\nstatus=\"$unit_status ($(journalctl --user -u gammastep.service -g 'Period: ' | tail -1 | cut -d ':' -f6 | xargs))\"\nelse\nstatus=\"$unit_status\"\nfi",
-        "alt": "${status:-inactive}",
-        "tooltip": "Gammastep is $status",
-      },
-      "format": "{icon}",
-      "format-icons": {
-        "activating": "󰁪 ",
-        "deactivating": "󰁪 ",
-        "inactive": "? ",
-        "active (Night)": " ",
-        "active (Nighttime)": " ",
-        "active (Transition (Night)": " ",
-        "active (Transition (Nighttime)": " ",
-        "active (Day)": " ",
-        "active (Daytime)": " ",
-        "active (Transition (Day)": " ",
-        "active (Transition (Daytime)": " ",
-      },
-      "on-click": "systemctl --user is-active gammastep && systemctl --user stop gammastep || systemctl --user start gammastep",
-    },
-
     "cpu": {
         "interval": 1,
         //"format": " {}%", // Icon: microchip
         "format": "{max_frequency}GHz | {usage}%",
         "max-length": 13,
         "min-length": 13
-    },
-
-    "mpd": {
-        "max-length": 25,
-        "format": "<span foreground='#bb9af7'></span> {title}",
-        "format-paused": " {title}",
-        "format-stopped": "<span foreground='#bb9af7'></span>",
-        "format-disconnected": "",
-        "on-click": "mpc --quiet toggle",
-        "on-click-right": "mpc update; mpc ls | mpc add",
-        "on-click-middle": "alacritty -e ncmpcpp",
-        "on-scroll-up": "mpc --quiet prev",
-        "on-scroll-down": "mpc --quiet next",
-        "smooth-scrolling-threshold": 5,
-        "tooltip-format": "{title} - {artist} ({elapsedTime:%M:%S}/{totalTime:%H:%M:%S})"
     },
 
     "custom/title": {
@@ -356,7 +281,7 @@
         "format": "{volume}% {icon}",
         "format-bluetooth": "{volume}% {icon}",
         "format-bluetooth-muted": " {icon}",
-        "format-muted": " {format_source}",
+        "format-muted": "",
         "format-icons": {
             "headphone": "",
             "hands-free": "",
@@ -399,15 +324,24 @@
     },
 
     "bluetooth": {
-    "format": " {status}",
-    "format-connected": " {device_alias}",
-    "format-connected-battery": " {device_alias} {device_battery_percentage}%",
-    "tooltip-format": "{controller_alias}\t{controller_address}\n\n{num_connections} connected",
-    "tooltip-format-connected": "{controller_alias}\t{controller_address}\n\n{num_connections} connected\n\n{device_enumerate}",
-    "on-click": "alacritty --class bluetui --hold -e bluetui",
-    "on-click-right": "rfkill toggle bluetooth"
+      "format": " {status}",
+      "format-connected": " {device_alias}",
+      "format-connected-battery": " {device_alias} {device_battery_percentage}%",
+      "tooltip-format": "{controller_alias}\t{controller_address}\n\n{num_connections} connected",
+      "tooltip-format-connected": "{controller_alias}\t{controller_address}\n\n{num_connections} connected\n\n{device_enumerate}",
+      "on-click": "alacritty --class bluetui --hold -e bluetui",
+      "on-click-right": "rfkill toggle bluetooth"
+    },
+
+    "custom/media": {
+        "format": "{}",
+        "return-type": "json",
+        "max-length": 50,
+        "exec": "~/.config/hypr/scripts/media-player.py --waybar 2> /dev/null",
+        "on-click": "playerctl play-pause",
+        "on-scroll-down": "playerctl previous",
+        "on-scroll-up": "playerctl next",
+        "interval": 1, 
+        "smooth-scrolling-threshold": 10,
     }
-
 }
-
-

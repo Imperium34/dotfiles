@@ -20,15 +20,15 @@ window#waybar.empty #window {
 }
 
 tooltip {
-	color: @foreground;
-	background: alpha(@background, 0.75);
-	border-radius: 15px;
+    background: alpha(@background, 0.6);
+    border: 1px solid alpha(@foreground, 0.2);
+    border-radius: 15px;
+    font-family: "Departure Mono", monospace;
 }
 
 tooltip label {
-	color: @foreground;
-	border-radius: 15px;
-	background-color: alpha(@background, 0.75);	
+    color: @foreground;
+    padding: 8px 12px;
 }
 
 /*
@@ -51,8 +51,8 @@ tooltip label {
 #workspaces button {
     color: @color7;
     background-color: @background-alt; 
-    padding: 2px 8px;
-    margin:4px 3px;
+    padding: 2px 10px;
+    margin: 2px 4px;
     min-width: 30px;
     border-radius: 15px;
     transition: all 0.3s ease;
@@ -92,23 +92,55 @@ tooltip label {
 #clock,
 #temperature,
 #idle_inhibator,
-#backlight,
 #disk,
 #memory,
 #cpu,
-#battery,
-#pulseaudio,
-#network,
 #custom-notification,
-#bluetooth,
+#custom-media,
 #idle_inhibitor {
 	background-color: @background-alt;
 	color: @foreground;
-	margin: 5px 4px;
-	padding: 2px 10px;
+	margin: 2px 4px;
+  padding: 2px 10px;
 	border-radius: 12px;
-	border: none;
+	border: 1px solid alpha(@foreground, 0.4);
 	transition: all 0.3s ease;
+}
+
+#backlight {
+    background-color: @background-alt;
+    color: @foreground;
+    border-radius: 15px 0 0 15px;
+    margin-right: 0;
+    padding-right: 5px;
+    padding-left: 10;
+    border: 1px solid @color8;
+    border-right: none;
+}
+
+#pulseaudio, #battery, #network {
+    background-color: @background-alt;
+    color: @foreground;
+    border-radius: 0;
+    margin-left: 0;
+    margin-right: 0;
+    padding-left: 5px;
+    padding-right: 5px;
+    border-top: 1px solid @color8;
+    border-bottom: 1px solid @color8;
+    border-left: 1px solid alpha(@foreground, 0.4);
+    border-right: 1px solid alpha(@foreground, 0.4);
+}
+
+#bluetooth {
+    background-color: @background-alt;
+    color: @foreground;
+    border-radius: 0 15px 15px 0;
+    margin-left: 0;
+    padding-left: 5px;
+    padding-right: 10;
+    border: 1px solid @color8;
+    border-left: none;
 }
 
 #cpu{min-width: 100px;}
@@ -118,6 +150,7 @@ tooltip label {
     color: @foreground;
     font-weight: bold;
     border-radius: 12px;
+    border: 1px solid alpha(@foreground, 0.4);
 }
 
 #battery.warning {
@@ -131,6 +164,45 @@ tooltip label {
 }
 
 #battery.charging {
+    background-color: @color2;
+    color: @background;
+}
+
+#tray {
+    background-color: @background-alt;
+    color: @foreground;
+    border-radius: 15px;
+    border: 1px solid @color8;
+    margin: 5px 5px;
+    padding: 0 15px;
+}
+
+#tray > .passive {
+    -gtk-icon-effect: dim;
+}
+
+#tray > .needs-attention {
+    -gtk-icon-effect: highlight;
+    background-color: @color1; /* Red alert background */
+}
+
+#custom-media.Playing {
+    background-color: @color2;
+    color: @background;
+}
+
+#custom-media.Paused {
+    background-color: @color0;
+    color: @color7;
+}
+
+#custom-media.Playing.firefox,
+#custom-media.Playing.zen {
+    background-color: @color1;
+    color: @background;
+}
+
+#custom-media.Playing.spotify {
     background-color: @color2;
     color: @background;
 }

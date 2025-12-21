@@ -8,7 +8,6 @@
     font-size: 14px;
 }
 
-/* The Main Notification Panel Window */
 .control-center {
     background: alpha(@background, 0.6);
     border: 2px solid @color7;
@@ -16,7 +15,6 @@
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4);
 }
 
-/* Hide the annoying scrollbar visually */
 scrollbar {
     opacity: 0;
     background: transparent;
