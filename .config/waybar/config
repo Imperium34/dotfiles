@@ -28,8 +28,8 @@
     ],
 
     "modules-right": [
-   	"backlight",
     "pulseaudio",
+   	"backlight",
     "battery",
     "network",
     "bluetooth",
