@@ -1,24 +1,24 @@
 /* --- Wallust-generated colors --- */
-@define-color background #262425;
-@define-color foreground #EFE3E7;
+@define-color background #0E0E0E;
+@define-color foreground #F4ECDD;
 @define-color background-alt alpha(@background, 0.25);
-@define-color cursor #969AA6;
-@define-color color0 #534F50;
-@define-color color1 #9A3518;
-@define-color color2 #205288;
-@define-color color3 #9E2949;
-@define-color color4 #CA451D;
-@define-color color5 #295AA5;
-@define-color color6 #D13567;
-@define-color color7 #E0CFD4;
-@define-color color8 #9C9194;
-@define-color color9 #9A3518;
-@define-color color10 #205288;
-@define-color color11 #9E2949;
-@define-color color12 #CA451D;
-@define-color color13 #295AA5;
-@define-color color14 #D13567;
-@define-color color15 #E0CFD4;
+@define-color cursor #A4A4AB;
+@define-color color0 #383838;
+@define-color color1 #912C1D;
+@define-color color2 #233B91;
+@define-color color3 #35861E;
+@define-color color4 #CD6609;
+@define-color color5 #2F46BB;
+@define-color color6 #E1A130;
+@define-color color7 #E8DCC7;
+@define-color color8 #A29A8B;
+@define-color color9 #912C1D;
+@define-color color10 #233B91;
+@define-color color11 #35861E;
+@define-color color12 #CD6609;
+@define-color color13 #2F46BB;
+@define-color color14 #E1A130;
+@define-color color15 #E8DCC7;
 
 /* --- Wofi style --- */
 window {

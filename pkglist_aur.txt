@@ -1,7 +1,10 @@
-aylurs-gtk-shell-git
-visual-studio-code-bin
-vitetris
+mecab-git
+mecab-ipadic
+pahole-git
 wallust
+waypaper-git
 windscribe-v2-bin
-yewtube
-zoom
+grimblast-git
+ttf-ibmplex-mono-nerd
+ttf-meslo-nerd
+zen-browser-bin
