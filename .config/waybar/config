@@ -120,7 +120,7 @@
 	          "format-charging": "{capacity}% {icon}󱐋",
 	          "format-plugged": "{capacity}% {icon}",
 	          "tooltip": true,
-	          "tooltip-format": "{time} remaining\n{power}W getting used",
+	          "tooltip-format": "{time} remaining\n{power:.1f}W getting used",
 	          "tooltip-format-charging": "Charging... ({time} to full)",
 	          "tooltip-format-critical": "Can you please for the love of god plug me? I am dying here man.",
             "format-icons": [

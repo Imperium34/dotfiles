@@ -125,7 +125,7 @@ for dir in "${dirs[@]}"; do
 
     echo "   -> Stowing $dir"
     # --adopt forces stow to overwrite if file exists (use with caution, or use the backup logic above)
-    stow "$dir"
+    stow -d .config -t "$HOME/.config" "$dir"
   else
     echo "   -> Warning: Directory $dir not found in repo, skipping."
   fi
