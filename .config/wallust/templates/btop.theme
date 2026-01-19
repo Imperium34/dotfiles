@@ -1,0 +1,83 @@
+# Btop Wallust Theme
+
+# Main background
+theme[main_bg]="{{background}}"
+
+# Main text color
+theme[main_fg]="{{foreground}}"
+
+# Title color for boxes
+theme[title]="{{foreground}}"
+
+# Highlight color for selected items
+theme[hi_fg]="{{color4}}"
+
+# Background color of selected item
+theme[selected_bg]="{{color8}}"
+
+# Text color of selected item
+theme[selected_fg]="{{color15}}"
+
+# Color of inactive/disabled text
+theme[inactive_fg]="{{color8}}"
+
+# Color of text appearing on top of graphs
+theme[graph_text]="{{foreground}}"
+
+# Misc colors for processes, etc.
+theme[proc_misc]="{{color6}}"
+
+# Cpu box outline color
+theme[cpu_box]="{{color4}}"
+
+# Memory box outline color
+theme[mem_box]="{{color2}}"
+
+# Net box outline color
+theme[net_box]="{{color3}}"
+
+# Proc box outline color
+theme[proc_box]="{{color5}}"
+
+# Box divider line and small boxes line color
+theme[div_line]="{{color8}}"
+
+# Temperature graph colors
+theme[temp_start]="{{color2}}"
+theme[temp_mid]="{{color3}}"
+theme[temp_end]="{{color1}}"
+
+# CPU graph colors
+theme[cpu_start]="{{color2}}"
+theme[cpu_mid]="{{color4}}"
+theme[cpu_end]="{{color6}}"
+
+# Mem/Disk free meter
+theme[free_start]="{{color2}}"
+theme[free_mid]="{{color2}}"
+theme[free_end]="{{color2}}"
+
+# Mem/Disk cached meter
+theme[cached_start]="{{color4}}"
+theme[cached_mid]="{{color4}}"
+theme[cached_end]="{{color4}}"
+
+# Mem/Disk available meter
+theme[available_start]="{{color3}}"
+theme[available_mid]="{{color3}}"
+theme[available_end]="{{color3}}"
+
+# Mem/Disk used meter
+theme[used_start]="{{color1}}"
+theme[used_mid]="{{color1}}"
+theme[used_end]="{{color1}}"
+
+# Download graph colors
+theme[download_start]="{{color4}}"
+theme[download_mid]="{{color4}}"
+theme[download_end]="{{color6}}"
+
+# Upload graph colors
+theme[upload_start]="{{color4}}"
+theme[upload_mid]="{{color4}}"
+theme[upload_end]="{{color5}}"

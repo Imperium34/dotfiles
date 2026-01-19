@@ -1,8 +1,9 @@
 #!/bin/bash
 
-if ! hyprctl clients | grep -q "class: music"; then
-  alacritty --class music -e rmpc &
-  sleep 0.2
-fi
+youtube-music &
+sleep 2.0
 
-hyprctl dispatch togglespecialworkspace music
+alacritty -e cava &
+sleep 0.5
+
+alacritty &

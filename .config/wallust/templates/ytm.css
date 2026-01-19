@@ -1,0 +1,80 @@
+html:not(.style-scope) {
+
+/*===================Start of custom variables==============================*/
+    
+    /* BACKGROUNDS */
+    --cust-ytmusic-dark-background: {{background}};   /* Main Background */
+    --cust-ytmusic-play-nav-color: {{color0}};        /* Player Bar */
+    --cust-ytmusic-dark-foreground: {{color0}};       /* Dropdown Menus */
+
+    /* TEXT SHADES */
+    --cust-ytmusic-light-text-1: {{foreground}};      /* Main Title */
+    --cust-ytmusic-light-2: {{color7}};               /* Secondary Text */
+    --cust-ytmusic-light-3: {{color7}};
+    --cust-ytmusic-light-4: {{color8}};               /* Dimmed Text */
+    --cust-ytmusic-light-5: {{color15}};              /* Highlighted Text */
+
+    /* ICONS & BUTTONS (Greyish) */
+    --cust-ytmusic-medium-1: {{color8}};
+    --cust-ytmusic-medium-2: {{color8}};
+    --cust-ytmusic-medium-3: {{color8}};
+    --cust-ytmusic-medium-4: {{color8}};
+    --cust-ytmusic-medium-5: {{color0}};              /* Darker Icons */
+
+    /* ACCENTS (The important part) */
+    --cust-ytmusic-playbutton-color: {{color4}};      /* Main Play Button */
+    --cust-ytmusic-subscribe-color: {{color4}};       /* Subscribe Button */
+    --cust-ytmusic-tertiary-nav-button-color: {{color6}}; /* Nav Icons */
+    --cust-ytmusic-nowplaying-color: {{color4}};      /* Current Song Circle */
+
+    /* TEXT ON IMAGES */
+    --cust-ytmusic-main-text-1: {{foreground}};
+    --cust-ytmusic-header-text-1: {{foreground}};
+    --cust-ytmusic-header-text-2: {{color7}};
+
+    --cust-ytmusic-scroll-width: 0px;
+
+/*===================end of custom variables==============================*/
+
+/*AGGRESSIVE AND INSENSITIVE USE OF !IMPORTANT so it works in the desktop app.*/
+
+    --idk-yet: inherit !important;
+
+    --ytmusic-color-black1: var(--cust-ytmusic-dark-foreground) !important;
+    --ytmusic-color-black4: var(--cust-ytmusic-dark-background) !important;
+
+    --ytmusic-color-blackpure: var(--idk-yet) !important;
+    --ytmusic-color-blackpure-alpha0: var(--idk-yet) !important;
+    --ytmusic-color-blackpure-alpha10: var(--idk-yet) !important;
+    --ytmusic-color-blackpure-alpha60: var(--idk-yet) !important;
+
+    --ytmusic-color-grey1: var(--cust-ytmusic-light-3) !important;
+    --ytmusic-color-grey2: var(--cust-ytmusic-light-2) !important;
+    --ytmusic-color-grey3: var(--cust-ytmusic-medium-4) !important;
+    --ytmusic-color-grey4: var(--cust-ytmusic-light-4) !important;
+    --ytmusic-color-grey5: var(--cust-ytmusic-medium-2) !important;
+
+    --ytmusic-color-white1: var(--cust-ytmusic-light-text-1) !important;
+    --ytmusic-color-white1-alpha10: var(--cust-ytmusic-light-4) !important;
+    --ytmusic-color-white1-alpha15: var(--cust-ytmusic-light-4) !important;
+    --ytmusic-color-white1-alpha20: var(--cust-ytmusic-light-4) !important;
+    --ytmusic-color-white1-alpha30: var(--cust-ytmusic-light-4) !important;
+    --ytmusic-color-white1-alpha50: var(--cust-ytmusic-light-4) !important;
+    --ytmusic-color-white1-alpha70: var(--cust-ytmusic-medium-1) !important;
+
+    --ytmusic-static-brand-red: var(--cust-ytmusic-playbutton-color) !important; /*loadingbar*/
+
+    --yt-spec-themed-blue: var(--cust-ytmusic-light-5) !important;
+    --yt-spec-dark-blue: var(--cust-ytmusic-medium-5) !important;
+    --yt-spec-text-secondary: var(--cust-ytmusic-medium-5) !important;
+    --ytmusic-setting-item-toggle-active: var(--cust-ytmusic-light-2) !important;
+
+    --ytmusic-brand-link-text: var(--idk-yet) !important;
+    --ytmusic-overlay-background-brand: var(--idk-yet) !important;
+    --ytmusic-focus-active: var(--idk-yet) !important;
+
+    --ytmusic-detail-header: var(--idk-yet) !important;
+    --ytmusic-dialog-background-color: var(--cust-ytmusic-dark-background) !important;
+    --yt-spec-brand-link-text: var(--cust-ytmusic-medium-5) !important;
+
+    --ytmusic-caption-1_-_color: var(--cust-ytmusic-medium-3) !important
