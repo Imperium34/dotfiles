@@ -1,0 +1,208 @@
+@import "colors.css";
+
+* {
+    font-family: "Departure Mono", "Font Awesome 6 Free";
+    font-size: 13.5px;
+    min-height: 0;
+}
+
+window#waybar {
+    background: alpha(@color0, 0);
+    border-radius: 12px;
+    color: @color7
+}
+
+window#waybar.empty,
+window#waybar.empty #window {
+    padding: 0px;
+    border: 0px;
+    background-color: transparent;
+}
+
+tooltip {
+    background: alpha(@background, 0.6);
+    border: 1px solid alpha(@foreground, 0.2);
+    border-radius: 15px;
+    font-family: "Departure Mono", monospace;
+}
+
+tooltip label {
+    color: @foreground;
+    padding: 8px 12px;
+}
+
+/*
+.modules-right,
+.modules-center,
+.modules-left {
+	border-radius: 20px;
+	border-color: @color1;
+	border-style: solid;
+	border-width: 1px;
+	background-color:alpha(@background, 0.2);
+	padding-top: 1px;
+	padding-bottom: 1px;
+	padding-right: 15px;
+	padding-left: 15px;	
+}
+*/
+
+#taskbar button,
+#workspaces button {
+    color: @color7;
+    background-color: @background-alt; 
+    padding: 2px 10px;
+    margin: 2px 4px;
+    min-width: 30px;
+    border-radius: 15px;
+    transition: all 0.3s ease;
+    
+}
+
+#taskbar button.active,
+#workspaces button.active {
+    background: @color1;	
+    color: @foreground;
+    border-radius: 15px;
+    background-color: @color1;
+    min-width: 60px;
+}
+
+#workspaces button.focused {
+    color: @color5;
+}
+
+#workspaces button.urgent {
+    background-color: @color9;
+    color: @background;
+    animation: pulse 1s infinite alternate;
+}
+    @keyframes pulse {
+    to {
+        background-color: alpha(@color9, 0.5);
+    }
+}
+
+#taskbar button:hover,
+#workspaces button:hover {
+    color: @foreground;
+    background-color: alpha(@color1, 0.4);
+}
+
+#clock,
+#temperature,
+#idle_inhibator,
+#disk,
+#memory,
+#cpu,
+#custom-notification,
+#custom-media,
+#idle_inhibitor {
+	background-color: @background-alt;
+	color: @foreground;
+	margin: 2px 4px;
+  padding: 2px 10px;
+	border-radius: 12px;
+	border: 1px solid alpha(@foreground, 0.3);
+	transition: all 0.3s ease;
+}
+
+#pulseaudio {
+    background-color: @background-alt;
+    color: @foreground;
+    border-radius: 15px 0 0 15px;
+    margin-right: 0;
+    padding-right: 5px;
+    padding-left: 10;
+    border: 1px solid alpha(@foreground, 0.3);
+    border-right: none;
+}
+
+#backlight, #bluetooth, #network {
+    background-color: @background-alt;
+    color: @foreground;
+    border-radius: 0;
+    margin-left: 0;
+    margin-right: 0;
+    padding-left: 5px;
+    padding-right: 5px;
+    border-top: 1px solid alpha(@foreground, 0.3);
+    border-bottom: 1px solid alpha(@foreground, 0.3);
+    border-left: 1px solid alpha(@foreground, 0.4);
+    border-right: 1px solid alpha(@foreground, 0.4);
+}
+
+#battery {
+    background-color: @background-alt;
+    color: @foreground;
+    border-radius: 0 15px 15px 0;
+    margin-left: 0;
+    padding-left: 5px;
+    padding-right: 10;
+    border: 1px solid alpha(@foreground, 0.3);
+    border-left: none;
+}
+
+#cpu{min-width: 100px;}
+
+#custom-power {
+    background-color: @color1;
+    color: @foreground;
+    font-weight: bold;
+    border-radius: 12px;
+    border: 1px solid alpha(@foreground, 0.3);
+}
+
+#battery.warning {
+    background-color: @color3;
+    color: @background;
+}
+
+#battery.critical {
+    background-color: @color1;
+    color: @background;
+}
+
+#battery.charging {
+    background-color: @color2;
+    color: @background;
+}
+
+#tray {
+    background-color: @background-alt;
+    color: @foreground;
+    border-radius: 15px;
+    border: 1px solid alpha(@foreground, 0.3);
+    margin: 5px 5px;
+    padding: 0 15px;
+}
+
+#tray > .passive {
+    -gtk-icon-effect: dim;
+}
+
+#tray > .needs-attention {
+    -gtk-icon-effect: highlight;
+    background-color: @color1; /* Red alert background */
+}
+
+#custom-media.Playing {
+    background-color: @color2;
+    color: @background;
+}
+
+#custom-media.Paused {
+    background-color: @color0;
+    color: @color7;
+}
+
+#custom-media.Playing.firefox,
+#custom-media.Playing.zen {
+    background-color: @color1;
+    color: @background;
+}
+
+#custom-media.Playing.spotify {
+    background-color: @color2;
+    color: @background;
+}

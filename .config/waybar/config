@@ -28,11 +28,7 @@
     ],
 
     "modules-right": [
-    "pulseaudio",
-   	"backlight",
-    "battery",
-    "network",
-    "bluetooth",
+    "group/hardware",
     "tray",
     "clock",
 	  "custom/notification"
@@ -86,6 +82,17 @@
             "memory",
             "disk"
         ]
+    },
+
+    "group/hardware": {
+    "orientation": "horizontal",
+    "modules": [
+        "pulseaudio",
+        "backlight",
+        "network",
+        "bluetooth",
+        "battery"
+    ],
     },
 
     "temperature": {

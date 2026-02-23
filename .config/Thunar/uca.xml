@@ -12,4 +12,16 @@
 	<startup-notify/>
 	<directories/>
 </action>
+<action>
+	<icon>nvim</icon>
+	<name>Edit in Neovim</name>
+	<submenu></submenu>
+	<unique-id>1770826354965441-1</unique-id>
+	<command>alacritty -e nvim %f</command>
+	<description>Edits the selected file in Neovim</description>
+	<range>*</range>
+	<patterns>*</patterns>
+	<other-files/>
+	<text-files/>
+</action>
 </actions>

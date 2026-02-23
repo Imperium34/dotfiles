@@ -1,180 +1,208 @@
 @import "colors.css";
 
+/* -----------------------------------------------------------------------------
+ * GLOBAL STYLES
+ * -------------------------------------------------------------------------- */
+
 * {
     font-family: "Departure Mono", "Font Awesome 6 Free";
     font-size: 13.5px;
     min-height: 0;
+    font-weight: bold;
 }
 
 window#waybar {
-    background: alpha(@color0, 0);
-    border-radius: 12px;
-    color: @color7
+    /* Transparent bar background - the modules provide the color */
+    background: transparent;
+    /* Optional: Add a subtle bottom border if you want the "strip" look back
+       border-bottom: 2px solid @color1; 
+    */
 }
 
-window#waybar.empty,
 window#waybar.empty #window {
-    padding: 0px;
-    border: 0px;
     background-color: transparent;
 }
 
 tooltip {
-    background: alpha(@background, 0.6);
-    border: 1px solid alpha(@foreground, 0.2);
-    border-radius: 15px;
-    font-family: "Departure Mono", monospace;
+    background: alpha(@background, 0.9);
+    border: 1px solid @color4;
+    border-radius: 12px;
 }
 
 tooltip label {
     color: @foreground;
-    padding: 8px 12px;
 }
 
-/*
-.modules-right,
-.modules-center,
-.modules-left {
-	border-radius: 20px;
-	border-color: @color1;
-	border-style: solid;
-	border-width: 1px;
-	background-color:alpha(@background, 0.2);
-	padding-top: 1px;
-	padding-bottom: 1px;
-	padding-right: 15px;
-	padding-left: 15px;	
-}
-*/
+/* -----------------------------------------------------------------------------
+ * WORKSPACES
+ * -------------------------------------------------------------------------- */
 
-#taskbar button,
-#workspaces button {
-    color: @color7;
-    background-color: @background-alt; 
-    padding: 2px 10px;
+#workspaces {
+    background: transparent;
     margin: 2px 4px;
-    min-width: 30px;
+}
+
+#workspaces button {
+    color: @foreground;
+    background-color: alpha(@background, 0.8); /* Darkened island */
+    padding: 2px 10px;
+    margin: 4px 4px;
     border-radius: 15px;
     transition: all 0.3s ease;
-    
+    border: 1px solid alpha(@color8, 0.2); /* Subtle border */
 }
 
-#taskbar button.active,
 #workspaces button.active {
-    background: @color1;	
-    color: @foreground;
-    border-radius: 15px;
-    background-color: @color1;
+    color: @forebackground; /* Inverted text for contrast */
+    background: @color6; /* Active workspace gets your main accent color */
     min-width: 60px;
-}
-
-#workspaces button.focused {
-    color: @color5;
+    border: none;
+    text-shadow: none;
+    animation: gradient_f 20s ease-in infinite;
 }
 
 #workspaces button.urgent {
-    background-color: @color9;
+    background-color: @color1; /* Red */
     color: @background;
-    animation: pulse 1s infinite alternate;
-}
-    @keyframes pulse {
-    to {
-        background-color: alpha(@color9, 0.5);
-    }
+    animation: flash 1s infinite alternate;
 }
 
-#taskbar button:hover,
 #workspaces button:hover {
+    background-color: alpha(@color4, 0.4);
     color: @foreground;
-    background-color: alpha(@color1, 0.4);
 }
 
+/* -----------------------------------------------------------------------------
+ * MODULES - COMMON STYLES
+ * -------------------------------------------------------------------------- */
+
+/* This applies the "Island" look to all modules */
 #clock,
-#temperature,
-#idle_inhibator,
-#disk,
-#memory,
+#battery,
 #cpu,
-#custom-notification,
+#memory,
+#disk,
+#temperature,
+#backlight,
+#network,
+#pulseaudio,
 #custom-media,
-#idle_inhibitor {
-	background-color: @background-alt;
-	color: @foreground;
-	margin: 2px 4px;
-  padding: 2px 10px;
-	border-radius: 12px;
-	border: 1px solid alpha(@foreground, 0.3);
-	transition: all 0.3s ease;
+#tray,
+#mode,
+#idle_inhibitor,
+#custom-power,
+#custom-notification,
+#bluetooth {
+    background-color: alpha(@background, 0.8); /* Semi-transparent background */
+    color: @foreground;
+    margin: 2px 4px;
+    padding: 2px 10px;
+    border-radius: 12px;
+    border: 1px solid alpha(@color8, 0.3); /* Subtle border for definition */
 }
 
-#pulseaudio {
-    background-color: @background-alt;
-    color: @foreground;
-    border-radius: 15px 0 0 15px;
-    margin-right: 0;
-    padding-right: 5px;
-    padding-left: 10;
-    border: 1px solid alpha(@foreground, 0.3);
-    border-right: none;
+/* -----------------------------------------------------------------------------
+ * MODULES - SPECIFIC COLORS
+ * -------------------------------------------------------------------------- */
+
+/* Hardware Group - Warm Colors */
+#cpu {
+    color: @color11; /* Yellow/Orange */
 }
 
-#backlight, #battery, #network {
-    background-color: @background-alt;
-    color: @foreground;
-    border-radius: 0;
-    margin-left: 0;
-    margin-right: 0;
-    padding-left: 5px;
-    padding-right: 5px;
-    border-top: 1px solid alpha(@foreground, 0.3);
-    border-bottom: 1px solid alpha(@foreground, 0.3);
-    border-left: 1px solid alpha(@foreground, 0.4);
-    border-right: 1px solid alpha(@foreground, 0.4);
+#memory {
+    color: @color12; /* Cyan/Blue */
+}
+
+#disk {
+    color: @color13; /* Purple/Pink */
+}
+
+#temperature {
+    color: @color10; /* Green */
+}
+
+#temperature.critical {
+    color: @color1; /* Red */
+}
+
+/* Connectivity Group - Cool Colors */
+#network {
+    color: @color14; /* Cyan */
+}
+
+#network.disconnected {
+    color: @color1;
 }
 
 #bluetooth {
-    background-color: @background-alt;
-    color: @foreground;
-    border-radius: 0 15px 15px 0;
-    margin-left: 0;
-    padding-left: 5px;
-    padding-right: 10;
-    border: 1px solid alpha(@foreground, 0.3);
-    border-left: none;
+    color: @color4; /* Blue */
 }
 
-#cpu{min-width: 100px;}
+/* Media & Sound - Vibrant Colors */
+#pulseaudio {
+    color: @color2; /* Green */
+}
 
-#custom-power {
-    background-color: @color1;
+#pulseaudio.muted {
+    color: @color8; /* Grey */
+    text-decoration: line-through;
+}
+
+#custom-media {
+    color: @color5; /* Magenta */
+}
+
+/* Utilities */
+#backlight {
+    color: @color3; /* Yellow */
+}
+
+#battery {
+    color: @color2; /* Green */
+}
+
+#battery.charging
+#battery.plugged{
     color: @foreground;
-    font-weight: bold;
-    border-radius: 12px;
-    border: 1px solid alpha(@foreground, 0.3);
+    background-color: @color2; /* Fill the whole button when charging */
+    color: @background;
 }
 
 #battery.warning {
-    background-color: @color3;
-    color: @background;
+    color: @color3;
 }
 
 #battery.critical {
-    background-color: @color1;
-    color: @background;
+    color: @color1;
+    animation: blink 1s linear infinite;
 }
 
-#battery.charging {
-    background-color: @color2;
+/* System */
+#clock {
+    color: @color6; /* Cyan - Digital feel */
+    font-weight: 900;
+}
+
+#custom-power {
+    background-color: @color1; /* Red Background */
     color: @background;
+    padding-right: 13px; /* Adjust for icon centering if needed */
+}
+
+#custom-notification {
+    color: @color4;
+}
+
+#idle_inhibitor {
+    /* The original was "padding: 2px 12px;" */
+    /* We add more padding to the RIGHT to push the icon back to the left */
+    padding-right: 13px; 
+    padding-left: 8px;
 }
 
 #tray {
-    background-color: @background-alt;
-    color: @foreground;
-    border-radius: 15px;
-    border: 1px solid alpha(@foreground, 0.3);
-    margin: 5px 5px;
-    padding: 0 15px;
+    padding: 0 10px;
 }
 
 #tray > .passive {
@@ -183,26 +211,22 @@ tooltip label {
 
 #tray > .needs-attention {
     -gtk-icon-effect: highlight;
-    background-color: @color1; /* Red alert background */
-}
-
-#custom-media.Playing {
-    background-color: @color2;
-    color: @background;
-}
-
-#custom-media.Paused {
-    background-color: @color0;
-    color: @color7;
-}
-
-#custom-media.Playing.firefox,
-#custom-media.Playing.zen {
     background-color: @color1;
-    color: @background;
 }
 
-#custom-media.Playing.spotify {
-    background-color: @color2;
-    color: @background;
+/* -----------------------------------------------------------------------------
+ * ANIMATIONS
+ * -------------------------------------------------------------------------- */
+
+@keyframes blink {
+    to {
+        background-color: @color1;
+        color: @background;
+    }
+}
+
+@keyframes flash {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
 }
