@@ -144,7 +144,7 @@
     },
     "network": {
         "format-wifi": " ",
-        "format-ethernet": "{ifname}: {ipaddr}/{cidr} ",
+        "format-ethernet": "",
         "format-linked": "{ifname} (No IP) ",
         "format": "",
         "format-disconnected": "",
