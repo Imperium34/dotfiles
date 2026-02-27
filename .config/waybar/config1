@@ -10,30 +10,26 @@
     "height": 30,
 
     "margin-left": 10,
-    "margin-bottom": 0,
+    "margin-bottom": 2,
     "margin-right": 10,
-    "margin-top": 0,
+    "margin-top": 2,
 
     "spacing": 0,
 
     "modules-left": [
-    "custom/power",
-	  "hyprland/workspaces",
+	  "custom/power",
+	  "idle_inhibitor",
     "custom/media"
     ],
 
     "modules-center": [
-	  "clock"
+	  "hyprland/workspaces"
     ],
 
     "modules-right": [
-    "idle_inhibitor",
-    "pulseaudio",
-    "backlight",
-    "network",
-    "bluetooth",
-    "battery",
+    "group/hardware",
     "tray",
+    "clock",
 	  "custom/notification"
     ],
 
@@ -143,7 +139,7 @@
             ],
     },
     "network": {
-        "format-wifi": " ",
+        "format-wifi": " {essid} ({signalStrength}%)",
         "format-ethernet": "{ifname}: {ipaddr}/{cidr} ",
         "format-linked": "{ifname} (No IP) ",
         "format": "",
@@ -256,18 +252,22 @@
     },*/
 
     "hyprland/workspaces": {
-        "format": "{name} {windows}",
-        "window-rewrite": {
-            "class<firefox>": "",
-            "class<zen>": "󰈹",
-            "class<code>": "󰨞",
-            "class<code-oss>": "󰨞",
-            "class<alacritty>": "",
-            "class<thunar>": "󰉋",
-            "class<spotify>": ""
-    },
-        "window-rewrite-separator": " ",
-        "format-window-separator": " ",
+        "all-outputs": true,
+        "format": "{name}",
+        "format-icons": {
+            "1": "一",
+            "2": "二",
+            "3": "三",
+            "4": "四",
+            "5": "五",
+            "6": "六",
+            "7": "七",
+            "8": "八",
+            "9": "九",
+            "10": "十",
+        },
+        "on-scroll-up": "hyprctl dispatch workspace e+1 1>/dev/null",
+        "on-scroll-down": "hyprctl dispatch workspace e-1 1>/dev/null",
         "sort-by-number": true,
         "active-only": false,
     },
@@ -330,7 +330,7 @@
     },
 
     "bluetooth": {
-      "format": "",
+      "format": " {status}",
       "format-connected": " {device_alias}",
       "format-connected-battery": " {device_alias} {device_battery_percentage}%",
       "tooltip-format": "{controller_alias}\t{controller_address}\n\n{num_connections} connected",

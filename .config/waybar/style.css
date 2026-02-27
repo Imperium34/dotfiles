@@ -1,30 +1,25 @@
-@import "colors.css";
+@import "colors.css"; /* Make sure this points to your wallust output! */
 
 /* -----------------------------------------------------------------------------
  * GLOBAL STYLES
  * -------------------------------------------------------------------------- */
-
 * {
     font-family: "Departure Mono", "Font Awesome 6 Free";
-    font-size: 13.5px;
-    min-height: 0;
+    font-size: 14px;
     font-weight: bold;
+    border: none;
+    border-radius: 0;
+    min-height: 0;
+    margin: 0;
+    padding: 0;
 }
 
 window#waybar {
-    /* Transparent bar background - the modules provide the color */
     background: transparent;
-    /* Optional: Add a subtle bottom border if you want the "strip" look back
-       border-bottom: 2px solid @color1; 
-    */
-}
-
-window#waybar.empty #window {
-    background-color: transparent;
 }
 
 tooltip {
-    background: alpha(@background, 0.9);
+    background: alpha(@background, 0.95);
     border: 1px solid @color4;
     border-radius: 12px;
 }
@@ -34,139 +29,86 @@ tooltip label {
 }
 
 /* -----------------------------------------------------------------------------
- * WORKSPACES
+ * THE PILLS
  * -------------------------------------------------------------------------- */
+.modules-left,
+.modules-center,
+.modules-right {
+    background-color: alpha(@background, 0.85);
+    border-radius: 20px;
+    margin: 4px 10px;
+    padding: 4px 8px;
+    border: 1px solid alpha(@foreground, 0.1);
+}
+
+/* -----------------------------------------------------------------------------
+ * GENERAL MODULE TEXT
+ * -------------------------------------------------------------------------- */
+#clock, #custom-media, #idle_inhibitor, #pulseaudio, 
+#backlight, #network, #bluetooth, #battery, #tray, #custom-notification {
+    background: transparent;
+    color: @foreground;
+    margin: 0px 8px;
+}
+
+/* -----------------------------------------------------------------------------
+ * LEFT MODULES (Power & Workspaces)
+ * -------------------------------------------------------------------------- */
+#custom-power {
+    background-color: @color4;
+    color: @background;
+    border-radius: 16px;
+    padding: 2px 12px 2px 14px;
+    margin-right: 8px;
+    transition: all 0.2s ease;
+}
+
+#custom-power:hover {
+    box-shadow: 0 0 10px alpha(@color4, 0.5);
+}
 
 #workspaces {
-    background: transparent;
-    margin: 2px 4px;
+    margin: 0;
 }
 
 #workspaces button {
-    color: @foreground;
-    background-color: alpha(@background, 0.8); /* Darkened island */
+    background: transparent;
+    color: @color8;
     padding: 2px 10px;
-    margin: 4px 4px;
-    border-radius: 15px;
-    transition: all 0.3s ease;
-    border: 1px solid alpha(@color8, 0.2); /* Subtle border */
+    margin: 0px 4px;
+    border-radius: 16px;
+    transition: all 0.3s cubic-bezier(.55,0,.28,1);
 }
 
 #workspaces button.active {
-    color: @forebackground; /* Inverted text for contrast */
-    background: @color6; /* Active workspace gets your main accent color */
-    min-width: 60px;
-    border: none;
-    text-shadow: none;
-    animation: gradient_f 20s ease-in infinite;
-}
-
-#workspaces button.urgent {
-    background-color: @color1; /* Red */
+    background-color: @color4;
     color: @background;
-    animation: flash 1s infinite alternate;
+    min-width: 40px;
 }
 
 #workspaces button:hover {
-    background-color: alpha(@color4, 0.4);
+    background-color: alpha(@color4, 0.2);
     color: @foreground;
 }
 
 /* -----------------------------------------------------------------------------
- * MODULES - COMMON STYLES
+ * CENTER & RIGHT MODULE TWEAKS
  * -------------------------------------------------------------------------- */
-
-/* This applies the "Island" look to all modules */
-#clock,
-#battery,
-#cpu,
-#memory,
-#disk,
-#temperature,
-#backlight,
-#network,
-#pulseaudio,
-#custom-media,
-#tray,
-#mode,
-#idle_inhibitor,
-#custom-power,
-#custom-notification,
-#bluetooth {
-    background-color: alpha(@background, 0.8); /* Semi-transparent background */
-    color: @foreground;
-    margin: 2px 4px;
-    padding: 2px 10px;
-    border-radius: 12px;
-    border: 1px solid alpha(@color8, 0.3); /* Subtle border for definition */
-}
-
-/* -----------------------------------------------------------------------------
- * MODULES - SPECIFIC COLORS
- * -------------------------------------------------------------------------- */
-
-/* Hardware Group - Warm Colors */
-#cpu {
-    color: @color11; /* Yellow/Orange */
-}
-
-#memory {
-    color: @color12; /* Cyan/Blue */
-}
-
-#disk {
-    color: @color13; /* Purple/Pink */
-}
-
-#temperature {
-    color: @color10; /* Green */
-}
-
-#temperature.critical {
-    color: @color1; /* Red */
-}
-
-/* Connectivity Group - Cool Colors */
-#network {
-    color: @color14; /* Cyan */
-}
-
-#network.disconnected {
-    color: @color1;
-}
-
-#bluetooth {
-    color: @color4; /* Blue */
-}
-
-/* Media & Sound - Vibrant Colors */
-#pulseaudio {
-    color: @color2; /* Green */
-}
-
-#pulseaudio.muted {
-    color: @color8; /* Grey */
-    text-decoration: line-through;
+#clock {
+    font-weight: 900;
+    color: @color6;
 }
 
 #custom-media {
-    color: @color5; /* Magenta */
+    color: @color2;
+    margin-right: 12px;
 }
 
-/* Utilities */
-#backlight {
-    color: @color3; /* Yellow */
-}
-
-#battery {
-    color: @color2; /* Green */
-}
-
-#battery.charging
-#battery.plugged{
-    color: @foreground;
-    background-color: @color2; /* Fill the whole button when charging */
-    color: @background;
+/* -----------------------------------------------------------------------------
+ * BATTERY ALERTS
+ * -------------------------------------------------------------------------- */
+#battery.charging, #battery.plugged {
+    color: @color2;
 }
 
 #battery.warning {
@@ -178,55 +120,11 @@ tooltip label {
     animation: blink 1s linear infinite;
 }
 
-/* System */
-#clock {
-    color: @color6; /* Cyan - Digital feel */
-    font-weight: 900;
-}
-
-#custom-power {
-    background-color: @color1; /* Red Background */
-    color: @background;
-    padding-right: 13px; /* Adjust for icon centering if needed */
-}
-
-#custom-notification {
-    color: @color4;
-}
-
-#idle_inhibitor {
-    /* The original was "padding: 2px 12px;" */
-    /* We add more padding to the RIGHT to push the icon back to the left */
-    padding-right: 13px; 
-    padding-left: 8px;
-}
-
-#tray {
-    padding: 0 10px;
-}
-
-#tray > .passive {
-    -gtk-icon-effect: dim;
-}
-
-#tray > .needs-attention {
-    -gtk-icon-effect: highlight;
-    background-color: @color1;
-}
-
-/* -----------------------------------------------------------------------------
- * ANIMATIONS
- * -------------------------------------------------------------------------- */
-
 @keyframes blink {
     to {
-        background-color: @color1;
         color: @background;
+        background-color: @color1;
+        border-radius: 10px;
+        padding: 0px 8px;
     }
-}
-
-@keyframes flash {
-    0% { opacity: 1; }
-    50% { opacity: 0.5; }
-    100% { opacity: 1; }
 }
