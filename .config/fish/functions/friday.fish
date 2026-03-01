@@ -35,11 +35,16 @@ function friday
         # Music Context
         set _music (playerctl metadata --format "{{ artist }} - {{ title }}" 2>/dev/null || echo "Silence")
 
-        # Updates Check (Timeout 2s to prevent lag)
-        set _updates (timeout 2s checkupdates 2>/dev/null | wc -l)
-        if test "$status" -ne 0
-            set _updates Unknown
+        # Updates Check
+        set updates_file /tmp/friday_updates
+        if not test -f $updates_file; or test -n "(find $updates_file -mmin +60 2>/dev/null)"
+            checkupdates >"$updates_file.tmp" 2>/dev/null
+            set up_status $status
+            if test $up_status -eq 0 -o $up_status -eq 2
+                wc -l <"$updates_file.tmp" >$updates_file
+            end &
         end
+        set _updates (cat $updates_file 2>/dev/null || echo "0")
 
         # Git Status
         set _git_context ""
@@ -49,11 +54,21 @@ function friday
             set _git_context "GIT: Branch $_branch, $_dirty dirty files."
         end
 
-        # Weather (Cached for 1 hour ideally, but simple check here)
-        if not test -f /tmp/friday_weather
-            curl -s "wttr.in/?format=%C+%t" >/tmp/friday_weather &
+        # Weather
+        set weather_file /tmp/friday_weather
+
+        if not test -f $weather_file; or test -n "(find $weather_file -mmin +60 2>/dev/null)"
+            begin
+                curl -m 5 -s "wttr.in/Büyükçekmece?format=%C+%t" >"$weather_file.tmp"
+                and mv "$weather_file.tmp" $weather_file
+            end &
         end
-        set _weather (cat /tmp/friday_weather 2>/dev/null || echo "Unknown")
+
+        if test -s $weather_file
+            set _weather (cat $weather_file)
+        else
+            set _weather "Fetching radar data..."
+        end
 
         # --- MOOD ANALYSIS PROTOCOL ---
         set _mood_context "Mood: Neutral/Professional."
@@ -76,8 +91,8 @@ function friday
             end
         end
 
-        # D. Pending Updates (>50)
-        if test "$_updates" != Unknown -a "$_updates" -gt 50
+        # D. Pending Updates (>100)
+        if test "$_updates" != Unknown -a "$_updates" -gt 100
             set _mood_context "Mood: ANNOYED. $_updates updates pending. Demand a 'pacman -Syu'."
         end
 
