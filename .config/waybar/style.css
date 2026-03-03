@@ -48,7 +48,7 @@ tooltip label {
 #backlight, #network, #bluetooth, #battery, #tray, #custom-notification {
     background: transparent;
     color: @foreground;
-    margin: 0px 8px;
+    margin: 0px 15px;
 }
 
 /* -----------------------------------------------------------------------------
