@@ -10,7 +10,7 @@ This is my personal Hyprland setup running on CachyOS. The entire theme is autom
 
 * **Automated Theming:** The entire system theme (Waybar, Alacritty, Wofi, Mako, etc.) is generated on the fly from the wallpaper using `wallust`.
 * **RGB Sync:** All `openrgb` devices are automatically set to the most vibrant color from the wallpaper palette.
-* **Laptop & Desktop Ready:** Includes `TLP` for laptop battery life and a Battery module in `Waybar`
+* **Laptop & Desktop Ready:** Includes `TLP` for laptop battery life and a Battery module in `Waybar` along with separate .conf files for desktop and laptop
 
 ## 📦 Software & Dependencies
 
@@ -23,7 +23,7 @@ This setup is built on CachyOS (Arch-based) and relies on the following key comp
 * **Terminal:** `alacritty`
 * **Theming:** `wallust`
 * **File Manager:** `thunar`
-* **Notifications:** `mako`
+* **Notifications:** `swayNC`
 * **RGB:** `openrgb`
 
 ### Installation
