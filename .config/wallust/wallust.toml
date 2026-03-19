@@ -15,7 +15,7 @@ backend = "fastresize"
 
 # What color space to use to produce and select the most prominent colors:
 # lab - labmixed - lch - lchmixed
-color_space = "lab"
+color_space = "lch"
 
 # Use the most prominent colors in a way that makes sense, a scheme color palette:
 # dark - dark16 - darkcomp - darkcomp16
@@ -23,12 +23,12 @@ color_space = "lab"
 # harddark - harddark16 - harddarkcomp - harddarkcomp16
 # softdark - softdark16 - softdarkcomp - softdarkcomp16
 # softlight - softlight16 - softlightcomp - softlightcomp16
-palette = "dark"
+palette = "harddarkcomp"
 
 # Ensures a "readable contrast" (OPTIONAL, disabled by default)
 # Should only be enabled when you notice an unreadable contrast frequently happening
 # with your images. The reference color for the contrast is the background color.
-check_contrast = true
+check_contrast = false
 
 # Color saturation, between [1% and 100%] (OPTIONAL, disabled by default)
 # usually something higher than 50 increases the saturation and below
@@ -58,3 +58,5 @@ youtubemusic = { template = 'ytm.css', target = '~/.config/YouTube Music/wallust
 btop = { template = 'btop.theme', target = '~/.config/btop/themes/wallust.theme'}
 #firefox = { template = 'firefox-colors.css', target = '~/.mozilla/firefox/u6g6vqao.default-release/chrome/colors.css' }
 wallust_json = { template = 'wallust-json.hbs', target = '~/.config/wallust/wallust.json' }
+vscode = { template = 'vscode.json', target = '~/.cache/wallust/colors.json' }
+vscode2 = { template = 'vscode', target = '~/.cache/wallust/colors' }
