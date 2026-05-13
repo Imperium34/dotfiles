@@ -1,14 +1,8 @@
 #!/usr/bin/env python3
 import subprocess
 import sys
-import os
-import re
 import json
 import textwrap
-
-# Define paths
-ART_DEST = "/tmp/album_art.png"
-FALLBACK_ART = os.path.expanduser("~/.config/hypr/assets/fallback.png")
 
 
 def get_metadata():
@@ -149,64 +143,7 @@ def main():
         print(json.dumps(out))
         return
 
-    # --- Mode 2: Hyprlock / Art ---
-    if len(sys.argv) > 1 and sys.argv[1] == "--art":
-        try:
-            raw_url = subprocess.check_output(
-                ["playerctl", "metadata", "mpris:artUrl"], text=True
-            ).strip()
-        except:
-            raw_url = ""
-
-        target_file = "/tmp/album_art.png"
-        temp_file = "/tmp/temp_art_download"
-
-        video_id_match = re.search(r"/vi/([^/]+)/", raw_url)
-
-        hd_url = raw_url
-        if video_id_match:
-            video_id = video_id_match.group(1)
-            hd_url = f"https://img.youtube.com/vi/{video_id}/maxresdefault.jpg"
-
-        final_url = raw_url
-
-        if raw_url.startswith("http"):
-            subprocess.run(["curl", "-s", "-o", temp_file, hd_url])
-
-            if os.path.getsize(temp_file) < 1500:
-                subprocess.run(["curl", "-s", "-o", temp_file, raw_url])
-
-            subprocess.run(
-                [
-                    "magick",
-                    temp_file,
-                    "-filter",
-                    "Lanczos",
-                    "-resize",
-                    "500x500^",
-                    "-gravity",
-                    "center",
-                    "-extent",
-                    "500x500",
-                    "-unsharp",
-                    "0x1",
-                    target_file,
-                ]
-            )
-
-        elif raw_url.startswith("file://"):
-            local_path = raw_url.replace("file://", "")
-            subprocess.run(["magick", local_path, "-resize", "500x500^", target_file])
-
-        else:
-            subprocess.run(
-                ["convert", "-size", "500x500", "xc:transparent", target_file]
-            )
-
-        print(target_file)
-        sys.exit(0)
-
-    # --- Mode 3: Text Info (Hyprlock) ---
+    # --- Mode 2: Text Info (Hyprlock) ---
     if len(sys.argv) > 1:
         if sys.argv[1] == "--title":
             print(truncate(data["title"], 30))

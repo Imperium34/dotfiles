@@ -4,7 +4,7 @@
 
 COLORS=$(jq -r '.colors.color1, .colors.color2, .colors.color3, .colors.color4, .colors.color5, .colors.color6' ~/.config/wallust/wallust.json)
 
-BEST_COLOR=$(echo "$COLORS" | python -c "
+BEST_COLOR=$(echo "$COLORS" | python3 -c "
 import sys, colorsys
 
 def hex_to_rgb(hex_code):
@@ -31,8 +31,8 @@ if best_color:
 ")
 
 if [ -z "$BEST_COLOR" ]; then
-    echo "Error: Could not determine the best color from wallust."
-    exit 1
+  echo "Error: Could not determine the best color from wallust."
+  exit 1
 fi
 
 echo "Most vibrant color found: #$BEST_COLOR"

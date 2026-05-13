@@ -9,7 +9,7 @@ rm -rf ~/.cache/fastfetch/
 notify-send "Reloading hypr apps..."
 hyprctl reload
 swaync-client -rs
-killall waybar && waybar &
+killall -SIGUSR2 waybar
 ~/.config/hypr/scripts/set-blur.sh
 if pgrep -x "openrgb" >/dev/null; then
   ~/.config/hypr/scripts/update-rgb.sh

@@ -1,10 +1,7 @@
-mecab-git
-mecab-ipadic
-pahole-git
+bibata-cursor-theme
+otf-departure-mono
+visual-studio-code-bin
 wallust
-waypaper-git
 windscribe-v2-bin
-grimblast-git
-ttf-ibmplex-mono-nerd
-ttf-meslo-nerd
-zen-browser-bin
+youtube-music
+zoom
