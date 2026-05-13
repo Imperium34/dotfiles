@@ -15,46 +15,56 @@ echo "   -> Internet is OK."
 
 # --- 2. PREPARATION (Paru & Base) ---
 echo ":: Installing Base Tools (Paru, Git)..."
-# Since you are on CachyOS, paru is in the repos.
 sudo pacman -S --needed --noconfirm base-devel git paru stow
 
 # --- 3. PACKAGE LISTS ---
 
-# COMMON PACKAGES
-common_pkgs=(
-  "7zip" "accountsservice" "adw-gtk-theme" "alacritty"
-  "alsa-firmware" "alsa-utils" "aria2" "awesome-terminal-fonts" "bash-completion"
-  "bemenu" "bemenu-wayland" "bind" "bluetui" "bluez" "bluez-hid2hci"
-  "bluez-libs" "bluez-utils" "btop" "btrfs-assistant" "btrfs-progs" "brightnessctl"
-  "capitaine-cursors" "cava" "cliphist" "cpupower" "cryptsetup" "ddcutil" "device-mapper"
-  "diffutils" "dmidecode" "dnsmasq" "docker" "dosfstools" "duf" "e2fsprogs" "efibootmgr" "efitools"
-  "egl-wayland" "espeak-ng" "ethtool" "exfatprogs" "fastfetch" "ffmpegthumbnailer"
-  "file-roller" "fish" "flite" "foliate" "fsarchiver" "github-cli" "glances" "gpicview"
-  "grim" "gst-libav" "gst-plugin-pipewire" "gst-plugin-va"
-  "gst-plugins-bad" "gst-plugins-ugly" "gum" "gvfs" "gvfs-mtp" "gvfs-smb" "hdparm"
-  "hypridle" "hyprland" "hyprlock" "inetutils" "iptables-nft" "kvantum" "less"
-  "lib32-mesa" "lib32-zlib-ng-compat" "libdvdcss" "libgsf" "libopenraw"
-  "libwnck3" "linux-cachyos" "linux-cachyos-headers"
-  "linux-cachyos-lts" "linux-cachyos-lts-headers" "logrotate"
-  "lsb-release" "lsscsi" "man-db" "man-pages" "meld" "mesa" "mesa-utils" "mgba-qt" "mpc"
-  "mpd" "mpd-mpris" "mpv" "mtools" "neovim" "networkmanager" "networkmanager-dmenu"
-  "networkmanager-openvpn" "nfs-utils" "nilfs-utils" "nodejs" "noto-color-emoji-fontconfig"
-  "noto-fonts" "noto-fonts-cjk" "noto-fonts-emoji" "npm" "nss-mdns" "ntfs-3g" "ntp"
-  "nvtop" "nwg-displays" "nwg-look" "opendesktop-fonts" "openssh"
-  "pacman-contrib" "pamixer" "pavucontrol" "perl" "pipewire-alsa"
-  "pipewire-pulse" "pkgfile" "playerctl" "plocate" "prismlauncher" "hyprpolkitagent" "poppler-glib" "pv"
-  "python" "qbittorrent" "qt5ct" "qt6ct" "qt5-wayland" "qt6-wayland"
-  "rebuild-detector" "reflector" "ripgrep" "rmpc" "rsync" "rtkit" "sg3_utils"
-  "slurp" "smartmontools" "snapper" "sof-firmware" "steam" "sudo" "swaybg" "swaync" "swayosd"
-  "syncthing" "sysfsutils" "tailscale" "texinfo" "thunar" "thunar-archive-plugin" "thunar-volman" "tmux"
-  "ttf-bitstream-vera" "ttf-dejavu" "ttf-liberation" "ttf-opensans" "tumbler"
-  "ufw" "umu-launcher" "unrar" "unzip" "upower" "usb_modeswitch" "usbutils" "uv" "uwsm" "waybar"
-  "wget" "which" "wireless-regdb" "wireplumber" "wl-clipboard" "wlogout"
-  "wofi" "wpa_supplicant" "wtype" "xdg-desktop-portal-hyprland"
-  "xdg-desktop-portal-gtk" "xdg-user-dirs" "xdg-utils" "xf86-input-libinput"
-  "xfsprogs" "xl2tpd" "xorg-xdpyinfo" "xorg-xrandr" "xorg-xwayland" "yazi" "zip"
-  "zlib-ng-compat"
+sys_pkgs=(
+  "7zip" "accountsservice" "alsa-firmware" "alsa-utils" "bind" "bluez"
+  "bluez-hid2hci" "bluez-libs" "bluez-utils" "btrfs-assistant" "btrfs-progs"
+  "cpupower" "cryptsetup" "device-mapper" "diffutils" "dmidecode" "dnsmasq"
+  "dosfstools" "e2fsprogs" "efibootmgr" "efitools" "ethtool" "exfatprogs"
+  "fsarchiver" "gvfs" "gvfs-mtp" "gvfs-smb" "hdparm" "inetutils" "iptables-nft"
+  "linux-cachyos" "linux-cachyos-headers" "linux-cachyos-lts"
+  "linux-cachyos-lts-headers" "logrotate" "lsb-release" "lsscsi" "man-db"
+  "man-pages" "networkmanager" "networkmanager-openvpn" "nfs-utils"
+  "nilfs-utils" "ntfs-3g" "ntp" "openssh" "pacman-contrib" "plocate"
+  "pv" "rsync" "rtkit" "sg3_utils" "smartmontools" "snapper" "sof-firmware"
+  "sudo" "sysfsutils" "ufw" "usb_modeswitch" "usbutils" "wget" "which"
+  "wireless-regdb" "xfsprogs" "xl2tpd" "zip"
 )
+
+wayland_core=(
+  "hyprland" "hypridle" "hyprlock" "hyprpolkitagent" "uwsm" "waybar" "wlogout"
+  "wofi" "swaybg" "swaync" "swayosd" "xdg-desktop-portal-hyprland"
+  "xdg-desktop-portal-gtk" "xdg-user-dirs" "xdg-utils" "qt5-wayland"
+  "qt6-wayland" "nwg-displays" "nwg-look" "egl-wayland" "xorg-xwayland"
+  "wl-clipboard" "wtype" "slurp" "grim" "cliphist" "bemenu" "bemenu-wayland"
+)
+
+media_fonts_theme=(
+  "adw-gtk-theme" "awesome-terminal-fonts" "capitaine-cursors" "cava"
+  "ffmpegthumbnailer" "gst-libav" "gst-plugin-pipewire" "gst-plugin-va"
+  "gst-plugins-bad" "gst-plugins-ugly" "kvantum" "noto-color-emoji-fontconfig"
+  "noto-fonts" "noto-fonts-cjk" "noto-fonts-emoji" "opendesktop-fonts"
+  "pamixer" "pavucontrol" "pipewire-alsa" "pipewire-pulse" "playerctl"
+  "qt5ct" "qt6ct" "ttf-bitstream-vera" "ttf-dejavu" "ttf-liberation"
+  "ttf-opensans" "tumbler" "wireplumber"
+)
+
+dev_apps=(
+  "alacritty" "aria2" "bluetui" "btop" "brightnessctl" "ddcutil" "docker"
+  "duf" "espeak-ng" "fastfetch" "file-roller" "fish" "flite" "foliate"
+  "github-cli" "glances" "gpicview" "gum" "less" "meld" "mgba-qt" "mpc"
+  "mpd" "mpd-mpris" "mpv" "mtools" "neovim" "networkmanager-dmenu" "nodejs"
+  "npm" "nvtop" "perl" "pkgfile" "poppler-glib" "prismlauncher" "python"
+  "qbittorrent" "rebuild-detector" "reflector" "ripgrep" "rmpc" "steam"
+  "syncthing" "tailscale" "texinfo" "thunar" "thunar-archive-plugin"
+  "thunar-volman" "tmux" "umu-launcher" "unrar" "unzip" "uv" "yazi"
+)
+
+# Combine into common array
+common_pkgs=("${sys_pkgs[@]}" "${wayland_core[@]}" "${media_fonts_theme[@]}" "${dev_apps[@]}")
 
 # AUR PACKAGES (Paru Only)
 aur_pkgs=(
@@ -62,25 +72,22 @@ aur_pkgs=(
   "ttf-meslo-nerd" "visual-studio-code-bin" "wallust" "waypaper-git"
   "windscribe-v2-bin" "youtube-music" "zen-browser-bin" "zoom"
 )
+
 # --- 4. HARDWARE DETECTION ---
 echo ":: Detecting Hardware..."
 
-# GPU Detection logic
 if lspci | grep -i "NVIDIA" >/dev/null; then
   echo "   -> Nvidia GPU detected. Adding Desktop drivers & heavy tools..."
-  # Desktop Specifics
   common_pkgs+=("nvidia-open-dkms" "nvidia-utils" "lib32-nvidia-utils" "nvidia-settings" "ollama" "openrgb")
   aur_pkgs+=("piper-tts-bin")
 
 elif lspci | grep -iE "VGA|3D|Display" | grep -i "Intel" >/dev/null && ! lspci | grep -i "NVIDIA" >/dev/null; then
   echo "   -> Intel GPU detected. Adding Laptop drivers..."
-  # Laptop Specifics
   common_pkgs+=("intel-ucode" "vulkan-intel" "intel-media-driver" "thermald" "libva-intel-driver" "tlp" "tlp-rdw")
 fi
 
 # --- 5. INSTALLATION ---
 echo ":: Installing Repository Packages..."
-# --needed skips already installed packages
 sudo pacman -S --needed --noconfirm "${common_pkgs[@]}"
 
 echo ":: Installing AUR Packages..."
@@ -92,7 +99,7 @@ sudo systemctl enable --now NetworkManager
 sudo systemctl enable --now bluetooth
 
 if [[ " ${common_pkgs[*]} " =~ "ollama" ]]; then
-  echo "   -> Enabling Ollama Daemon..."
+  echo "   -> Enabling Ollama Daemon (Desktop AI)..."
   sudo systemctl enable --now ollama
 fi
 
@@ -112,11 +119,9 @@ dirs=(
 
 for dir in "${dirs[@]}"; do
   if [ -d "$dir" ]; then
-    # Check specific common conflicts before stowing
-    if [ "$dir" == "fish" ]; then
-      if [ -f "$HOME/.config/fish/config.fish" ]; then
-        mv "$HOME/.config/fish/config.fish" "$HOME/.config/fish/config.fish.bak"
-      fi
+    if [ "$dir" == "fish" ] && [ -f "$HOME/.config/fish/config.fish" ]; then
+      echo "   -> Backing up existing config.fish..."
+      mv "$HOME/.config/fish/config.fish" "$HOME/.config/fish/config.fish.bak"
     fi
 
     echo "   -> Stowing $dir"
@@ -125,19 +130,39 @@ for dir in "${dirs[@]}"; do
     echo "   -> Warning: Directory $dir not found in repo, skipping."
   fi
 done
-# --- 8. FINAL SETUP ---
+
+# --- 8. FINAL SETUP & UWSM INTEGRATION ---
 echo ":: Final Touches..."
 
-# Set Fish as default shell
+# Robust Shell Change
 if command -v fish >/dev/null; then
-  echo "   -> Changing shell to Fish..."
+  if ! grep -q "/usr/bin/fish" /etc/shells; then
+    echo "   -> Adding /usr/bin/fish to /etc/shells..."
+    echo "/usr/bin/fish" | sudo tee -a /etc/shells
+  fi
+  echo "   -> Changing default shell to Fish..."
   sudo chsh -s /usr/bin/fish "$USER"
 fi
 
-# Disable SDDM if it snuck in
+# Disable SDDM if active
 if systemctl is-active --quiet sddm; then
-  echo "   -> Disabling SDDM (Using Hyprlock)..."
+  echo "   -> Disabling SDDM (Using UWSM from TTY)..."
   sudo systemctl disable --now sddm
+fi
+
+# Inject UWSM autostart into Fish config
+FISH_CONFIG="$HOME/.config/fish/config.fish"
+if [ -f "$FISH_CONFIG" ] && ! grep -q "uwsm start" "$FISH_CONFIG" 2>/dev/null; then
+  echo "   -> Injecting UWSM Hyprland autostart into config.fish..."
+  cat <<'EOF' >>"$FISH_CONFIG"
+
+# UWSM Autostart for Hyprland (TTY1 only)
+if status is-login
+    if test -z "$DISPLAY" -a "$XDG_VTNR" = 1
+        exec uwsm start hyprland.desktop
+    end
+end
+EOF
 fi
 
 echo ":: INSTALL COMPLETE! Rebooting in 5 seconds..."
