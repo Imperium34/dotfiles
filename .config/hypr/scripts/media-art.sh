@@ -4,10 +4,14 @@ ART_PATH="/tmp/cover.png"
 DEFAULT_ART="$HOME/.config/hypr/assets/album_placeholder.png"
 TEMP_ART="/tmp/temp_art_download"
 
-# Ensure the fallback exists (creates a transparent 1x1 png if missing)
+# Ensure the fallback exists (creates a transparent PNG safely)
 if [[ ! -f "$DEFAULT_ART" ]]; then
   mkdir -p "$(dirname "$DEFAULT_ART")"
-  convert -size 500x500 xc:transparent "$DEFAULT_ART" 2>/dev/null || touch "$DEFAULT_ART"
+
+  # Try magick, then convert, then fallback to a literal 1x1 transparent PNG using base64
+  magick -size 500x500 xc:transparent "$DEFAULT_ART" 2>/dev/null ||
+    convert -size 500x500 xc:transparent "$DEFAULT_ART" 2>/dev/null ||
+    echo "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=" | base64 -d >"$DEFAULT_ART"
 fi
 
 # Function to handle the Art update
@@ -19,8 +23,12 @@ update_art() {
     return
   fi
 
-  # Ignore empty strings to prevent overwriting the good art with ghost events
+  # Ignore empty strings to prevent overwriting with ghost events,
+  # BUT ensure the file at least exists for hyprlock!
   if [[ -z "$url" ]]; then
+    if [[ ! -f "$ART_PATH" ]]; then
+      cp "$DEFAULT_ART" "$ART_PATH"
+    fi
     return
   fi
 
@@ -49,7 +57,6 @@ update_art() {
 
   elif [[ "$url" == "file://"* ]]; then
     local_path="${url#file://}"
-    # Apply the exact same center-crop logic to local files
     magick "$local_path" -filter Lanczos -resize "500x500^" -gravity center -extent 500x500 -unsharp 0x1 "$ART_PATH"
 
   else
@@ -63,15 +70,11 @@ update_art "$initial_url"
 
 # Infinite loop to keep script alive
 while true; do
-  # 1. Listen for future changes
   playerctl metadata --format '{{ mpris:artUrl }}' --follow | while read -r url; do
     update_art "$url"
   done
 
-  # 2. If we reach this line, it means playerctl died (no players left)
-  # So we force the default art immediately
+  # If we reach this line, playerctl died (no players left)
   cp "$DEFAULT_ART" "$ART_PATH"
-
-  # 3. Wait 2 seconds before checking for new players to save CPU
   sleep 2
 done

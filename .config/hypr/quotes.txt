@@ -1,5 +1,8 @@
 The code is the documentation.
 It works on my machine.
+Copying from one source is plagiarism. Copying from many is research. Copying from Stack Overflow is programming.
+chmod 777: Because security is just a suggestion.
+There are 10 types of people: those who understand binary and those who don't.
 Linux is only free if your time has no value.
 You can't handle the root!
 sudo make me a sandwich.
@@ -103,3 +106,4 @@ The simplest solution is usually the correct one.
 I think, therefore I am. I think...
 Reality is merely an illusion, albeit a very persistent one.
 If you wish to make an apple pie from scratch, you must first invent the universe.
+This statement is false.
