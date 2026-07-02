@@ -10,8 +10,8 @@ hl.bind(mod .. " + RETURN", hl.dsp.exec_cmd(vars.apps.terminal))
 hl.bind(mod .. " + E", hl.dsp.exec_cmd(vars.apps.filemanager))
 hl.bind(mod .. " + B", hl.dsp.exec_cmd("xdg-open 'https://'"))
 hl.bind(mod .. " + SHIFT + B", hl.dsp.exec_cmd("~/.config/hypr/scripts/toggle-work.sh"))
-hl.bind(mod .. " + D", hl.dsp.exec_cmd("wofi --show drun --style ~/.config/wofi/style.css"))
-hl.bind(mod .. " + W", hl.dsp.exec_cmd("waypaper"))
+hl.bind(mod .. " + D", hl.dsp.exec_cmd("qs --config bar ipc call launcher toggle"))
+hl.bind(mod .. " + W", hl.dsp.exec_cmd("qs --config bar ipc call wallpaper toggle"))
 hl.bind(mod .. " + SHIFT + G", hl.dsp.exec_cmd("~/.config/hypr/scripts/gamemode.sh"))
 hl.bind(mod .. " + N", hl.dsp.exec_cmd("nwg-displays"))
 hl.bind(mod .. " + M", hl.dsp.exec_cmd("~/.config/hypr/scripts/toggle-music.sh"))
@@ -57,8 +57,8 @@ hl.bind(mod .. " + mouse:273", hl.dsp.window.resize(), { mouse = true })
 -- ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
 -- ┃                   Clipboard & Screenshots                   ┃
 -- ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
-hl.bind(mod .. " + SHIFT + code:201", hl.dsp.exec_cmd("~/.config/hypr/scripts/clipboard.sh"))
-hl.bind("code:135", hl.dsp.exec_cmd("~/.config/hypr/scripts/clipboard.sh"))
+hl.bind(mod .. " + SHIFT + code:201", hl.dsp.exec_cmd("qs --config bar ipc call clipboard toggle"))
+hl.bind("code:135", hl.dsp.exec_cmd("qs --config bar ipc call clipboard toggle"))
 hl.bind("PRINT", hl.dsp.exec_cmd('grim -g "$(slurp)" - | wl-copy'))
 hl.bind("SHIFT + PRINT", hl.dsp.exec_cmd("grim - | wl-copy"))
 
@@ -68,17 +68,20 @@ hl.bind("SHIFT + PRINT", hl.dsp.exec_cmd("grim - | wl-copy"))
 hl.bind(mod .. " + F2", hl.dsp.exec_cmd("hyprctl keyword monitor 'DP-3,disable'"))
 hl.bind(mod .. " + F3", hl.dsp.exec_cmd("hyprctl keyword monitor 'DP-3,auto,0x0,1'"))
 
-hl.bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd("swayosd-client --output-volume raise"))
-hl.bind("XF86AudioLowerVolume", hl.dsp.exec_cmd("swayosd-client --output-volume lower"))
-hl.bind("XF86AudioMute", hl.dsp.exec_cmd("swayosd-client --output-volume mute-toggle"), { locked = true })
-hl.bind("XF86AudioMicMute", hl.dsp.exec_cmd("swayosd-client --input-volume mute-toggle"), { locked = true })
+hl.bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd("qs --config bar ipc call osd volumeUp"))
+hl.bind("XF86AudioLowerVolume", hl.dsp.exec_cmd("qs --config bar ipc call osd volumeDown"))
+hl.bind("XF86AudioMute", hl.dsp.exec_cmd("qs --config bar ipc call osd volumeMute"), { locked = true })
+hl.bind("XF86AudioMicMute", hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"), { locked = true })
 
 hl.bind("XF86AudioPlay", hl.dsp.exec_cmd("playerctl play-pause"), { locked = true })
 hl.bind("XF86AudioNext", hl.dsp.exec_cmd("playerctl next"), { locked = true })
 hl.bind("XF86AudioPrev", hl.dsp.exec_cmd("playerctl previous"), { locked = true })
 
-hl.bind("XF86MonBrightnessUp", hl.dsp.exec_cmd("swayosd-client --brightness raise"))
-hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd("swayosd-client --brightness lower"))
+hl.bind("XF86MonBrightnessUp", hl.dsp.exec_cmd("qs --config bar ipc call osd brightnessUp"))
+hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd("qs --config bar ipc call osd brightnessDown"))
+
+hl.bind("switch:on:Lid Switch", hl.dsp.dpms({ action = "disable" }), { locked = true })
+hl.bind("switch:off:Lid Switch", hl.dsp.dpms({ action = "enable" }), { locked = true })
 
 hl.bind(mod .. " + L", hl.dsp.exec_cmd("hyprlock"))
 hl.bind(mod .. " + O", hl.dsp.exec_cmd("killall -SIGUSR2 waybar"))

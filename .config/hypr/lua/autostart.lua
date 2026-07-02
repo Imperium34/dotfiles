@@ -9,15 +9,13 @@ hl.on("hyprland.start", function()
 	hl.exec_cmd("/usr/lib/hyprpolkitagent")
 
 	-- Core UI Daemons
-	hl.exec_cmd("waybar")
-	hl.exec_cmd("swaync")
-	hl.exec_cmd("swayosd-server")
+	hl.exec_cmd("quickshell -c bar")
 	hl.exec_cmd("openrgb --server")
 
 	-- Idle, Lock, and Wallpaper
 	hl.exec_cmd("hyprlock")
 	hl.exec_cmd(vars.apps.idlehandler)
-	hl.exec_cmd("waypaper --restore")
+	hl.exec_cmd("awww-daemon")
 
 	-- Clipboard Utilities
 	hl.exec_cmd("wl-paste --type text --watch cliphist store")
