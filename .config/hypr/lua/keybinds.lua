@@ -83,7 +83,7 @@ hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd("qs --config bar ipc call osd b
 hl.bind("switch:on:Lid Switch", hl.dsp.dpms({ action = "disable" }), { locked = true })
 hl.bind("switch:off:Lid Switch", hl.dsp.dpms({ action = "enable" }), { locked = true })
 
-hl.bind(mod .. " + L", hl.dsp.exec_cmd("hyprlock"))
+hl.bind(mod .. " + L", hl.dsp.exec_cmd("quickshell -p ~/.config/quickshell/lockscreen/lock.qml ipc call lock lock"))
 hl.bind(mod .. " + O", hl.dsp.exec_cmd("killall -SIGUSR2 waybar"))
 
 -- ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓

@@ -47,10 +47,10 @@ saturation = 70
 alacritty = { template = 'alacritty-colors.toml', target = '~/.config/alacritty/colors.toml' }
 hyprland-lua = { template = 'hyprland-colors.lua', target = '~/.config/hypr/lua/colors.lua' }
 hyprland = { template = "hyprland-colors.conf", target = "~/.config/hypr/hypr-colors.conf" }
-waybar = { template = 'waybar-colors.css', target = '~/.config/waybar/colors.css' }
-waypaper = { template = 'waybar-colors.css', target = '~/.config/waypaper/colors.css'}
-wlogout = { template = 'waybar-colors.css', target = '~/.config/wlogout/colors.css' }
-wofi = { template = 'wofi-colors.hbs', target = '~/.config/wofi/style.css' }
+# waybar = { template = 'waybar-colors.css', target = '~/.config/waybar/colors.css' }
+# waypaper = { template = 'waybar-colors.css', target = '~/.config/waypaper/colors.css'}
+# wlogout = { template = 'waybar-colors.css', target = '~/.config/wlogout/colors.css' }
+# wofi = { template = 'wofi-colors.hbs', target = '~/.config/wofi/style.css' }
 gtk3 = { template = 'gtk-colors.css', target = '~/.config/gtk-3.0/gtk-colors.css'}
 gtk4 = { template = 'gtk-colors.css', target = '~/.config/gtk-4.0/gtk-colors.css'}
 #mako = { template = 'mako-colors', target = '~/.config/mako/config' }

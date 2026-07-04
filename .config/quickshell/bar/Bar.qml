@@ -92,7 +92,7 @@ Scope {
                         spacing: 10
 
                         SysMonitor { barWindow: barWindow; side: "cpu" }
-                        Clock {}
+                        Clock { barWindow: barWindow }
                         SysMonitor { barWindow: barWindow; side: "ram" }
                     }
                 }
