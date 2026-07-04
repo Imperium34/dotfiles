@@ -38,11 +38,12 @@ hl.window_rule({
 -- Multimedia
 hl.window_rule({ match = { class = "^([Aa]udacious)$" }, tag = "+multimedia" })
 hl.window_rule({ match = { class = "^([Mm]pv|vlc)$" }, tag = "+multimedia_video" })
-hl.window_rule({ match = { class = "^(com%.github%.th_ch%.youtube_music)$" }, tag = "+music" })
+
+hl.window_rule({ match = { class = "^(com\\.github\\.th_ch\\.youtube_music)$" }, tag = "+music" })
 
 -- Games
 hl.window_rule({ match = { class = "^(gamescope)$" }, tag = "+games" })
-hl.window_rule({ match = { class = "^(steam_app_%d+)$" }, tag = "+games" })
+hl.window_rule({ match = { class = "^(steam_app_[0-9]+)$" }, tag = "+games" })
 
 -- Game Stores
 hl.window_rule({ match = { class = "^([Ss]team)$" }, tag = "+gamestore" })
@@ -68,9 +69,6 @@ hl.window_rule({ match = { class = "^(evince|eog|org.gnome.Loupe)$" }, tag = "+v
 
 -- Screenshare
 hl.window_rule({ match = { class = "^(com.obsproject.Studio)$" }, tag = "+screenshare" })
-
--- Notifications
-hl.window_rule({ match = { class = "^(swaync-control-center|swaync-notification-window)$" }, tag = "+notif" })
 
 -- ============================================================
 -- 2. OPACITY RULES (Dynamic)
@@ -189,26 +187,13 @@ hl.window_rule({ match = { pin = true }, opacity = "0.8 0.8" })
 
 hl.window_rule({ match = { class = "^(jetbrains-.+)$" }, no_initial_focus = true })
 
--- Waypaper
 hl.window_rule({
-	match = { class = "^([Ww]aypaper)$" },
+	match = { tag = "music*" },
+	workspace = "special:music silent",
 	float = true,
-	size = { 1400, 1000 },
-	max_size = { 1400, 1000 },
-	min_size = { 1400, 1000 },
-	center = true,
-	opacity = "0.85",
-	tag = "+wallpaper",
-})
-
--- Music Player (special workspace)
-hl.window_rule({
-	match = { class = "^(music)$" },
-	workspace = "special:music",
-	float = true,
-	size = { 1000, 600 },
-	max_size = { 1000, 600 },
-	min_size = { 1000, 600 },
+	size = { 1400, 850 },
+	max_size = { 1400, 850 },
+	min_size = { 1400, 850 },
 	center = true,
 	opacity = "0.85",
 	suppress_event = "maximize fullscreen",
@@ -242,10 +227,7 @@ hl.window_rule({ match = { fullscreen = true }, idle_inhibit = "fullscreen" })
 -- 12. LAYER RULES
 -- ============================================================
 
-hl.layer_rule({ match = { namespace = "waybar" }, blur = true, ignore_alpha = 0.5 })
-hl.layer_rule({ match = { namespace = "rofi" }, blur = true, ignore_alpha = 0.5 })
-hl.layer_rule({ match = { namespace = "swaync-control-center" }, blur = true, ignore_alpha = 0.5 })
-hl.layer_rule({ match = { namespace = "swaync-notification-window" }, blur = true, ignore_alpha = 0.5 })
+hl.layer_rule({ match = { namespace = "quickshell" }, blur = true, ignore_alpha = 0.5 })
 
 -- ============================================================
 -- 13. WORKSPACE RULES

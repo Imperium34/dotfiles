@@ -4,8 +4,7 @@ local mod = "SUPER"
 
 -- ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
 -- ┃                     Core Applications                       ┃
--- ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
--- In v0.55, dispatchers return a table, so they are passed directly to the bind
+-- ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
 hl.bind(mod .. " + RETURN", hl.dsp.exec_cmd(vars.apps.terminal))
 hl.bind(mod .. " + E", hl.dsp.exec_cmd(vars.apps.filemanager))
 hl.bind(mod .. " + B", hl.dsp.exec_cmd("xdg-open 'https://'"))
@@ -15,12 +14,11 @@ hl.bind(mod .. " + W", hl.dsp.exec_cmd("qs --config bar ipc call wallpaper toggl
 hl.bind(mod .. " + SHIFT + G", hl.dsp.exec_cmd("~/.config/hypr/scripts/gamemode.sh"))
 hl.bind(mod .. " + N", hl.dsp.exec_cmd("nwg-displays"))
 hl.bind(mod .. " + M", hl.dsp.exec_cmd("~/.config/hypr/scripts/toggle-music.sh"))
-hl.bind(mod .. " + A", hl.dsp.exec_cmd("~/.config/hypr/scripts/gui_friday.sh"))
 
 -- ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
 -- ┃                     Window Management                       ┃
 -- ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
--- The new window object dispatchers
+-- object dispatchers
 hl.bind(mod .. " + Q", hl.dsp.window.close())
 hl.bind(mod .. " + SHIFT + F", hl.dsp.window.fullscreen())
 hl.bind(mod .. " + V", hl.dsp.window.float({ action = "toggle" }))
@@ -59,12 +57,12 @@ hl.bind(mod .. " + mouse:273", hl.dsp.window.resize(), { mouse = true })
 -- ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 hl.bind(mod .. " + SHIFT + code:201", hl.dsp.exec_cmd("qs --config bar ipc call clipboard toggle"))
 hl.bind("code:135", hl.dsp.exec_cmd("qs --config bar ipc call clipboard toggle"))
-hl.bind("PRINT", hl.dsp.exec_cmd('grim -g "$(slurp)" - | wl-copy'))
-hl.bind("SHIFT + PRINT", hl.dsp.exec_cmd("grim - | wl-copy"))
+hl.bind("PRINT", hl.dsp.exec_cmd(vars.shots.region))
+hl.bind("SHIFT + PRINT", hl.dsp.exec_cmd(vars.shots.screen))
 
 -- ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
 -- ┃                     Media & Hardware                        ┃
--- ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+-- ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
 hl.bind(mod .. " + F2", hl.dsp.exec_cmd("hyprctl keyword monitor 'DP-3,disable'"))
 hl.bind(mod .. " + F3", hl.dsp.exec_cmd("hyprctl keyword monitor 'DP-3,auto,0x0,1'"))
 
@@ -84,19 +82,15 @@ hl.bind("switch:on:Lid Switch", hl.dsp.dpms({ action = "disable" }), { locked = 
 hl.bind("switch:off:Lid Switch", hl.dsp.dpms({ action = "enable" }), { locked = true })
 
 hl.bind(mod .. " + L", hl.dsp.exec_cmd("quickshell -p ~/.config/quickshell/lockscreen/lock.qml ipc call lock lock"))
-hl.bind(mod .. " + O", hl.dsp.exec_cmd("killall -SIGUSR2 waybar"))
 
 -- ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
 -- ┃                 Workspaces & Submaps                        ┃
--- ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+-- ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
 for i = 1, 10 do
 	local ws = tostring(i)
 	local key = tostring(i % 10)
-	-- Focus workspace
 	hl.bind(mod .. " + " .. key, hl.dsp.focus({ workspace = ws }))
-	-- Move to workspace and follow
 	hl.bind(mod .. " + SHIFT + " .. key, hl.dsp.window.move({ workspace = ws, follow = true }))
-	-- Move to workspace silently
 	hl.bind(mod .. " + CTRL + " .. key, hl.dsp.window.move({ workspace = ws, follow = false }))
 end
 

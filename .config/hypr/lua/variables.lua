@@ -4,11 +4,11 @@
 -- ┃                     Environment Variables                   ┃
 -- ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 
-hl.env("HYPRCURSOR_THEME", "Bibata-Modern_Classic")
+hl.env("HYPRCURSOR_THEME", "Bibata-Modern-Classic")
 hl.env("HYPRCURSOR_SIZE", "18")
-hl.env("XCURSOR_THEME", "Bibata-Modern_Classic")
+hl.env("XCURSOR_THEME", "Bibata-Modern-Classic")
 hl.env("XCURSOR_SIZE", "18")
-hl.env("QT_CURSOR_THEME", "Bibata-Modern_Classic")
+hl.env("QT_CURSOR_THEME", "Bibata-Modern-Classic")
 hl.env("QT_CURSOR_SIZE", "18")
 hl.env("TERMINAL", "alacritty")
 
@@ -19,7 +19,6 @@ hl.env("TERMINAL", "alacritty")
 local defaults = {
 	apps = {
 		filemanager = "thunar",
-		applauncher = "wofi",
 		terminal = "alacritty",
 		idlehandler = "hypridle",
 	},

@@ -5,9 +5,6 @@ hl.config({
 	general = {
 		["col.active_border"] = { colors = { c.color7, c.color2 }, angle = 45 },
 		["col.inactive_border"] = { colors = { c.color0 } },
-		border_size = 3,
-		gaps_in = 2,
-		gaps_out = 2,
 		layout = "dwindle",
 		snap = { enabled = true },
 	},
@@ -65,7 +62,7 @@ hl.config({
 		["col.splash"] = c.color2,
 		background_color = c.background,
 		enable_swallow = true,
-		swallow_regex = "^(nautilus|nemo|thunar|btrfs-assistant.)$",
+		swallow_regex = "^(nautilus|nemo|thunar|btrfs-assistant)$",
 		focus_on_activate = true,
 	},
 	render = {
