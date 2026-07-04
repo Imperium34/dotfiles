@@ -1,7 +1,13 @@
+awww
 bibata-cursor-theme
+grimblast-git
 otf-departure-mono
+quickshell-git
+ttf-ibmplex-mono-nerd
+ttf-meslo-nerd
 visual-studio-code-bin
 wallust
 windscribe-v2-bin
 youtube-music
+zen-browser-bin
 zoom
