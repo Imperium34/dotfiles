@@ -25,7 +25,7 @@ PanelWindow {
     WlrLayershell.layer: WlrLayer.Overlay
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
 
-    property string mode: "volume"  // "volume" or "brightness"
+    property string mode: "volume"
     property bool animIn: false
 
     property int brightCurrent: 0
@@ -146,10 +146,10 @@ PanelWindow {
                 Text {
                     text: {
                         if (mode === "brightness") return "󰖨"
-                        if (muted || volume === 0) return "󰝟"
-                        if (volume < 0.34) return ""
-                        if (volume < 0.67) return ""
-                        return ""
+                        if (muted || volume === 0) return ""
+                        if (volume < 0.34) return ""
+                        if (volume < 0.67) return ""
+                        return ""
                     }
                     color: Theme.foreground
                     font.pixelSize: 20

@@ -1,16 +1,18 @@
 import "../popups/network"
 import qs
+import qs.widgets
 import Quickshell
 import Quickshell.Networking
 import QtQuick
 import QtQuick.Layouts
 
-Item {
+BarButton {
     id: root
-    required property var barWindow
 
     implicitWidth: row.implicitWidth + 8
     implicitHeight: row.implicitHeight
+
+    popup: NetworkPopup {}
 
     RowLayout {
         id: row
@@ -29,22 +31,12 @@ Item {
         Text {
             text: Net.connected ? Net.ssid
                 : Net.hardwareBlocked ? "Blocked"
-                : Networking.wifiEnabled ? "Disconnected"
+                : Net.wifiEnabled ? "Disconnected"
                 : "Disabled"
             color: Net.connected ? Theme.foreground
                  : Theme.hexToRgba(Theme.foreground, 0.5)
             font.pixelSize: 14
             visible: text !== ""
         }
-    }
-
-    NetworkPopup {
-        id: popup
-        barWindow: root.barWindow
-        anchorX: (root.barWindow.screen ? root.barWindow.screen.width : 1920) - 320 - 10
-    }
-
-    TapHandler {
-        onTapped: popup.toggle()
     }
 }

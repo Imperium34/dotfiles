@@ -44,14 +44,10 @@ Singleton {
         interval: {
             if (!root.toastNotification) return 5000
 
-            // Critical first: a Critical notification should get 10s regardless
-            // of its expireTimeout (incl. 0 or -1). Checking urgency AFTER the
-            // timeout branches let a Critical with expireTimeout 0 fall through
-            // to 5000 — the bug this reordering fixes.
             if (root.toastNotification.urgency === NotificationUrgency.Critical) return 10000
 
             const t = root.toastNotification.expireTimeout
-            if (t <= 0) return 5000   // -1 = use default, 0 = never-expire → cap at default
+            if (t <= 0) return 5000
             return Math.max(t * 1000, 3000)
         }
         onTriggered: root.toastVisible = false
@@ -62,9 +58,6 @@ Singleton {
         toastVisible = false
     }
 
-    // server.trackedNotifications is an ObjectModel; .values and .values.length
-    // are membership-reactive, which is exactly when count changes (add/remove).
-    // No _count proxy needed — this was already correct.
     readonly property var notifications: server.trackedNotifications
     readonly property int count: server.trackedNotifications.values.length
 

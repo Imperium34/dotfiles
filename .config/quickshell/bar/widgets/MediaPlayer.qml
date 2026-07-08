@@ -1,20 +1,19 @@
 import "../popups/media"
 import qs
+import qs.widgets
 import Quickshell
 import Quickshell.Services.Mpris
 import QtQuick
 import QtQuick.Layouts
 
-Item {
+BarButton {
     id: root
-    required property var barWindow
 
     readonly property var player: Mpris.players.values.length > 0
         ? Mpris.players.values[0] : null
 
     readonly property bool hasPlayer: player !== null
     readonly property bool isPlaying: hasPlayer && player.isPlaying
-    readonly property point globalPos: mapToItem(null, 0, height)
 
     visible: hasPlayer
     implicitWidth: hasPlayer ? innerRow.implicitWidth + 16 : 0
@@ -23,6 +22,10 @@ Item {
     Behavior on implicitWidth {
         NumberAnimation { duration: 200; easing.type: Easing.InOutQuart }
     }
+
+    popup: MediaPopup { player: root.player }
+
+    onVisibleChanged: if (!visible && popup) popup.visible = false
 
     RowLayout {
         id: innerRow
@@ -78,7 +81,7 @@ Item {
                 font.pixelSize: 13
 
                 NumberAnimation on x {
-                    running: titleText.implicitWidth > 120
+                    running: isPlaying && titleText.implicitWidth > 120
                     from: 0
                     to: titleText.implicitWidth > 100 ? -(titleText.implicitWidth - 100) : 0
                     duration: Math.max(0, (titleText.implicitWidth - 100) * 30)
@@ -88,16 +91,4 @@ Item {
             }
         }
     }
-
-    MediaPopup {
-        id: popup
-        barWindow: root.barWindow
-        player: root.player
-    }
-
-    TapHandler {
-        onTapped: popup.visible ? popup.close() : popup.open()
-    }
-
-    onVisibleChanged: if (!visible) popup.visible = false
 }

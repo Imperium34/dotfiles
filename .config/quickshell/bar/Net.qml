@@ -20,17 +20,8 @@ Singleton {
     property bool wifiEnabled: Networking.wifiEnabled
     onWifiEnabledChanged: Networking.wifiEnabled = wifiEnabled
 
-    // Device-level connection state is a first-class reactive property — bind
-    // to it directly instead of inferring "connected" by scanning the network
-    // list. `connected` flips (with a real change signal) the moment the link
-    // changes, so everything derived from it updates immediately.
     readonly property bool connected: wifiDevice ? wifiDevice.connected : false
 
-    // activeNetwork still has to find WHICH network is active by scanning the
-    // list (.values has no member-state reactivity). But it now depends on the
-    // device's `connected`, which re-evaluates this binding at exactly the
-    // moment the active network appears/disappears. The device property is the
-    // reactive trigger the list scan was missing.
     readonly property var activeNetwork: {
         if (!wifiDevice || !connected) return null
         const nets = wifiDevice.networks.values
@@ -53,10 +44,6 @@ Singleton {
         return "󰤨"
     }
 
-    // .values is itself reactive (re-emits on add/remove), so iterating it in a
-    // binding already re-evaluates when the network set changes — no _count
-    // dependency proxy needed. Sorting by `known` then signal is stable enough
-    // that membership-level reactivity covers the visible list.
     readonly property var networks: {
         if (!wifiDevice) return []
         const raw = wifiDevice.networks.values.slice()

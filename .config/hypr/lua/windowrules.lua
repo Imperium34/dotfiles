@@ -227,7 +227,10 @@ hl.window_rule({ match = { fullscreen = true }, idle_inhibit = "fullscreen" })
 -- 12. LAYER RULES
 -- ============================================================
 
-hl.layer_rule({ match = { namespace = "quickshell" }, blur = true, ignore_alpha = 0.5 })
+hl.layer_rule({ match = { namespace = "quickshell:bar" }, blur = true, ignore_alpha = 0.1 })
+hl.layer_rule({ match = { namespace = "quickshell:popup" }, blur = true, ignore_alpha = 0.05, no_anim = true })
+hl.layer_rule({ match = { namespace = "launcher" }, blur = true, ignore_alpha = 0.05, no_anim = true })
+hl.layer_rule({ match = { namespace = "clipboard" }, blur = true, ignore_alpha = 0.05, no_anim = true })
 
 -- ============================================================
 -- 13. WORKSPACE RULES

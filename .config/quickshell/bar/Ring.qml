@@ -1,53 +1,79 @@
 import qs
 import QtQuick
+import QtQuick.Shapes
 
+// Progress ring. Same public API as the old Canvas version (value, thickness,
+// activeColor, centered content) but drawn with Shapes so the fill animation
+// renders on the GPU instead of rasterizing on the CPU every frame.
 Item {
     id: root
 
-    property real value: 0
+    property real value: 0                  // 0..1
     property real thickness: 3
-    property color trackColor: Theme.hexToRgba(Theme.foreground, 0.15)
-    property color fillColor: Theme.color5
-    property color warnColor: "#e0405a"
     property real warnThreshold: 0.9
 
-    readonly property color activeColor: value >= warnThreshold ? warnColor : fillColor
+    property color normalColor: Theme.color5
+    property color warnColor: Theme.color1
+    property color trackColor: Theme.hexToRgba(Theme.foreground, 0.15)
 
+    readonly property color activeColor: value >= warnThreshold ? warnColor : normalColor
+
+    default property alias content: contentSlot.data
+
+    // smooth fill; drives the arc's sweepAngle binding below
     Behavior on value {
         NumberAnimation { duration: 400; easing.type: Easing.OutCubic }
     }
-    onActiveColorChanged: canvas.requestPaint()
-    onValueChanged: canvas.requestPaint()
 
-    Canvas {
-        id: canvas
+    readonly property real _cx: width / 2
+    readonly property real _cy: height / 2
+    readonly property real _r: Math.min(width, height) / 2 - thickness / 2
+
+    Shape {
         anchors.fill: parent
         antialiasing: true
+        preferredRendererType: Shape.CurveRenderer   // GPU path (Qt 6.6+)
 
-        onPaint: {
-            const ctx = getContext("2d")
-            ctx.reset()
+        // track
+        ShapePath {
+            fillColor: "transparent"
+            strokeColor: root.trackColor
+            strokeWidth: root.thickness
+            capStyle: ShapePath.FlatCap
 
-            const cx = width / 2
-            const cy = height / 2
-            const r = Math.min(width, height) / 2 - root.thickness / 2
-            const start = -Math.PI / 2
-            const end = start + root.value * 2 * Math.PI
-
-            ctx.beginPath()
-            ctx.arc(cx, cy, r, 0, 2 * Math.PI)
-            ctx.lineWidth = root.thickness
-            ctx.strokeStyle = root.trackColor
-            ctx.stroke()
-
-            if (root.value > 0) {
-                ctx.beginPath()
-                ctx.arc(cx, cy, r, start, end)
-                ctx.lineWidth = root.thickness
-                ctx.strokeStyle = root.activeColor
-                ctx.lineCap = "round"
-                ctx.stroke()
+            PathAngleArc {
+                centerX: root._cx
+                centerY: root._cy
+                radiusX: root._r
+                radiusY: root._r
+                startAngle: -90
+                sweepAngle: 360
             }
         }
+
+        // progress
+        ShapePath {
+            fillColor: "transparent"
+            strokeColor: root.activeColor
+            strokeWidth: root.thickness
+            capStyle: ShapePath.RoundCap
+
+            Behavior on strokeColor { ColorAnimation { duration: 200 } }
+
+            PathAngleArc {
+                centerX: root._cx
+                centerY: root._cy
+                radiusX: root._r
+                radiusY: root._r
+                startAngle: -90
+                sweepAngle: 360 * Math.max(0, Math.min(1, root.value))
+            }
+        }
+    }
+
+    // centered content (e.g. the icon in SysMonitor)
+    Item {
+        id: contentSlot
+        anchors.fill: parent
     }
 }

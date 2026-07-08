@@ -17,9 +17,9 @@ Item {
         ? Math.round(current / maximum * 100) : 0
 
     readonly property string backlightIcon: {
-        if (percent < 33) return "";
-        if (percent < 66) return "󰖨";
-        return "󰖨";
+        if (percent < 33) return "󰃞";
+        if (percent < 66) return "󰃟";
+        return "󰃠";
     }
 
     Process {

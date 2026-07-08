@@ -111,159 +111,145 @@ BasePopup {
         }
     }
 
-    Rectangle {
-        anchors.fill: parent
-        radius: 16
-        color: Theme.hexToRgba(Theme.background, 0.92)
-        border.color: Theme.hexToRgba(Theme.foreground, 0.1)
-        border.width: 1
+    ColumnLayout {
+        id: contentCol
+        anchors {
+            fill: parent
+            margins: 16
+        }
+        spacing: 14
 
-        opacity: popup.animIn ? 1 : 0
-        scale: popup.animIn ? 1 : 0.95
-        transformOrigin: Item.Top
-        Behavior on opacity { NumberAnimation { duration: 180; easing.type: Easing.OutCubic } }
-        Behavior on scale { NumberAnimation { duration: 180; easing.type: Easing.OutCubic } }
-
-        ColumnLayout {
-            id: contentCol
-            anchors {
-                fill: parent
-                margins: 16
+        RowLayout {
+            Layout.fillWidth: true
+            Text {
+                text: "Battery"
+                color: Theme.foreground
+                font.pixelSize: 13
+                font.bold: true
             }
-            spacing: 14
-
-            RowLayout {
-                Layout.fillWidth: true
-                Text {
-                    text: "Battery"
-                    color: Theme.foreground
-                    font.pixelSize: 13
-                    font.bold: true
-                }
-                Item { Layout.fillWidth: true }
-                Text {
-                    text: popup.bat.ready ? Math.round(popup.bat.percentage * 100) + "%" : "--"
-                    color: popup.levelColor
-                    font.pixelSize: 12
-                    font.bold: true
-                }
+            Item { Layout.fillWidth: true }
+            Text {
+                text: popup.bat.ready ? Math.round(popup.bat.percentage * 100) + "%" : "--"
+                color: popup.levelColor
+                font.pixelSize: 12
+                font.bold: true
             }
+        }
+
+        Rectangle {
+            Layout.fillWidth: true
+            height: 8
+            radius: 4
+            color: Theme.hexToRgba(Theme.foreground, 0.1)
 
             Rectangle {
-                Layout.fillWidth: true
-                height: 8
+                anchors { left: parent.left; top: parent.top; bottom: parent.bottom }
+                width: parent.width * (popup.bat.ready ? popup.bat.percentage : 0)
                 radius: 4
-                color: Theme.hexToRgba(Theme.foreground, 0.1)
-
-                Rectangle {
-                    anchors { left: parent.left; top: parent.top; bottom: parent.bottom }
-                    width: parent.width * (popup.bat.ready ? popup.bat.percentage : 0)
-                    radius: 4
-                    color: popup.levelColor
-                    Behavior on width { NumberAnimation { duration: 400; easing.type: Easing.OutCubic } }
-                }
+                color: popup.levelColor
+                Behavior on width { NumberAnimation { duration: 400; easing.type: Easing.OutCubic } }
             }
+        }
 
-            RowLayout {
-                Layout.fillWidth: true
-                Text { text: "Time remaining"; color: Theme.hexToRgba(Theme.foreground, 0.8); font.pixelSize: 12 }
-                Item { Layout.fillWidth: true }
-                Text { text: popup.timeText; color: Theme.hexToRgba(Theme.foreground, 0.6); font.pixelSize: 12 }
+        RowLayout {
+            Layout.fillWidth: true
+            Text { text: "Time remaining"; color: Theme.hexToRgba(Theme.foreground, 0.8); font.pixelSize: 12 }
+            Item { Layout.fillWidth: true }
+            Text { text: popup.timeText; color: Theme.hexToRgba(Theme.foreground, 0.6); font.pixelSize: 12 }
+        }
+
+        RowLayout {
+            Layout.fillWidth: true
+            Text { text: "Power draw"; color: Theme.hexToRgba(Theme.foreground, 0.8); font.pixelSize: 12 }
+            Item { Layout.fillWidth: true }
+            Text { text: popup.powerText; color: Theme.hexToRgba(Theme.foreground, 0.6); font.pixelSize: 12 }
+        }
+
+        RowLayout {
+            Layout.fillWidth: true
+            Text { text: "Health"; color: Theme.hexToRgba(Theme.foreground, 0.8); font.pixelSize: 12 }
+            Item { Layout.fillWidth: true }
+            Text {
+                text: popup.bat.healthSupported ? Math.round(popup.bat.healthPercentage) + "%" : "—"
+                color: Theme.hexToRgba(Theme.foreground, 0.6)
+                font.pixelSize: 12
             }
+        }
 
-            RowLayout {
-                Layout.fillWidth: true
-                Text { text: "Power draw"; color: Theme.hexToRgba(Theme.foreground, 0.8); font.pixelSize: 12 }
-                Item { Layout.fillWidth: true }
-                Text { text: popup.powerText; color: Theme.hexToRgba(Theme.foreground, 0.6); font.pixelSize: 12 }
+        Rectangle { Layout.fillWidth: true; height: 1; color: Theme.hexToRgba(Theme.foreground, 0.08) }
+
+        RowLayout {
+            Layout.fillWidth: true
+            Text {
+                text: "Charge limit"
+                color: Theme.foreground
+                font.pixelSize: 13
+                font.bold: true
             }
-
-            RowLayout {
-                Layout.fillWidth: true
-                Text { text: "Health"; color: Theme.hexToRgba(Theme.foreground, 0.8); font.pixelSize: 12 }
-                Item { Layout.fillWidth: true }
-                Text {
-                    text: popup.bat.healthSupported ? Math.round(popup.bat.healthPercentage) + "%" : "—"
-                    color: Theme.hexToRgba(Theme.foreground, 0.6)
-                    font.pixelSize: 12
-                }
+            Item { Layout.fillWidth: true }
+            Text {
+                text: popup.thresholdSupported
+                    ? (popup.thresholdStart + "% – " + popup.thresholdEnd + "%")
+                    : "Not available"
+                color: Theme.hexToRgba(Theme.foreground, 0.6)
+                font.pixelSize: 12
             }
+        }
 
-            Rectangle { Layout.fillWidth: true; height: 1; color: Theme.hexToRgba(Theme.foreground, 0.08) }
+        Rectangle { Layout.fillWidth: true; height: 1; color: Theme.hexToRgba(Theme.foreground, 0.08) }
 
-            RowLayout {
-                Layout.fillWidth: true
-                Text {
-                    text: "Charge limit"
-                    color: Theme.foreground
-                    font.pixelSize: 13
-                    font.bold: true
-                }
-                Item { Layout.fillWidth: true }
-                Text {
-                    text: popup.thresholdSupported
-                        ? (popup.thresholdStart + "% – " + popup.thresholdEnd + "%")
-                        : "Not available"
-                    color: Theme.hexToRgba(Theme.foreground, 0.6)
-                    font.pixelSize: 12
-                }
+        RowLayout {
+            Layout.fillWidth: true
+            Text {
+                text: "TLP Profile"
+                color: Theme.foreground
+                font.pixelSize: 13
+                font.bold: true
             }
-
-            Rectangle { Layout.fillWidth: true; height: 1; color: Theme.hexToRgba(Theme.foreground, 0.08) }
-
-            RowLayout {
-                Layout.fillWidth: true
-                Text {
-                    text: "TLP Profile"
-                    color: Theme.foreground
-                    font.pixelSize: 13
-                    font.bold: true
-                }
-                Item { Layout.fillWidth: true }
-                Text {
-                    text: popup.profileLabel(popup.tlpProfile)
-                    color: Theme.hexToRgba(Theme.foreground, 0.6)
-                    font.pixelSize: 12
-                }
+            Item { Layout.fillWidth: true }
+            Text {
+                text: popup.profileLabel(popup.tlpProfile)
+                color: Theme.hexToRgba(Theme.foreground, 0.6)
+                font.pixelSize: 12
             }
+        }
 
-            RowLayout {
-                Layout.fillWidth: true
-                spacing: 6
+        RowLayout {
+            Layout.fillWidth: true
+            spacing: 6
 
-                Repeater {
-                    model: [
-                        { id: "performance", label: "Perf" },
-                        { id: "balanced", label: "Balanced" },
-                        { id: "power-saver", label: "Saver" }
-                    ]
+            Repeater {
+                model: [
+                    { id: "performance", label: "Perf" },
+                    { id: "balanced", label: "Balanced" },
+                    { id: "power-saver", label: "Saver" }
+                ]
 
-                    delegate: Rectangle {
-                        required property var modelData
-                        readonly property bool active: popup.tlpProfile === modelData.id
+                delegate: Rectangle {
+                    required property var modelData
+                    readonly property bool active: popup.tlpProfile === modelData.id
 
-                        Layout.fillWidth: true
-                        height: 28
-                        radius: 8
-                        color: active
-                            ? Theme.hexToRgba(Theme.color4, 0.7)
-                            : (btnHover.hovered ? Theme.hexToRgba(Theme.foreground, 0.07) : Theme.hexToRgba(Theme.foreground, 0.04))
+                    Layout.fillWidth: true
+                    height: 28
+                    radius: 8
+                    color: active
+                        ? Theme.hexToRgba(Theme.color4, 0.7)
+                        : (btnHover.hovered ? Theme.hexToRgba(Theme.foreground, 0.07) : Theme.hexToRgba(Theme.foreground, 0.04))
 
-                        Behavior on color { ColorAnimation { duration: 100 } }
+                    Behavior on color { ColorAnimation { duration: 100 } }
 
-                        HoverHandler { id: btnHover }
+                    HoverHandler { id: btnHover }
 
-                        Text {
-                            anchors.centerIn: parent
-                            text: modelData.label
-                            font.pixelSize: 11
-                            font.bold: parent.active
-                            color: parent.active ? Theme.background : Theme.foreground
-                        }
+                    Text {
+                        anchors.centerIn: parent
+                        text: modelData.label
+                        font.pixelSize: 11
+                        font.bold: parent.active
+                        color: parent.active ? Theme.background : Theme.foreground
+                    }
 
-                        TapHandler {
-                            onTapped: popup.setProfile(modelData.id)
-                        }
+                    TapHandler {
+                        onTapped: popup.setProfile(modelData.id)
                     }
                 }
             }

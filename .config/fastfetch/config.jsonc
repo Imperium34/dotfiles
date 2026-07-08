@@ -3,7 +3,7 @@
   "logo": {
     "source": "cachyos_small",
     "padding": {
-      "top": 4,
+      "top": 1,
       "left": 2
     }
   },
@@ -36,7 +36,6 @@
       "type": "command",
       "key": " ",
       "keyColor": "yellow",
-      // Calculates days since root folder creation
       "text": "echo $(( ($(date +%s) - $(stat -c %W /)) / 86400 )) days"
     },
     {

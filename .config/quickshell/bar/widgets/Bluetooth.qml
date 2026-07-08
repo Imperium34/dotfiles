@@ -1,17 +1,20 @@
 import "../popups/bluetooth"
 import qs
+import qs.widgets
 import Quickshell
 import Quickshell.Bluetooth
-import Quickshell.Io
 import QtQuick
 import QtQuick.Layouts
 
-Item {
+BarButton {
     id: root
-    required property var barWindow
 
     implicitWidth: row.implicitWidth + 8
     implicitHeight: row.implicitHeight
+
+    popup: BluetoothPopup {}
+
+    onRightClicked: BtService.toggleEnabled()
 
     RowLayout {
         id: row
@@ -39,22 +42,5 @@ Item {
             font.pixelSize: 14
             visible: text !== ""
         }
-    }
-
-    BluetoothPopup {
-        id: popup
-        barWindow: root.barWindow
-        anchorX: (root.barWindow.screen ? root.barWindow.screen.width : 1920) - 300 - 10
-    }
-
-    TapHandler {
-        acceptedButtons: Qt.LeftButton
-        onTapped: popup.toggle()
-    }
-
-    // Right-click still toggles adapter on/off — keep the old shortcut
-    TapHandler {
-        acceptedButtons: Qt.RightButton
-        onTapped: BtService.toggleEnabled()
     }
 }

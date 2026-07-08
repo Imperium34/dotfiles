@@ -1,6 +1,11 @@
 # Ignore Wallust generated files
 
+.config/alacritty/colors.toml
+.config/btop/themes/wallust.theme
 .config/hypr/hypr-colors.conf
+.config/hypr/lua/colors.lua
+.config/gtk-3.0/gtk-colors.css
+.config/gtk-4.0/gtk-colors.css
 .config/waybar/colors.css
 .config/waypaper/colors.css
 .config/wlogout/colors.css
@@ -13,9 +18,6 @@
 
 .config/hypr/monitors.conf
 .confit/hypr/workspaces.conf
-
-# ignore local settings
-.config/hypr/config/machine.conf
 
 #ignore wallpapers
 wallpapers

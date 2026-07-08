@@ -20,8 +20,8 @@ Item {
     readonly property int volume: audio ? Math.round(audio.volume * 100) : 0
 
     readonly property string audioIcon: {
-        if (!audio || muted) return "󰝟"
-        if (volume == 0)     return "󰝟"
+        if (!audio || muted) return ""
+        if (volume == 0)     return ""
         if (volume < 34)     return ""
         if (volume < 67)     return ""
         return ""

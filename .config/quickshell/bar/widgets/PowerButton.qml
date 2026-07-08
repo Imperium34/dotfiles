@@ -1,13 +1,16 @@
 import "../popups/power"
 import qs
+import qs.widgets
 import Quickshell
 import QtQuick
 
-Item {
+BarButton {
     id: root
-    required property var barWindow
+
     implicitWidth: bg.implicitWidth
     implicitHeight: bg.implicitHeight
+
+    popup: PowerMenu {}
 
     HoverHandler { id: hover }
 
@@ -32,15 +35,5 @@ Item {
             font.pixelSize: 15
             font.family: "Symbols Nerd Font"
         }
-    }
-
-    PowerMenu {
-        id: popup
-        barWindow: root.barWindow
-        anchorX: 0
-    }
-
-    TapHandler {
-        onTapped: popup.toggle()
     }
 }

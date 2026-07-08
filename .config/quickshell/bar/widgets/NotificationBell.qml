@@ -1,11 +1,11 @@
 import "../popups/notifications"
 import qs
+import qs.widgets
 import Quickshell
 import QtQuick
 
-Item {
+BarButton {
     id: root
-    required property var barWindow
 
     implicitWidth: widget.implicitWidth
     implicitHeight: widget.implicitHeight
@@ -18,7 +18,7 @@ Item {
         if (count > 0)  return "󰂚"
         return "󰂜"
     }
-    readonly property string bellColor: dnd
+    readonly property color bellColor: dnd
         ? Theme.color1
         : count > 0 ? Theme.color5 : Theme.foreground
     readonly property string bellLabel: {
@@ -27,26 +27,14 @@ Item {
         return ""
     }
 
+    popup: NotifCenter {}
+
+    onRightClicked: NotifService.toggleDnd()
+
     ExpandingWidget {
         id: widget
         icon: bellIcon
         label: bellLabel
         iconColor: bellColor
-    }
-
-    NotifCenter {
-        id: center
-        barWindow: root.barWindow
-        anchorX: (root.barWindow.screen ? root.barWindow.screen.width : 1920) - 380 - 10
-    }
-
-    TapHandler {
-        acceptedButtons: Qt.LeftButton
-        onTapped: center.toggle()
-    }
-
-    TapHandler {
-        acceptedButtons: Qt.RightButton
-        onTapped: NotifService.toggleDnd()
     }
 }

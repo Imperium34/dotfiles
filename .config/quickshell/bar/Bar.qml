@@ -28,6 +28,10 @@ Scope {
             margins.top: 8
             color: "transparent"
 
+            // distinct namespace so a layer rule can frost the bar independently
+            // of the popups (quickshell:popup) and anything else
+            WlrLayershell.namespace: "quickshell:bar"
+
             exclusionMode: ExclusionMode.Normal
             exclusiveZone: 52
 
@@ -45,86 +49,56 @@ Scope {
                 height: 44
 
                 // ── LEFT PILL ─────────────────────────────────
-                Rectangle {
+                Pill {
                     id: leftPill
                     anchors {
                         left: parent.left
                         verticalCenter: parent.verticalCenter
                     }
-                    height: 44
-                    width: leftContent.implicitWidth + 16
-                    radius: 22
-                    color: Theme.hexToRgba(Theme.background, 0.85)
-                    border.color: Theme.hexToRgba(Theme.foreground, 0.1)
-                    border.width: 1
+                    padding: 8
+                    spacing: 8
 
-                    RowLayout {
-                        id: leftContent
-                        anchors.centerIn: parent
-                        spacing: 8
-
-                        PowerButton { barWindow: barWindow }
-                        Workspaces { screen: barWindow.screen }
-                        MediaPlayer {
-                          id: mediaWidget
-                          barWindow: barWindow
-                        }
+                    PowerButton { barWindow: barWindow }
+                    Workspaces { screen: barWindow.screen }
+                    MediaPlayer {
+                        id: mediaWidget
+                        barWindow: barWindow
                     }
                 }
 
                 // ── CENTER PILL ───────────────────────────────
-                Rectangle {
+                Pill {
                     id: centerPill
                     anchors {
                         horizontalCenter: parent.horizontalCenter
                         verticalCenter: parent.verticalCenter
                     }
-                    height: 44
-                    width: centerContent.implicitWidth + 20
-                    radius: 22
-                    color: Theme.hexToRgba(Theme.background, 0.85)
-                    border.color: Theme.hexToRgba(Theme.foreground, 0.1)
-                    border.width: 1
+                    padding: 10
+                    spacing: 10
 
-                    RowLayout {
-                        id: centerContent
-                        anchors.centerIn: parent
-                        spacing: 10
-
-                        SysMonitor { barWindow: barWindow; side: "cpu" }
-                        Clock { barWindow: barWindow }
-                        SysMonitor { barWindow: barWindow; side: "ram" }
-                    }
+                    SysMonitor { barWindow: barWindow; side: "cpu" }
+                    Clock { barWindow: barWindow }
+                    SysMonitor { barWindow: barWindow; side: "ram" }
                 }
 
                 // ── RIGHT PILL ────────────────────────────────
-                Rectangle {
+                Pill {
                     id: rightPill
                     anchors {
                         right: parent.right
                         verticalCenter: parent.verticalCenter
                     }
-                    height: 44
-                    width: rightContent.implicitWidth + 30
-                    radius: 22
-                    color: Theme.hexToRgba(Theme.background, 0.85)
-                    border.color: Theme.hexToRgba(Theme.foreground, 0.1)
-                    border.width: 1
+                    padding: 15
+                    spacing: 8
 
-                    RowLayout {
-                        id: rightContent
-                        anchors.centerIn: parent
-                        spacing: 8
-
-                        IdleInhibitor {}
-                        Audio {}
-                        Backlight {}
-                        Network { barWindow: barWindow }
-                        Bluetooth { barWindow: barWindow }
-                        Battery { barWindow: barWindow }
-                        Tray { barWindow: barWindow }
-                        NotificationBell { barWindow: barWindow }
-                    }
+                    IdleInhibitor {}
+                    Audio {}
+                    Backlight {}
+                    Network { barWindow: barWindow }
+                    Bluetooth { barWindow: barWindow }
+                    Battery { barWindow: barWindow }
+                    Tray { barWindow: barWindow }
+                    NotificationBell { barWindow: barWindow }
                 }
             }
         }

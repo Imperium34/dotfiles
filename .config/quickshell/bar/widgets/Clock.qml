@@ -1,30 +1,22 @@
+import qs
+import qs.widgets
 import Quickshell
 import QtQuick
-import qs
 import "../popups/calendar"
 
-Item {
+BarButton {
     id: root
+
     implicitWidth: clockText.implicitWidth + 8
     implicitHeight: clockText.implicitHeight + 8
 
-    required property var barWindow 
+    popup: CalendarPopup {}
 
     SystemClock {
         id: clock
         precision: SystemClock.Minutes
     }
 
-    Text {
-        id: clockText
-        anchors.centerIn: parent
-        text: Qt.formatDateTime(clock.date, "HH:mm")
-        color: Theme.foreground
-        font.pixelSize: 15
-    }
-
-    HoverHandler { id: clockHover }
-    
     Rectangle {
         anchors.fill: parent
         radius: 8
@@ -33,13 +25,13 @@ Item {
         Behavior on color { ColorAnimation { duration: 150 } }
     }
 
-    TapHandler {
-        onTapped: calendarPopup.toggle()
-    }
+    HoverHandler { id: clockHover }
 
-    CalendarPopup {
-        id: calendarPopup
-        barWindow: root.barWindow
-        anchorX: ((root.barWindow.screen ? root.barWindow.screen.width : 1920) - implicitWidth) / 2
+    Text {
+        id: clockText
+        anchors.centerIn: parent
+        text: Qt.formatDateTime(clock.date, "HH:mm")
+        color: Theme.foreground
+        font.pixelSize: 15
     }
 }

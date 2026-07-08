@@ -21,9 +21,6 @@ Singleton {
         if (adapter) adapter.discovering = !adapter.discovering
     }
 
-    // .values re-emits on add/remove, so iterating it in a binding is already
-    // reactive to the device set changing — the _deviceCount proxy was never
-    // needed and is gone.
     readonly property var devices: {
         const raw = Bluetooth.devices.values.slice()
         raw.sort((a, b) => {

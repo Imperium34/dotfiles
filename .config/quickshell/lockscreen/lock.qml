@@ -39,6 +39,20 @@ Scope {
             property bool capsOn: false
             property string netIcon: ""
             property string netLabel: ""
+            property bool userPresent: true
+
+            // Idle-presence gate. When you walk away (no input for a while) the
+            // ambient animations and the caps/net polls pause, so the compositor
+            // can settle on a static frame instead of animating + spawning shells
+            // all night. Any keystroke or mouse movement wakes it back up.
+            function wake() {
+                if (!surface.userPresent) {
+                    surface.userPresent = true
+                    capsProc.running = true      // refresh immediately on wake
+                    netProc.running = true
+                }
+                idleTimer.restart()
+            }
 
             function unlock() {
                 if (surface.unlocking) return
@@ -58,6 +72,13 @@ Scope {
                 id: unlockTimer
                 interval: 320
                 onTriggered: sessionLock.locked = false
+            }
+
+            Timer {
+                id: idleTimer
+                interval: 60000                  // 60s of no input -> mark away
+                running: true
+                onTriggered: surface.userPresent = false
             }
 
             // ── AUTH: PASSWORD ────────────────────────────────────
@@ -157,8 +178,10 @@ Scope {
             }
 
             Timer {
-                interval: 400
-                running: true
+                // was 400ms -> a shell spawn 2.5x/second, indefinitely. Widened,
+                // and paused while you're away or the screen is unlocking.
+                interval: 900
+                running: surface.userPresent && !surface.unlocking
                 repeat: true
                 onTriggered: capsProc.running = true
             }
@@ -188,7 +211,7 @@ Scope {
             }
             Timer {
                 interval: 5000
-                running: true
+                running: surface.userPresent
                 repeat: true
                 onTriggered: netProc.running = true
             }
@@ -199,7 +222,11 @@ Scope {
                 anchors.fill: parent
                 source: "file://" + Quickshell.env("HOME") + "/Pictures/current.png"
                 fillMode: Image.PreserveAspectCrop
-                cache: false
+                // The blur destroys fine detail anyway, so decode a downscaled
+                // copy and blur that -- far cheaper than blurring a full 4K image,
+                // and visually identical once blurred. cache so it isn't re-decoded.
+                sourceSize.width: 1280
+                cache: true
                 visible: false
             }
 
@@ -208,7 +235,7 @@ Scope {
                 source: bgSource
                 blurEnabled: true
                 blur: 1.0
-                blurMax: 64
+                blurMax: 32          // 64 was overkill on a static, downscaled source
                 brightness: -0.35
                 saturation: 0.1
             }
@@ -279,7 +306,7 @@ Scope {
                         }
 
                         SequentialAnimation on scale {
-                            running: !surface.unlocking
+                            running: surface.userPresent && !surface.unlocking
                             loops: Animation.Infinite
                             NumberAnimation { to: 1.015; duration: 2600; easing.type: Easing.InOutSine }
                             NumberAnimation { to: 1.0;   duration: 2600; easing.type: Easing.InOutSine }
@@ -386,6 +413,8 @@ Scope {
                             clip: true
                             focus: true
 
+                            onTextChanged: surface.wake()
+
                             Text {
                                 anchors.centerIn: parent
                                 text: "<i>🔒 Password</i>"
@@ -453,7 +482,7 @@ Scope {
                                    ? Theme.color1 : Theme.color7
 
                             SequentialAnimation on opacity {
-                                running: surface.fpAvailable && !surface.unlocking
+                                running: surface.fpAvailable && surface.userPresent && !surface.unlocking
                                 loops: Animation.Infinite
                                 NumberAnimation { to: 0.3; duration: 850; easing.type: Easing.InOutSine }
                                 NumberAnimation { to: 1.0; duration: 850; easing.type: Easing.InOutSine }
@@ -875,7 +904,12 @@ Scope {
             MouseArea {
                 anchors.fill: parent
                 z: -1
-                onClicked: passwordInput.forceActiveFocus()
+                hoverEnabled: true
+                onClicked: {
+                    passwordInput.forceActiveFocus()
+                    surface.wake()
+                }
+                onPositionChanged: surface.wake()
             }
         }
     }

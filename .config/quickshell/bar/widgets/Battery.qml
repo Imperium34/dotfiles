@@ -1,26 +1,28 @@
 import qs
+import qs.widgets
 import qs.popups.battery
 import Quickshell
 import Quickshell.Services.UPower
 import QtQuick
 
-Item {
+BarButton {
     id: root
-
-    required property var barWindow
 
     implicitWidth: widget.implicitWidth
     implicitHeight: widget.implicitHeight
 
-    readonly property var bat: UPower.displayDevice
-    readonly property bool charging: bat.state === UPowerDeviceState.Charging
-                                  || bat.state === UPowerDeviceState.PendingCharge
-    readonly property bool full: bat.state === UPowerDeviceState.FullyCharged
+    visible: bat ? bat.isLaptopBattery : false
 
-    readonly property bool critical: bat.ready && !charging && !full && bat.percentage * 100 <= 15
+    readonly property var bat: UPower.displayDevice
+    readonly property bool charging: bat && bat.ready
+        && (bat.state === UPowerDeviceState.Charging
+            || bat.state === UPowerDeviceState.PendingCharge)
+    readonly property bool full: bat && bat.ready && bat.state === UPowerDeviceState.FullyCharged
+    readonly property bool critical: bat && bat.ready && !charging && !full
+        && bat.percentage * 100 <= 15
 
     readonly property string batteryIcon: {
-        if (!bat.ready) return "󰂑";
+        if (!bat || !bat.ready) return "󰂑";
         if (full || (charging && bat.percentage * 100 >= 95)) return "󰁹";
         const p = bat.percentage * 100;
         if (p < 10) return charging ? "󰢜" : "󰂎";
@@ -32,16 +34,18 @@ Item {
     }
 
     readonly property color batteryColor: {
-        if (!bat.ready) return Theme.foreground;
+        if (!bat || !bat.ready) return Theme.foreground;
         if (bat.percentage * 100 <= 15) return Theme.color1;
         if (bat.percentage * 100 <= 30) return Theme.color3;
         return charging ? Theme.color2 : Theme.foreground;
     }
 
+    popup: BatteryPopup {}
+
     ExpandingWidget {
         id: widget
         icon: batteryIcon
-        label: bat.ready ? Math.round(bat.percentage * 100) + "%" : "--"
+        label: bat && bat.ready ? Math.round(bat.percentage * 100) + "%" : "--"
         iconColor: batteryColor
 
         Behavior on iconColor {
@@ -62,20 +66,8 @@ Item {
             loops: Animation.Infinite
             alwaysRunToEnd: true
 
-            NumberAnimation {
-                target: widget
-                property: "scale"
-                to: 1.1
-                duration: 850
-                easing.type: Easing.InOutSine
-            }
-            NumberAnimation {
-                target: widget
-                property: "scale"
-                to: 1.0
-                duration: 850
-                easing.type: Easing.InOutSine
-            }
+            NumberAnimation { target: widget; property: "scale"; to: 1.1; duration: 850; easing.type: Easing.InOutSine }
+            NumberAnimation { target: widget; property: "scale"; to: 1.0; duration: 850; easing.type: Easing.InOutSine }
         }
 
         SequentialAnimation {
@@ -83,30 +75,8 @@ Item {
             loops: Animation.Infinite
             alwaysRunToEnd: true
 
-            NumberAnimation {
-                target: widget
-                property: "opacity"
-                to: 0.35
-                duration: 450
-                easing.type: Easing.InOutSine
-            }
-            NumberAnimation {
-                target: widget
-                property: "opacity"
-                to: 1.0
-                duration: 450
-                easing.type: Easing.InOutSine
-            }
+            NumberAnimation { target: widget; property: "opacity"; to: 0.35; duration: 450; easing.type: Easing.InOutSine }
+            NumberAnimation { target: widget; property: "opacity"; to: 1.0; duration: 450; easing.type: Easing.InOutSine }
         }
-    }
-
-    TapHandler {
-        onTapped: popup.toggle()
-    }
-
-    BatteryPopup {
-        id: popup
-        barWindow: root.barWindow
-        anchorX: (root.barWindow.screen ? root.barWindow.screen.width : 1920)
     }
 }
