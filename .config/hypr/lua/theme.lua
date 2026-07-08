@@ -1,5 +1,8 @@
 -- ~/.config/hypr/lua/theme.lua
-local c = require("lua.colors")
+local ok, c = pcall(require, "lua.colors")
+if not ok then
+	c = require("lua.colors_default")
+end
 
 hl.config({
 	general = {

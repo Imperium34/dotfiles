@@ -1,6 +1,10 @@
 -- ~/.config/hypr/hyprland.lua
 local vars = require("lua.variables")
-local c = require("lua.colors") -- Wallust colors
+
+local ok, c = pcall(require, "lua.colors") -- Wallust colors
+if not ok then
+	c = require("lua.colors_default") -- Fallback if wallust hasn't run yet
+end
 
 require("lua.theme") -- Aesthetics
 require("lua.machine") -- Hardware (Laptop/Desktop)
