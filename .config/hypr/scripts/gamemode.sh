@@ -17,5 +17,6 @@ if [ "$HYPRGAMEMODE" = 1 ]; then
 else
   notify-send "Gamemode [OFF]"
   hyprctl reload
+  ~/.config/hypr/scripts/set-blur.sh
   exit 0
 fi

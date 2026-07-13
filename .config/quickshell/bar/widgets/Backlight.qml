@@ -6,12 +6,14 @@ import QtQuick
 import QtQuick.Layouts
 
 Item {
+    id: backlightRoot
     implicitWidth: widget.implicitWidth
     implicitHeight: widget.implicitHeight
 
+    property string device: ""
     property int current: 0
     property int maximum: 1
-    property real sliderValue: widget.expanded ? sliderValue : percent / 100
+    property real sliderValue: percent / 100
 
     readonly property int percent: maximum > 0
         ? Math.round(current / maximum * 100) : 0
@@ -20,6 +22,39 @@ Item {
         if (percent < 33) return "󰃞";
         if (percent < 66) return "󰃟";
         return "󰃠";
+    }
+
+    Binding {
+        target: backlightRoot
+        property: "sliderValue"
+        value: backlightRoot.percent / 100
+        when: !widget.expanded
+    }
+
+    Process {
+        id: deviceResolver
+        command: ["bash", "-c", "ls /sys/class/backlight | head -1"]
+        running: true
+        stdout: StdioCollector {
+            onStreamFinished: {
+                const d = text.trim()
+                if (d) backlightRoot.device = d
+            }
+        }
+    }
+
+    FileView {
+        id: brightnessFile
+        path: backlightRoot.device
+            ? "/sys/class/backlight/" + backlightRoot.device + "/brightness"
+            : ""
+    }
+
+    FileView {
+        id: maxBrightnessFile
+        path: backlightRoot.device
+            ? "/sys/class/backlight/" + backlightRoot.device + "/max_brightness"
+            : ""
     }
 
     Process {
@@ -40,31 +75,16 @@ Item {
         }
     }
 
-    Process {
-        id: getProc
-        command: ["brightnessctl", "get"]
-        running: true
-        stdout: StdioCollector {
-            onStreamFinished: current = parseInt(this.text.trim()) || 0
-        }
-    }
-
-    Process {
-        id: maxProc
-        command: ["brightnessctl", "max"]
-        running: true
-        stdout: StdioCollector {
-            onStreamFinished: maximum = parseInt(this.text.trim()) || 1
-        }
-    }
-
     Timer {
         interval: 2000
-        running: true
+        running: backlightRoot.device !== ""
         repeat: true
+        triggeredOnStart: true
         onTriggered: {
-            getProc.running = true
-            maxProc.running = true
+            backlightRoot.current = parseInt(brightnessFile.text().trim()) || backlightRoot.current
+            backlightRoot.maximum = parseInt(maxBrightnessFile.text().trim()) || backlightRoot.maximum
+            brightnessFile.reload()
+            maxBrightnessFile.reload()
         }
     }
 }

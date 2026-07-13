@@ -23,6 +23,7 @@ PanelWindow {
         item: NotifService.toastVisible ? card : null
     }
 
+    WlrLayershell.namespace: "quickshell:toast"
     WlrLayershell.layer: WlrLayer.Overlay
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
 

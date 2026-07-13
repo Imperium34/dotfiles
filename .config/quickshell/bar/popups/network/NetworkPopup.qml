@@ -8,6 +8,9 @@ import QtQuick
 ToggleListPopup {
     id: popup
 
+    maxListHeight: 6 * 52
+    maxPopupHeight: 420
+    pinMaxHeight: true
     implicitWidth: 320
     title: "Wi-Fi"
 
@@ -29,7 +32,7 @@ ToggleListPopup {
     // scan while the window is mapped, not just while animating open. Tying this
     // to animIn made scanning stop the instant close began, collapsing the list
     // and resizing the layer surface mid-fade -> the close flicker.
-    onVisibleChanged: Net.scanning = root.visible
+    onVisibleChanged: Net.scanning = popup.visible
 
     emptyText: !Net.wifiEnabled
         ? "Wi-Fi is off"

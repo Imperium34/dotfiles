@@ -1,14 +1,11 @@
 -- ~/.config/hypr/lua/monitors.lua
 
 local home = os.getenv("HOME")
-local has_monitors = false
 
 local m_file = io.open(home .. "/.config/hypr/monitors.conf", "r")
 if m_file then
 	for line in m_file:lines() do
-		-- Ignore comments, only look for active monitor lines
 		if line:match("^monitor=") then
-			has_monitors = true
 			local data = line:gsub("^monitor=", "")
 			local parts = {}
 			for p in string.gmatch(data, "[^,]+") do
@@ -35,8 +32,12 @@ if m_file then
 	m_file:close()
 end
 
-if not has_monitors then
-	hl.monitor({ output = "", mode = "preferred", position = "auto", scale = 1 })
+hl.monitor({ output = "", mode = "preferred", position = "auto", scale = 1 })
+
+local dp3_disabled = io.open(home .. "/.cache/hypr/dp3-disabled", "r")
+if dp3_disabled then
+	dp3_disabled:close()
+	hl.monitor({ output = "DP-3", disable = true })
 end
 
 local w_file = io.open(home .. "/.config/hypr/workspaces.conf", "r")

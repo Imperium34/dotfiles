@@ -44,20 +44,22 @@ saturation = 70
 # target: ABSOLUTE path in which to place a file with generated templated values.
 # ¡ If either one is a directory, then both SHOULD be one. !
 # zathura = { template = 'zathura', target = '~/.config/zathura/zathurarc' }
-alacritty = { template = 'alacritty-colors.toml', target = '~/.config/alacritty/colors.toml' }
-hyprland-lua = { template = 'hyprland-colors.lua', target = '~/.config/hypr/lua/colors.lua' }
-hyprland = { template = "hyprland-colors.conf", target = "~/.config/hypr/hypr-colors.conf" }
+# hyprland = { template = "hyprland-colors.conf", target = "~/.config/hypr/hypr-colors.conf" }
 # waybar = { template = 'waybar-colors.css', target = '~/.config/waybar/colors.css' }
 # waypaper = { template = 'waybar-colors.css', target = '~/.config/waypaper/colors.css'}
 # wlogout = { template = 'waybar-colors.css', target = '~/.config/wlogout/colors.css' }
 # wofi = { template = 'wofi-colors.hbs', target = '~/.config/wofi/style.css' }
+# mako = { template = 'mako-colors', target = '~/.config/mako/config' }
+# firefox = { template = 'firefox-colors.css', target = '~/.mozilla/firefox/u6g6vqao.default-release/chrome/colors.css' }
+# deprecated wallust color schemes. left in case needed again
+
+alacritty = { template = 'alacritty-colors.toml', target = '~/.config/alacritty/colors.toml' }
+hyprland-lua = { template = 'hyprland-colors.lua', target = '~/.config/hypr/lua/colors.lua' }
 gtk3 = { template = 'gtk-colors.css', target = '~/.config/gtk-3.0/gtk-colors.css'}
 gtk4 = { template = 'gtk-colors.css', target = '~/.config/gtk-4.0/gtk-colors.css'}
-#mako = { template = 'mako-colors', target = '~/.config/mako/config' }
 cava = { template = 'cava-colors', target = '~/.config/cava/themes/wallust-colors' }
 youtubemusic = { template = 'ytm.css', target = '~/.config/YouTube Music/wallust_theme.css' }
 btop = { template = 'btop.theme', target = '~/.config/btop/themes/wallust.theme'}
-#firefox = { template = 'firefox-colors.css', target = '~/.mozilla/firefox/u6g6vqao.default-release/chrome/colors.css' }
 wallust_json = { template = 'wallust-json.hbs', target = '~/.config/wallust/wallust.json' }
 vscode = { template = 'vscode.json', target = '~/.cache/wallust/colors.json' }
 vscode2 = { template = 'vscode', target = '~/.cache/wallust/colors' }

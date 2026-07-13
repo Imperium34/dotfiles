@@ -28,8 +28,6 @@ Scope {
             margins.top: 8
             color: "transparent"
 
-            // distinct namespace so a layer rule can frost the bar independently
-            // of the popups (quickshell:popup) and anything else
             WlrLayershell.namespace: "quickshell:bar"
 
             exclusionMode: ExclusionMode.Normal

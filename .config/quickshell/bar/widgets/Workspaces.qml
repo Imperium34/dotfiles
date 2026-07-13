@@ -51,6 +51,8 @@ Item {
         Qt.callLater(updateIndicator)
     }
 
+    onSortedWorkspacesChanged: Qt.callLater(updateIndicator)
+
     Rectangle {
         id: indicator
         y: 0

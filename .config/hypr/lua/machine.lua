@@ -13,38 +13,83 @@ hl.config({
 
 hl.curve("machineEase", { type = "bezier", points = { { 0.05, 0.9 }, { 0.1, 1.05 } } })
 
-if laptop then
-	hl.config({
-		general = { gaps_in = 3, gaps_out = 5, border_size = 2 },
-		decoration = { rounding = 5, blur = { enabled = false } },
-		misc = { vrr = 0 },
-	})
-	hl.animation({ leaf = "windows", enabled = true, speed = 3, bezier = "machineEase" })
-	hl.animation({ leaf = "windowsOut", enabled = true, speed = 3, bezier = "machineEase", style = "popin 80%" })
-	hl.animation({ leaf = "border", enabled = true, speed = 2, bezier = "default" })
-	hl.animation({ leaf = "fade", enabled = true, speed = 3, bezier = "default" })
-	hl.animation({ leaf = "workspaces", enabled = true, speed = 3, bezier = "machineEase" })
+-- ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+-- ┃                     Machine Profiles                        ┃
+-- ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 
-	hl.gesture({ fingers = 4, direction = "horizontal", action = "workspace" })
-	hl.gesture({ fingers = 3, direction = "down", action = "close" })
-	hl.gesture({ fingers = 3, direction = "up", action = "fullscreen" })
-	hl.gesture({ fingers = 3, direction = "left", action = "float" })
-	hl.env("LIBVA_DRIVER_NAME", "iHD")
-	hl.env("__GLX_VENDOR_LIBRARY_NAME", "iHD")
-else
-	hl.config({
+local profiles = {
+	laptop = {
+		general = { gaps_in = 3, gaps_out = 5, border_size = 2 },
+		rounding = 5,
+		blur_enabled = false,
+		vrr = 0,
+		animations = {
+			{ leaf = "windows", speed = 3, bezier = "machineEase" },
+			{ leaf = "windowsOut", speed = 3, bezier = "machineEase", style = "popin 80%" },
+			{ leaf = "border", speed = 2, bezier = "default" },
+			{ leaf = "fade", speed = 3, bezier = "default" },
+			{ leaf = "workspaces", speed = 3, bezier = "machineEase" },
+		},
+		gestures = {
+			{ fingers = 4, direction = "horizontal", action = "workspace" },
+			{ fingers = 3, direction = "down", action = "close" },
+			{ fingers = 3, direction = "up", action = "fullscreen" },
+			{ fingers = 3, direction = "left", action = "float" },
+		},
+		env = {
+			{ "LIBVA_DRIVER_NAME", "iHD" },
+			{ "__GLX_VENDOR_LIBRARY_NAME", "iHD" },
+		},
+	},
+	desktop = {
 		general = { gaps_in = 5, gaps_out = 10, border_size = 3 },
-		decoration = { blur = { enabled = true } },
-		misc = { vrr = 1 },
-		cursor = { no_hardware_cursors = 2 },
-	})
-	hl.animation({ leaf = "windows", enabled = true, speed = 7, bezier = "machineEase" })
-	hl.animation({ leaf = "windowsOut", enabled = true, speed = 7, bezier = "default", style = "popin 80%" })
-	hl.animation({ leaf = "border", enabled = true, speed = 10, bezier = "default" })
-	hl.animation({ leaf = "borderangle", enabled = true, speed = 8, bezier = "default" })
-	hl.animation({ leaf = "fade", enabled = true, speed = 7, bezier = "default" })
-	hl.animation({ leaf = "workspaces", enabled = true, speed = 6, bezier = "default" })
-	hl.env("LIBVA_DRIVER_NAME", "nvidia")
-	hl.env("GBM_BACKEND", "nvidia-drm")
-	hl.env("__GLX_VENDOR_LIBRARY_NAME", "nvidia")
+		blur_enabled = true,
+		vrr = 1,
+		no_hardware_cursors = 2,
+		animations = {
+			{ leaf = "windows", speed = 7, bezier = "machineEase" },
+			{ leaf = "windowsOut", speed = 7, bezier = "default", style = "popin 80%" },
+			{ leaf = "border", speed = 10, bezier = "default" },
+			{ leaf = "borderangle", speed = 8, bezier = "default" },
+			{ leaf = "fade", speed = 7, bezier = "default" },
+			{ leaf = "workspaces", speed = 6, bezier = "default" },
+		},
+		gestures = {},
+		env = {
+			{ "LIBVA_DRIVER_NAME", "nvidia" },
+			{ "GBM_BACKEND", "nvidia-drm" },
+			{ "__GLX_VENDOR_LIBRARY_NAME", "nvidia" },
+		},
+	},
+}
+
+local profile = profiles[laptop and "laptop" or "desktop"]
+
+-- ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+-- ┃                     Apply Active Profile                    ┃
+-- ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+
+local config = {
+	general = profile.general,
+	decoration = { blur = { enabled = profile.blur_enabled } },
+	misc = { vrr = profile.vrr },
+}
+if profile.rounding then
+	config.decoration.rounding = profile.rounding
+end
+if profile.no_hardware_cursors then
+	config.cursor = { no_hardware_cursors = profile.no_hardware_cursors }
+end
+hl.config(config)
+
+for _, anim in ipairs(profile.animations) do
+	hl.animation({ leaf = anim.leaf, enabled = true, speed = anim.speed, bezier = anim.bezier, style = anim.style })
+end
+
+for _, g in ipairs(profile.gestures) do
+	hl.gesture(g)
+end
+
+for _, e in ipairs(profile.env) do
+	hl.env(e[1], e[2])
 end

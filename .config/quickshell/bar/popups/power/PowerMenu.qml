@@ -10,13 +10,23 @@ BasePopup {
     implicitWidth: 160
     implicitHeight: actionsCol.implicitHeight + 16
 
+    property string armedAction: ""
+
+    onAnimInChanged: if (!animIn) armedAction = ""
+
+    Timer {
+        id: disarmTimer
+        interval: 2500
+        onTriggered: popup.armedAction = ""
+    }
+
     readonly property var actions: [
-        { icon: "󰌾", label: "Lock",      cmd: ["loginctl", "lock-session"] },
-        { icon: "󰒲", label: "Suspend",   cmd: ["systemctl", "suspend"] },
-        { icon: "󰋊", label: "Hibernate", cmd: ["systemctl", "hibernate"] },
-        { icon: "󰍃", label: "Logout",    cmd: ["bash", "-c", "loginctl terminate-user $USER"] },
-        { icon: "󰑐", label: "Reboot",    cmd: ["systemctl", "reboot"] },
-        { icon: "󰐥", label: "Shutdown",  cmd: ["systemctl", "poweroff"] },
+        { icon: "󰌾", label: "Lock",      cmd: ["loginctl", "lock-session"],                     destructive: false },
+        { icon: "󰒲", label: "Suspend",   cmd: ["systemctl", "suspend"],                          destructive: false },
+        { icon: "󰋊", label: "Hibernate", cmd: ["systemctl", "hibernate"],                        destructive: false },
+        { icon: "󰍃", label: "Logout",    cmd: ["bash", "-c", "loginctl terminate-user $USER"],   destructive: true  },
+        { icon: "󰑐", label: "Reboot",    cmd: ["systemctl", "reboot"],                           destructive: true  },
+        { icon: "󰐥", label: "Shutdown",  cmd: ["systemctl", "poweroff"],                         destructive: true  },
     ]
 
     ColumnLayout {
@@ -34,6 +44,7 @@ BasePopup {
 
             delegate: Item {
                 readonly property var action: popup.actions[index]
+                readonly property bool armed: popup.armedAction === action.label
                 Layout.fillWidth: true
                 height: 40
 
@@ -43,8 +54,9 @@ BasePopup {
                     anchors.fill: parent
                     radius: 10
                     color: {
+                        if (armed) return Theme.hexToRgba(Theme.color1, 0.25)
                         if (!actionHover.hovered) return "transparent"
-                        if (action.label === "Reboot" || action.label === "Shutdown")
+                        if (action.destructive)
                             return Theme.hexToRgba(Theme.color1, 0.15)
                         return Theme.hexToRgba(Theme.foreground, 0.08)
                     }
@@ -66,9 +78,9 @@ BasePopup {
                         font.pixelSize: 15
                         font.family: "Symbols Nerd Font"
                         color: {
+                            if (armed) return Theme.color1
                             if (!actionHover.hovered) return Theme.hexToRgba(Theme.foreground, 0.7)
-                            if (action.label === "Reboot" || action.label === "Shutdown")
-                                return Theme.color1
+                            if (action.destructive) return Theme.color1
                             return Theme.color5
                         }
                         Behavior on color {
@@ -78,11 +90,12 @@ BasePopup {
 
                     Text {
                         Layout.fillWidth: true
-                        text: action.label
+                        text: armed ? "Confirm?" : action.label
                         font.pixelSize: 13
-                        color: actionHover.hovered
-                            ? Theme.foreground
-                            : Theme.hexToRgba(Theme.foreground, 0.7)
+                        font.bold: armed
+                        color: armed
+                            ? Theme.color1
+                            : (actionHover.hovered ? Theme.foreground : Theme.hexToRgba(Theme.foreground, 0.7))
                         Behavior on color {
                             ColorAnimation { duration: 100 }
                         }
@@ -91,6 +104,12 @@ BasePopup {
 
                 TapHandler {
                     onTapped: {
+                        if (action.destructive && !armed) {
+                            popup.armedAction = action.label
+                            disarmTimer.restart()
+                            return
+                        }
+                        popup.armedAction = ""
                         popup.close()
                         Quickshell.execDetached(action.cmd)
                     }

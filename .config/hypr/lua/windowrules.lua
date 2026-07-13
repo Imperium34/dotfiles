@@ -199,15 +199,6 @@ hl.window_rule({
 	suppress_event = "maximize fullscreen",
 })
 
--- Hidden MPV (background)
-hl.window_rule({
-	match = { class = "^(mpv)$" },
-	float = true,
-	size = { 1, 1 },
-	workspace = "special:hidden silent",
-	no_focus = true,
-})
-
 -- Screenshare bridge
 hl.window_rule({
 	match = { class = "^(xwaylandvideobridge)$" },
@@ -229,6 +220,8 @@ hl.window_rule({ match = { fullscreen = true }, idle_inhibit = "fullscreen" })
 
 hl.layer_rule({ match = { namespace = "quickshell:bar" }, blur = true, ignore_alpha = 0.1 })
 hl.layer_rule({ match = { namespace = "quickshell:popup" }, blur = true, ignore_alpha = 0.05, no_anim = true })
+hl.layer_rule({ match = { namespace = "wallpaper" }, blur = true, ignore_alpha = 0.05, no_anim = true })
+hl.layer_rule({ match = { namespace = "quickshell:toast" }, blur = true, ignore_alpha = 0.05, no_anim = true })
 hl.layer_rule({ match = { namespace = "launcher" }, blur = true, ignore_alpha = 0.05, no_anim = true })
 hl.layer_rule({ match = { namespace = "clipboard" }, blur = true, ignore_alpha = 0.05, no_anim = true })
 

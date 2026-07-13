@@ -8,6 +8,7 @@ import QtQuick.Layouts
 PanelWindow {
     id: root
     visible: false
+    WlrLayershell.namespace: "wallpaper"
 
     property string homeDir: ""
 
@@ -135,8 +136,7 @@ PanelWindow {
             "--transition-fps", String(root.transitionFps)]
         awwwProcess.running = true
 
-        updateColors.command = ["bash", "-c",
-            root.homeDir + "/.config/hypr/scripts/update-colors.sh " + path]
+        updateColors.command = [root.homeDir + "/.config/quickshell/scripts/update-colors.sh", path]
         updateColors.running = true
 
         root.currentWallpaper = path

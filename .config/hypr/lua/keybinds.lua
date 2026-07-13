@@ -8,7 +8,6 @@ local mod = "SUPER"
 hl.bind(mod .. " + RETURN", hl.dsp.exec_cmd(vars.apps.terminal))
 hl.bind(mod .. " + E", hl.dsp.exec_cmd(vars.apps.filemanager))
 hl.bind(mod .. " + B", hl.dsp.exec_cmd("xdg-open 'https://'"))
-hl.bind(mod .. " + SHIFT + B", hl.dsp.exec_cmd("~/.config/hypr/scripts/toggle-work.sh"))
 hl.bind(mod .. " + D", hl.dsp.exec_cmd("qs --config bar ipc call launcher toggle"))
 hl.bind(mod .. " + W", hl.dsp.exec_cmd("qs --config bar ipc call wallpaper toggle"))
 hl.bind(mod .. " + SHIFT + G", hl.dsp.exec_cmd("~/.config/hypr/scripts/gamemode.sh"))
@@ -24,7 +23,6 @@ hl.bind(mod .. " + SHIFT + F", hl.dsp.window.fullscreen())
 hl.bind(mod .. " + V", hl.dsp.window.float({ action = "toggle" }))
 hl.bind(mod .. " + Y", hl.dsp.window.pin())
 hl.bind(mod .. " + J", hl.dsp.layout("togglesplit"))
-hl.bind(mod .. " + SHIFT + M", hl.dsp.exec_cmd('loginctl terminate-user ""'))
 
 -- Grouping
 hl.bind(mod .. " + K", hl.dsp.group.toggle())
@@ -63,8 +61,7 @@ hl.bind("SHIFT + PRINT", hl.dsp.exec_cmd(vars.shots.screen))
 -- ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
 -- ┃                     Media & Hardware                        ┃
 -- ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-hl.bind(mod .. " + F2", hl.dsp.exec_cmd("hyprctl keyword monitor 'DP-3,disable'"))
-hl.bind(mod .. " + F3", hl.dsp.exec_cmd("hyprctl keyword monitor 'DP-3,auto,0x0,1'"))
+hl.bind(mod .. " + F2", hl.dsp.exec_cmd("~/.config/hypr/scripts/toggle-dp3.sh"))
 
 hl.bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd("qs --config bar ipc call osd volumeUp"))
 hl.bind("XF86AudioLowerVolume", hl.dsp.exec_cmd("qs --config bar ipc call osd volumeDown"))

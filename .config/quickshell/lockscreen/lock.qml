@@ -33,7 +33,7 @@ Scope {
 
             // ── STATE ─────────────────────────────────────────────
             property bool unlocking: false
-            property bool fpAvailable: true
+            property bool fpAvailable: false
             property string fpStatus: "Touch sensor"
             property int denyLimit: 3
             property bool capsOn: false
@@ -48,7 +48,7 @@ Scope {
             function wake() {
                 if (!surface.userPresent) {
                     surface.userPresent = true
-                    capsProc.running = true      // refresh immediately on wake
+                    capsProc.running = true
                     netProc.running = true
                 }
                 idleTimer.restart()
@@ -76,7 +76,7 @@ Scope {
 
             Timer {
                 id: idleTimer
-                interval: 60000                  // 60s of no input -> mark away
+                interval: 60000
                 running: true
                 onTriggered: surface.userPresent = false
             }
@@ -123,15 +123,6 @@ Scope {
                 }
             }
 
-            Timer {
-                id: rearmTimer
-                interval: 8000
-                onTriggered: {
-                    if (!surface.unlocking && !pamPassword.responseRequired)
-                        pamPassword.start()
-                }
-            }
-
             PamContext {
                 id: pamFinger
                 config: "quickshell-fprint"
@@ -141,10 +132,15 @@ Scope {
 
                 onCompleted: (result) => {
                     if (surface.unlocking) return
+                    if (result === PamResult.Error) {
+                        surface.fpAvailable = false
+                        return
+                    }
+
+                    surface.fpAvailable = true
+
                     if (result === PamResult.Success) {
                         surface.unlock()
-                    } else if (result === PamResult.Error) {
-                        surface.fpAvailable = false
                     } else {
                         surface.fpStatus = "Try again"
                         fpFlash.restart()
@@ -155,6 +151,15 @@ Scope {
                             surface.fpStatus = "Locked out"
                         }
                     }
+                }
+            }
+
+            Timer {
+                id: rearmTimer
+                interval: 8000
+                onTriggered: {
+                    if (!surface.unlocking && !pamPassword.responseRequired)
+                        pamPassword.start()
                 }
             }
 
@@ -178,8 +183,6 @@ Scope {
             }
 
             Timer {
-                // was 400ms -> a shell spawn 2.5x/second, indefinitely. Widened,
-                // and paused while you're away or the screen is unlocking.
                 interval: 900
                 running: surface.userPresent && !surface.unlocking
                 repeat: true
@@ -222,9 +225,6 @@ Scope {
                 anchors.fill: parent
                 source: "file://" + Quickshell.env("HOME") + "/Pictures/current.png"
                 fillMode: Image.PreserveAspectCrop
-                // The blur destroys fine detail anyway, so decode a downscaled
-                // copy and blur that -- far cheaper than blurring a full 4K image,
-                // and visually identical once blurred. cache so it isn't re-decoded.
                 sourceSize.width: 1280
                 cache: true
                 visible: false
@@ -235,7 +235,7 @@ Scope {
                 source: bgSource
                 blurEnabled: true
                 blur: 1.0
-                blurMax: 32          // 64 was overkill on a static, downscaled source
+                blurMax: 32
                 brightness: -0.35
                 saturation: 0.1
             }
@@ -432,7 +432,7 @@ Scope {
                                 if (pamPassword.responseRequired)
                                     pamPassword.respond(passwordInput.text)
                                 else
-                                    pamPassword.pending = passwordInput.text // send once pam re-arms
+                                    pamPassword.pending = passwordInput.text
                             }
                         }
                     }
@@ -887,7 +887,7 @@ Scope {
 
             Process {
                 id: quoteProc
-                command: ["/bin/bash", "-c", Quickshell.env("HOME") + "/.config/hypr/scripts/quote.sh"]
+                command: ["/bin/bash", "-c", Quickshell.env("HOME") + "/.config/quickshell/scripts/quote.sh"]
                 running: true
                 stdout: StdioCollector {
                     onStreamFinished: quoteText.text = text.trim()

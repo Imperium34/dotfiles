@@ -227,7 +227,8 @@ Item {
     }
 
     TapHandler {
-        onTapped: {
+        onTapped: (eventPoint) => {
+            if (eventPoint.position.y >= root.baseHeight) return
             if (isConnected) {
                 network.disconnect()
             } else if (isChanging) {

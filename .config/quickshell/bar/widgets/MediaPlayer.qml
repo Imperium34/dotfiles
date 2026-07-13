@@ -9,8 +9,10 @@ import QtQuick.Layouts
 BarButton {
     id: root
 
-    readonly property var player: Mpris.players.values.length > 0
-        ? Mpris.players.values[0] : null
+    readonly property var player: {
+        const players = Mpris.players.values
+        return players.find(p => p.isPlaying) ?? players[0] ?? null
+    }
 
     readonly property bool hasPlayer: player !== null
     readonly property bool isPlaying: hasPlayer && player.isPlaying

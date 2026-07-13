@@ -13,6 +13,7 @@ BasePopup {
     property int maxVisible: 6
     property int maxListHeight: maxVisible * rowHeight
     property int maxPopupHeight: 0
+    property bool pinMaxHeight: false
     property string emptyText: ""
 
     property bool toggleOn: false
@@ -29,9 +30,9 @@ BasePopup {
 
     implicitWidth: 320
     readonly property int _contentHeight: headerRow.height + listView.height + footerItem.height
-    implicitHeight: root.maxPopupHeight > 0
-        ? Math.min(_contentHeight, root.maxPopupHeight)
-        : _contentHeight
+    implicitHeight: root.pinMaxHeight && root.maxPopupHeight > 0
+        ? root.maxPopupHeight
+        : (root.maxPopupHeight > 0 ? Math.min(_contentHeight, root.maxPopupHeight) : _contentHeight)
 
     RowLayout {
         id: headerRow
@@ -92,7 +93,7 @@ BasePopup {
         anchors.top: headerDivider.bottom
         anchors.left: parent.left
         anchors.right: parent.right
-        height: Math.min(contentHeight, root.maxListHeight)
+        height: root.pinMaxHeight ? root.maxListHeight : Math.min(contentHeight, root.maxListHeight)
         clip: true
         interactive: contentHeight > height
         delegate: root.rowDelegate
