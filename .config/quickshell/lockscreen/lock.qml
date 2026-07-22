@@ -43,7 +43,9 @@ Scope {
             property bool userPresent: true
             property real dimProgress: 0
 
-            readonly property bool isPrimary: Quickshell.screens.indexOf(surface.screen) === 0
+            readonly property bool isPrimary: surface.screen
+                && (surface.screen.name === Quickshell.screens[0].name
+                    || Quickshell.screens.length === 1)
 
             function wake() {
                 if (!surface.userPresent) {
@@ -66,11 +68,20 @@ Scope {
                 unlockTimer.start()
             }
 
+            function activatePrimary() {
+              if (!surface.isPrimary) return
+              passwordInput.forceActiveFocus()
+              pamPassword.tryStart()
+              pamFinger.tryStart()
+            }
+
             Component.onCompleted: {
                 content.opacity = 1
                 content.scale = 1.0
-                if (surface.isPrimary) passwordInput.forceActiveFocus()
+                surface.activatePrimary()
             }
+
+            onIsPrimaryChanged: surface.activatePrimary()
 
             Timer {
                 id: unlockTimer
@@ -93,14 +104,19 @@ Scope {
                 property string pending: ""
                 property int failCount: 0
                 property bool checking: false
+                property bool started: false
 
-                Component.onCompleted: if (surface.isPrimary) start()
+                function tryStart() {
+                  if (started) return
+                  started = true
+                  start()
+                }
 
                 onResponseRequiredChanged: {
-                    if (responseRequired && pending.length > 0) {
-                        respond(pending)
-                        pending = ""
-                    }
+                  if (responseRequired && pending.length > 0) {
+                    respond(pending)
+                    pending = ""
+                  }
                 }
 
                 onCompleted: (result) => {
