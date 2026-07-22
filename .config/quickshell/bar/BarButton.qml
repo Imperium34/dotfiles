@@ -27,6 +27,8 @@ Item {
         if (!root.popup) return
         const centerX = root.mapToItem(null, root.width / 2, 0).x
         root.popup.anchorX = Math.round(centerX - root.popup.implicitWidth / 2)
+        root.popup.triggerX = Math.round(centerX - root.width / 2)
+        root.popup.triggerWidth = root.width
         root.popup.toggle()
     }
 

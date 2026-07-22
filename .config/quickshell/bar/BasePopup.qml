@@ -5,40 +5,40 @@ import Quickshell.Hyprland
 import QtQuick
 import QtQuick.Effects
 
-PanelWindow {
+PopupWindow {
     id: root
 
     property var barWindow: null
     property int anchorX: 0
-    property real anchorY: barWindow ? barWindow.height + 16 : 68
+    property real anchorY: barWindow ? barWindow.height : 48
 
-    property string layerNamespace: "quickshell:popup"
     property var keyboardFocus: WlrKeyboardFocus.OnDemand
 
     // ---- card options ----
     property int animEnter: 220
     property int animExit: 150
-    property real startScale: 0.96
-    property real cardOpacity: 0.7
-    property bool cardClip: true
+    property real cardOpacity: Theme.surfaceAlpha(0.7)
     property bool roundedMask: false
+    property bool connectToBar: true
+    property real triggerX: anchorX
+    property real triggerWidth: 0
 
     color: "transparent"
     visible: false
-    screen: barWindow ? barWindow.screen : null
 
-    anchors.top: true
-    anchors.left: true
-    margins {
-        top: root.anchorY
-        left: Math.max(8, Math.min(root.anchorX,
-            (root.screen ? root.screen.width : 1920) - root.implicitWidth - 8))
-    }
-    exclusionMode: ExclusionMode.Ignore
+    // ---- PopupWindow Positioning ----
+    readonly property real resolvedAnchorX: Math.max(8, Math.min(root.anchorX, (barWindow?.screen?.width ?? 1920) - root.width - 8))
 
-    WlrLayershell.layer: WlrLayer.Overlay
-    WlrLayershell.namespace: root.layerNamespace
-    WlrLayershell.keyboardFocus: root.keyboardFocus
+    readonly property real startCardWidth: (connectToBar && triggerWidth > 0) ? triggerWidth : width
+    readonly property real startCardX: (connectToBar && triggerWidth > 0) ? (triggerX - resolvedAnchorX) : 0
+
+    anchor.window: barWindow
+    anchor.rect: Qt.rect(
+        root.resolvedAnchorX,
+        root.anchorY,
+        0,
+        0
+    )
 
     property bool animIn: false
 
@@ -77,24 +77,38 @@ PanelWindow {
     // ---- shared frosted, animated card ----
     Rectangle {
         id: card
-        anchors.fill: parent
+        y: 0
+        x: root.animIn ? 0 : root.startCardX
+        width: root.animIn ? root.width : root.startCardWidth
+        height: root.animIn ? root.height : 0
         radius: 16
         antialiasing: true
         color: Theme.hexToRgba(Theme.background, root.cardOpacity)
         border.color: Theme.hexToRgba(Theme.foreground, 0.1)
         border.width: 1
-        clip: root.cardClip && !root.roundedMask
+        clip: true
 
-        opacity: root.animIn ? 1 : (root.visible ? 0.45 : 0)
-        scale: root.animIn ? 1 : root.startScale
-        transformOrigin: Item.Top
-        Behavior on opacity {
+        opacity: root.animIn ? 1 : 0
+
+        Behavior on x {
             NumberAnimation {
                 duration: root.animIn ? root.animEnter : root.animExit
                 easing.type: Easing.OutCubic
             }
         }
-        Behavior on scale {
+        Behavior on width {
+            NumberAnimation {
+                duration: root.animIn ? root.animEnter : root.animExit
+                easing.type: Easing.OutCubic
+            }
+        }
+        Behavior on height {
+            NumberAnimation {
+                duration: root.animIn ? root.animEnter : root.animExit
+                easing.type: Easing.OutCubic
+            }
+        }
+        Behavior on opacity {
             NumberAnimation {
                 duration: root.animIn ? root.animEnter : root.animExit
                 easing.type: Easing.OutCubic
@@ -107,10 +121,24 @@ PanelWindow {
             maskEnabled: true
             maskSource: cornerMask
         }
+    }
+
+    // ---- content reveal layer ----
+    Item {
+        id: revealMask
+        x: card.x
+        y: card.y
+        width: card.width
+        height: card.height
+        clip: true
+        opacity: card.opacity
 
         Item {
             id: contentSlot
-            anchors.fill: parent
+            x: 0
+            y: 0
+            width: root.width
+            height: root.height
         }
     }
 
@@ -126,3 +154,4 @@ PanelWindow {
         }
     }
 }
+

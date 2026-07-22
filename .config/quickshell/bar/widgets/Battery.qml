@@ -8,8 +8,8 @@ import QtQuick
 BarButton {
     id: root
 
-    implicitWidth: widget.implicitWidth
-    implicitHeight: widget.implicitHeight
+    implicitWidth: pill.implicitWidth
+    implicitHeight: pill.implicitHeight
 
     visible: bat ? bat.isLaptopBattery : false
 
@@ -35,48 +35,58 @@ BarButton {
 
     readonly property color batteryColor: {
         if (!bat || !bat.ready) return Theme.foreground;
-        if (bat.percentage * 100 <= 15) return Theme.color1;
+        if (critical) return Theme.color4;
+        if (charging) return Theme.color4;
         if (bat.percentage * 100 <= 30) return Theme.color3;
-        return charging ? Theme.color2 : Theme.foreground;
+        return Theme.foreground;
     }
 
     popup: BatteryPopup {}
 
-    ExpandingWidget {
-        id: widget
-        icon: batteryIcon
-        label: bat && bat.ready ? Math.round(bat.percentage * 100) + "%" : "--"
-        iconColor: batteryColor
+    Rectangle {
+        id: pill
+        implicitWidth: widget.implicitWidth + (critical || charging ? 16 : 8)
+        implicitHeight: widget.implicitHeight + 6
+        radius: height / 2
+        color: "transparent"
 
-        Behavior on iconColor {
-            ColorAnimation { duration: 400; easing.type: Easing.OutCubic }
+        Behavior on implicitWidth { NumberAnimation { duration: 200; easing.type: Easing.OutCubic } }
+
+        readonly property bool activeState: critical || (charging && !full)
+        readonly property color stateColor: critical ? Theme.color1 : (charging && !full ? Theme.color2 : "transparent")
+
+        Rectangle {
+            id: fill
+            anchors.fill: parent
+            radius: parent.radius
+            color: pill.stateColor
+            visible: pill.activeState
+
+            Behavior on color { ColorAnimation { duration: 300 } }
+
+            SequentialAnimation {
+                id: breatheAnim
+                running: pill.activeState
+                loops: Animation.Infinite
+                alwaysRunToEnd: true
+                NumberAnimation { target: fill; property: "opacity"; to: 0.5; duration: 2000; easing.type: Easing.InOutSine }
+                NumberAnimation { target: fill; property: "opacity"; to: 0.75; duration: 2000; easing.type: Easing.InOutSine }
+            }
+
+            Component.onCompleted: {
+                opacity = 1.0
+                if (pill.activeState) breatheAnim.restart()
+            }
         }
 
-        transformOrigin: Item.Center
+        ExpandingWidget {
+            id: widget
+            anchors.centerIn: parent
+            icon: batteryIcon
+            label: bat && bat.ready ? Math.round(bat.percentage * 100) + "%" : "--"
+            iconColor: batteryColor
 
-        Behavior on scale {
-            NumberAnimation { duration: 250; easing.type: Easing.OutCubic }
-        }
-        Behavior on opacity {
-            NumberAnimation { duration: 250; easing.type: Easing.OutCubic }
-        }
-
-        SequentialAnimation {
-            running: charging && !full
-            loops: Animation.Infinite
-            alwaysRunToEnd: true
-
-            NumberAnimation { target: widget; property: "scale"; to: 1.1; duration: 850; easing.type: Easing.InOutSine }
-            NumberAnimation { target: widget; property: "scale"; to: 1.0; duration: 850; easing.type: Easing.InOutSine }
-        }
-
-        SequentialAnimation {
-            running: critical
-            loops: Animation.Infinite
-            alwaysRunToEnd: true
-
-            NumberAnimation { target: widget; property: "opacity"; to: 0.35; duration: 450; easing.type: Easing.InOutSine }
-            NumberAnimation { target: widget; property: "opacity"; to: 1.0; duration: 450; easing.type: Easing.InOutSine }
+            Behavior on iconColor { ColorAnimation { duration: 300 } }
         }
     }
 }

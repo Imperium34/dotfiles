@@ -121,7 +121,7 @@ PanelWindow {
             id: card
             anchors.fill: parent
             radius: 28
-            color: Theme.hexToRgba(Theme.background, 0.92)
+            color: Theme.hexToRgba(Theme.background, Theme.surfaceAlpha(0.92))
             border.color: Theme.hexToRgba(Theme.foreground, 0.1)
             border.width: 1
 

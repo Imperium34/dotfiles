@@ -11,7 +11,7 @@ Item {
 
     signal sliderMoved(real newValue)
 
-    readonly property bool expanded: hover.hovered
+    readonly property bool expanded: hover.hovered || drag.active
     readonly property real collapsedWidth: fontSize + 8
     readonly property real expandedWidth: collapsedWidth + 120
 
@@ -20,7 +20,7 @@ Item {
 
     Behavior on implicitWidth {
         NumberAnimation {
-            duration: 200
+            duration: 300
             easing.type: Easing.InOutQuart
         }
     }

@@ -74,6 +74,23 @@ Scope {
                     padding: 10
                     spacing: 10
 
+                    transformOrigin: Item.Center
+                    scale: wallpaperPicker.animIn ? 0.15 : 1
+                    opacity: wallpaperPicker.animIn ? 0 : 1
+
+                    Behavior on scale {
+                        NumberAnimation {
+                            duration: wallpaperPicker.animIn ? 220 : 260
+                            easing.type: Easing.OutCubic
+                        }
+                    }
+                    Behavior on opacity {
+                        NumberAnimation {
+                            duration: wallpaperPicker.animIn ? 150 : 200
+                            easing.type: Easing.OutCubic
+                        }
+                    }
+
                     SysMonitor { barWindow: barWindow; side: "cpu" }
                     Clock { barWindow: barWindow }
                     SysMonitor { barWindow: barWindow; side: "ram" }
@@ -90,13 +107,20 @@ Scope {
                     spacing: 8
 
                     IdleInhibitor {}
-                    Audio {}
+                    Audio { barWindow: barWindow }
                     Backlight {}
                     Network { barWindow: barWindow }
                     Bluetooth { barWindow: barWindow }
                     Battery { barWindow: barWindow }
                     Tray { barWindow: barWindow }
                     NotificationBell { barWindow: barWindow }
+                }
+
+                Wallpaper {
+                    id: wallpaperPicker
+                    barWindow: barWindow
+                    originX: barWindow.width / 2
+                    originWidth: centerPill.width
                 }
             }
         }

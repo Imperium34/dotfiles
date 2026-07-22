@@ -32,7 +32,7 @@ PanelWindow {
         width: parent.width
         implicitHeight: contentCol.implicitHeight + 24
         radius: 14
-        color: Theme.hexToRgba(Theme.background, 0.92)
+        color: Theme.hexToRgba(Theme.background, Theme.surfaceAlpha(0.92))
         border.color: {
             if (!NotifService.toastNotification) return Theme.hexToRgba(Theme.foreground, 0.1)
             return NotifService.toastNotification.urgency === NotificationUrgency.Critical

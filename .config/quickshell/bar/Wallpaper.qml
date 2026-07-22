@@ -2,15 +2,34 @@ import qs
 import Quickshell
 import Quickshell.Io
 import Quickshell.Wayland
+import Quickshell.Hyprland
 import QtQuick
 import QtQuick.Layouts
 
-PanelWindow {
+PopupWindow {
     id: root
     visible: false
-    WlrLayershell.namespace: "wallpaper"
+    color: "transparent"
 
+    property var barWindow: null
     property string homeDir: ""
+    property real originX: 0
+    property real originWidth: 200
+
+    implicitWidth: barWindow ? barWindow.width * 0.50 : 1200
+    implicitHeight: 190
+
+    anchor {
+        window: barWindow
+        rect: Qt.rect(
+            Math.max(8, Math.min(
+                originX - implicitWidth / 2,
+                (barWindow?.width ?? 1920) - implicitWidth - 8
+            )),
+            0,
+            0, 0
+        )
+    }
 
     Process {
         id: homeResolver
@@ -27,16 +46,6 @@ PanelWindow {
         }
     }
 
-    anchors.top: true
-    anchors.left: true
-    anchors.right: true
-    exclusionMode: ExclusionMode.Ignore
-    WlrLayershell.layer: WlrLayer.Top
-    WlrLayershell.keyboardFocus: WlrKeyboardFocus.OnDemand
-
-    implicitHeight: 152
-    color: "transparent"
-
     property bool animIn: false
 
     property int applyingIndex: -1
@@ -51,17 +60,29 @@ PanelWindow {
         visible = true
         animIn = true
         applyingIndex = -1
-        wallpaperScanner.running = true
+        if (root.homeDir) {
+            wallpaperScanner.running = true
+        }
+        focusGrab.active = true
     }
+
+    onHomeDirChanged: if (visible) wallpaperScanner.running = true
 
     function close() {
         animIn = false
+        focusGrab.active = false
         closeTimer.start()
     }
 
     function toggle() {
         if (animIn) close()
         else open()
+    }
+
+    HyprlandFocusGrab {
+        id: focusGrab
+        windows: [root]
+        onCleared: root.close()
     }
 
     Timer {
@@ -77,6 +98,53 @@ PanelWindow {
 
     property var wallpapers: []
     property string currentWallpaper: ""
+
+    // ---- theme presets ----
+    property bool showingThemeTab: false
+    readonly property var themePresets: ["vibrant", "muted", "pastel", "dark", "mono"]
+    property int presetGenIndex: -1
+    property string previewedWallpaper: ""
+
+    onShowingThemeTabChanged: {
+        if (showingThemeTab && root.previewedWallpaper !== root.currentWallpaper) {
+            root.previewedWallpaper = root.currentWallpaper
+            root.presetGenIndex = 0
+            presetGenProc.running = true
+        }
+    }
+
+    Process {
+        id: presetGenProc
+        command: (root.presetGenIndex >= 0 && root.presetGenIndex < root.themePresets.length) ? [
+            root.homeDir + "/.config/quickshell/scripts/preview-theme.sh",
+            root.previewedWallpaper,
+            root.homeDir + "/.config/wallust/presets/" + root.themePresets[root.presetGenIndex] + ".toml",
+            "/tmp/wallust-preview-" + root.themePresets[root.presetGenIndex] + ".json"
+        ] : []
+        onExited: {
+            root.presetGenIndex++
+            if (root.presetGenIndex < root.themePresets.length) {
+                running = true
+            } else {
+                root.presetGenIndex = -1
+            }
+        }
+    }
+
+    Process {
+        id: applyThemeProc
+        command: []
+    }
+
+    function applyPreset(name) {
+        applyThemeProc.command = [
+            root.homeDir + "/.config/quickshell/scripts/apply-theme.sh",
+            root.currentWallpaper,
+            root.homeDir + "/.config/wallust/presets/" + name + ".toml"
+        ]
+        applyThemeProc.running = true
+        close()
+    }
 
     Process {
         id: wallpaperScanner
@@ -146,28 +214,66 @@ PanelWindow {
     Rectangle {
         id: bg
         anchors.fill: parent
-        color: Theme.hexToRgba(Theme.background, 0.92)
+        radius: 20
+        antialiasing: true
+        transformOrigin: Item.Top
+        scale: root.animIn ? 1 : (root.originWidth / (barWindow ? barWindow.width * 0.65 : 1200))
+        opacity: root.animIn ? 1 : 0
+        Behavior on scale { NumberAnimation { duration: 260; easing.type: Easing.OutCubic } }
+
+        color: Theme.hexToRgba(Theme.background, Theme.surfaceAlpha(0.92))
         border.color: Theme.hexToRgba(Theme.foreground, 0.08)
         border.width: 1
 
-        transform: Translate {
-            y: root.animIn ? 0 : -root.height
-            Behavior on y {
-                NumberAnimation { duration: 200; easing.type: Easing.OutCubic }
-            }
-        }
+        RowLayout {
+            id: tabRow
+            anchors { top: parent.top; horizontalCenter: parent.horizontalCenter; topMargin: 8 }
+            height: 26
+            spacing: 6
 
-        opacity: root.animIn ? 1 : 0
-        Behavior on opacity {
-            NumberAnimation { duration: 150; easing.type: Easing.OutCubic }
+            Rectangle {
+                Layout.preferredWidth: 90
+                Layout.fillHeight: true
+                radius: 8
+                color: !root.showingThemeTab ? Theme.hexToRgba(Theme.color5, 0.25) : "transparent"
+                Behavior on color { ColorAnimation { duration: 120 } }
+                Text {
+                    anchors.centerIn: parent
+                    text: "Wallpaper"
+                    color: Theme.foreground
+                    font.pixelSize: 11
+                    font.bold: !root.showingThemeTab
+                }
+                TapHandler { onTapped: root.showingThemeTab = false }
+            }
+            Rectangle {
+                Layout.preferredWidth: 90
+                Layout.fillHeight: true
+                radius: 8
+                color: root.showingThemeTab ? Theme.hexToRgba(Theme.color5, 0.25) : "transparent"
+                Behavior on color { ColorAnimation { duration: 120 } }
+                Text {
+                    anchors.centerIn: parent
+                    text: "Theme"
+                    color: Theme.foreground
+                    font.pixelSize: 11
+                    font.bold: root.showingThemeTab
+                }
+                TapHandler { onTapped: root.showingThemeTab = true }
+            }
         }
 
         ListView {
             id: thumbList
             anchors {
-                fill: parent
+                top: tabRow.bottom
+                left: parent.left
+                right: parent.right
+                bottom: parent.bottom
                 margins: 8
+                topMargin: 6
             }
+            visible: !root.showingThemeTab
             orientation: ListView.Horizontal
             spacing: 8
             clip: true
@@ -180,6 +286,16 @@ PanelWindow {
             Keys.onReturnPressed: {
                 if (currentIndex >= 0 && currentIndex < root.wallpapers.length) {
                     root.applyWallpaper(root.wallpapers[currentIndex], currentIndex)
+                }
+            }
+            Keys.onTabPressed: {
+                root.showingThemeTab = !root.showingThemeTab
+                event.accepted = true
+            }
+            Keys.onPressed: {
+                if (event.key === Qt.Key_Space) {
+                    root.showingThemeTab = !root.showingThemeTab
+                    event.accepted = true
                 }
             }
 
@@ -206,7 +322,7 @@ PanelWindow {
             }
             highlightFollowsCurrentItem: true
             highlightMoveDuration: 120
-            focus: true
+            focus: !root.showingThemeTab
 
             delegate: Item {
                 id: thumb
@@ -334,6 +450,135 @@ PanelWindow {
 
                 TapHandler {
                     onTapped: root.applyWallpaper(thumb.filename, index)
+                }
+            }
+        }
+
+        ListView {
+            id: presetList
+            anchors {
+                top: tabRow.bottom
+                left: parent.left
+                right: parent.right
+                bottom: parent.bottom
+                margins: 8
+                topMargin: 6
+            }
+            visible: root.showingThemeTab
+            orientation: ListView.Horizontal
+            spacing: 8
+            clip: true
+            model: root.themePresets
+            focus: root.showingThemeTab
+
+            Keys.onEscapePressed: root.close()
+            Keys.onReturnPressed: {
+                if (currentIndex >= 0 && currentIndex < root.themePresets.length) {
+                    root.applyPreset(root.themePresets[currentIndex])
+                }
+            }
+            Keys.onTabPressed: {
+                root.showingThemeTab = !root.showingThemeTab
+                event.accepted = true
+            }
+            Keys.onPressed: {
+                if (event.key === Qt.Key_Space) {
+                    root.showingThemeTab = !root.showingThemeTab
+                    event.accepted = true
+                }
+            }
+
+            delegate: Item {
+                id: presetThumb
+                width: 160
+                height: presetList.height
+                readonly property string presetName: modelData
+                readonly property bool isGenerating: root.presetGenIndex >= 0
+                    && root.themePresets[root.presetGenIndex] === presetName
+
+                FileView {
+                    id: previewFile
+                    path: "/tmp/wallust-preview-" + presetThumb.presetName + ".json"
+                    watchChanges: true
+                    onFileChanged: reload()
+                    JsonAdapter {
+                        id: swatchAdapter
+                        property string background: "#000000"
+                        property string foreground: "#ffffff"
+                        property string color0: "#000000"
+                        property string color1: "#000000"
+                        property string color2: "#000000"
+                        property string color3: "#000000"
+                        property string color4: "#000000"
+                        property string color5: "#000000"
+                        property string color6: "#000000"
+                        property string color7: "#000000"
+                    }
+                }
+
+                Rectangle {
+                    anchors.fill: parent
+                    radius: 10
+                    color: Theme.hexToRgba(Theme.foreground, 0.05)
+                    border.color: presetList.currentIndex === index
+                        ? Theme.color5 : Theme.hexToRgba(Theme.foreground, 0.1)
+                    border.width: presetList.currentIndex === index ? 2 : 1
+                    Behavior on border.color { ColorAnimation { duration: 120 } }
+
+                    ColumnLayout {
+                        anchors.fill: parent
+                        anchors.margins: 10
+                        spacing: 8
+
+                        GridLayout {
+                            Layout.fillWidth: true
+                            Layout.fillHeight: true
+                            columns: 4
+                            rowSpacing: 4
+                            columnSpacing: 4
+
+                            Repeater {
+                                model: [
+                                    swatchAdapter.color1, swatchAdapter.color2,
+                                    swatchAdapter.color3, swatchAdapter.color4,
+                                    swatchAdapter.color5, swatchAdapter.color6,
+                                    swatchAdapter.color7, swatchAdapter.background
+                                ]
+                                delegate: Rectangle {
+                                    Layout.fillWidth: true
+                                    Layout.fillHeight: true
+                                    radius: 4
+                                    color: modelData
+                                }
+                            }
+                        }
+
+                        Text {
+                            Layout.fillWidth: true
+                            text: presetThumb.presetName
+                            color: Theme.foreground
+                            font.pixelSize: 11
+                            font.bold: true
+                            horizontalAlignment: Text.AlignHCenter
+                        }
+                    }
+
+                    Rectangle {
+                        anchors.fill: parent
+                        radius: 10
+                        color: Theme.hexToRgba(Theme.background, 0.5)
+                        visible: presetThumb.isGenerating
+                        Text {
+                            anchors.centerIn: parent
+                            text: "…"
+                            color: Theme.foreground
+                            font.pixelSize: 18
+                        }
+                    }
+                }
+
+                TapHandler {
+                    onTapped: root.applyPreset(presetThumb.presetName)
                 }
             }
         }

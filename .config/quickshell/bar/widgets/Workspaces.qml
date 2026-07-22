@@ -9,7 +9,7 @@ Item {
     readonly property var hyprMonitor: Hyprland.monitorFor(screen)
 
     readonly property var sortedWorkspaces: {
-        const ws = Hyprland.workspaces.values.slice()
+        const ws = Hyprland.workspaces.values.filter(w => !w.name.startsWith("special:"))
         ws.sort((a, b) => a.id - b.id)
         return ws
     }

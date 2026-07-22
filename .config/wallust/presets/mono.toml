@@ -1,0 +1,5 @@
+backend = "fastresize"
+color_space = "lab"
+palette = "softdarkcomp16"
+saturation = 8
+check_contrast = false

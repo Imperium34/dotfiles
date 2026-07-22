@@ -1,0 +1,5 @@
+backend = "fastresize"
+color_space = "lch"
+palette = "harddarkcomp"
+saturation = 90
+check_contrast = false

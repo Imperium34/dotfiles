@@ -13,7 +13,6 @@ BasePopup {
     implicitWidth: 560
     implicitHeight: 205
 
-    cardClip: false
     roundedMask: true
 
     readonly property bool hasArt: player

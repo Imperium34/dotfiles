@@ -7,5 +7,4 @@ Scope {
   Launcher {}
   Clipboard {}
   NotifToast {}
-  Wallpaper {}
 }

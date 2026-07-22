@@ -1,14 +1,19 @@
 import qs
 import qs.widgets
+import qs.popups.audio
 import Quickshell
 import Quickshell.Io
 import Quickshell.Services.Pipewire
 import QtQuick
 import QtQuick.Layouts
 
-Item {
+BarButton {
+    id: root
+
     implicitWidth: widget.implicitWidth
     implicitHeight: widget.implicitHeight
+
+    popup: AudioPopup {}
 
     PwObjectTracker {
         objects: [Pipewire.defaultAudioSink]
@@ -20,11 +25,11 @@ Item {
     readonly property int volume: audio ? Math.round(audio.volume * 100) : 0
 
     readonly property string audioIcon: {
-        if (!audio || muted) return ""
-        if (volume == 0)     return ""
-        if (volume < 34)     return ""
-        if (volume < 67)     return ""
-        return ""
+        if (!audio || muted) return "";
+        if (volume == 0)     return "";
+        if (volume < 34)     return "";
+        if (volume < 67)     return "";
+        return "";
     }
 
     SliderWidget {
@@ -41,5 +46,4 @@ Item {
         acceptedButtons: Qt.RightButton
         onTapped: if (audio) audio.muted = !audio.muted
     }
-
 }

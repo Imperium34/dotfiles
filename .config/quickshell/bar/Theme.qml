@@ -62,4 +62,9 @@ Singleton {
         alpha
     )
   }
+
+  function surfaceAlpha(base) {
+    return BlurState.blurEnabled ? base : Math.min(1.0, base + 0.15)
+  }
+
 }

@@ -37,20 +37,24 @@ Scope {
             property string fpStatus: "Touch sensor"
             property int denyLimit: 3
             property bool capsOn: false
+            property string kbLayout: ""
             property string netIcon: ""
             property string netLabel: ""
             property bool userPresent: true
+            property real dimProgress: 0
 
-            // Idle-presence gate. When you walk away (no input for a while) the
-            // ambient animations and the caps/net polls pause, so the compositor
-            // can settle on a static frame instead of animating + spawning shells
-            // all night. Any keystroke or mouse movement wakes it back up.
+            readonly property bool isPrimary: Quickshell.screens.indexOf(surface.screen) === 0
+
             function wake() {
                 if (!surface.userPresent) {
                     surface.userPresent = true
-                    capsProc.running = true
-                    netProc.running = true
+                    if (surface.isPrimary) {
+                        capsProc.running = true
+                        netProc.running = true
+                        layoutProc.running = true
+                    }
                 }
+                surface.dimProgress = 0
                 idleTimer.restart()
             }
 
@@ -65,7 +69,7 @@ Scope {
             Component.onCompleted: {
                 content.opacity = 1
                 content.scale = 1.0
-                passwordInput.forceActiveFocus()
+                if (surface.isPrimary) passwordInput.forceActiveFocus()
             }
 
             Timer {
@@ -90,7 +94,7 @@ Scope {
                 property int failCount: 0
                 property bool checking: false
 
-                Component.onCompleted: start()
+                Component.onCompleted: if (surface.isPrimary) start()
 
                 onResponseRequiredChanged: {
                     if (responseRequired && pending.length > 0) {
@@ -128,7 +132,7 @@ Scope {
                 config: "quickshell-fprint"
                 property int fails: 0
 
-                Component.onCompleted: start()
+                Component.onCompleted: if (surface.isPrimary) start()
 
                 onCompleted: (result) => {
                     if (surface.unlocking) return
@@ -184,9 +188,25 @@ Scope {
 
             Timer {
                 interval: 900
-                running: surface.userPresent && !surface.unlocking
+                running: surface.isPrimary && surface.userPresent && !surface.unlocking
                 repeat: true
                 onTriggered: capsProc.running = true
+            }
+
+            Process {
+                id: layoutProc
+                command: ["bash", "-c",
+                    "hyprctl devices -j | grep -o '\"active_keymap\": *\"[^\"]*\"' | head -1 | sed 's/.*: *\"//;s/\"$//'"]
+                stdout: StdioCollector {
+                    onStreamFinished: surface.kbLayout = text.trim()
+                }
+            }
+
+            Timer {
+                interval: 2000
+                running: surface.isPrimary && surface.userPresent && !surface.unlocking
+                repeat: true
+                onTriggered: layoutProc.running = true
             }
 
             Process {
@@ -214,7 +234,7 @@ Scope {
             }
             Timer {
                 interval: 5000
-                running: surface.userPresent
+                running: surface.isPrimary && surface.userPresent
                 repeat: true
                 onTriggered: netProc.running = true
             }
@@ -235,9 +255,20 @@ Scope {
                 source: bgSource
                 blurEnabled: true
                 blur: 1.0
-                blurMax: 32
-                brightness: -0.35
-                saturation: 0.1
+                blurMax: 32 + surface.dimProgress * 32
+                brightness: -0.35 - surface.dimProgress * 0.25
+                saturation: 0.1 - surface.dimProgress * 0.1
+                Behavior on blurMax { NumberAnimation { duration: 800; easing.type: Easing.InOutSine } }
+                Behavior on brightness { NumberAnimation { duration: 800; easing.type: Easing.InOutSine } }
+                Behavior on saturation { NumberAnimation { duration: 800; easing.type: Easing.InOutSine } }
+            }
+
+            Timer {
+                id: dimRampTimer
+                interval: 1000
+                repeat: true
+                running: !surface.userPresent && !surface.unlocking
+                onTriggered: surface.dimProgress = Math.min(1, surface.dimProgress + (1 / 180))
             }
 
             // ── FOREGROUND (animated in/out) ──────────────────────
@@ -254,6 +285,7 @@ Scope {
                 // ── LEFT COLUMN: IDENTITY & AUTH ──────────────────
                 Item {
                     id: leftCol
+                    visible: surface.isPrimary
                     anchors.verticalCenter: parent.verticalCenter
                     anchors.horizontalCenter: parent.horizontalCenter
                     anchors.horizontalCenterOffset: -400
@@ -461,6 +493,30 @@ Scope {
                         }
                     }
 
+                    Rectangle {
+                        id: layoutPill
+                        anchors.left: capsPill.visible ? capsPill.right : authRing.right
+                        anchors.leftMargin: 12
+                        anchors.verticalCenter: authRing.verticalCenter
+                        visible: surface.kbLayout !== ""
+                        opacity: visible ? 1 : 0
+                        Behavior on opacity { NumberAnimation { duration: 200 } }
+                        implicitWidth: layoutText.implicitWidth + 22
+                        implicitHeight: 30
+                        radius: 15
+                        color: Theme.hexToRgba(Theme.foreground, 0.08)
+                        border.color: Theme.hexToRgba(Theme.foreground, 0.2)
+                        border.width: 1
+                        Text {
+                            id: layoutText
+                            anchors.centerIn: parent
+                            text: surface.kbLayout.substring(0, 2).toUpperCase()
+                            color: Theme.hexToRgba(Theme.foreground, 0.8)
+                            font.pixelSize: 12
+                            font.family: "Departure Mono"
+                        }
+                    }
+
                     // ── FINGERPRINT STATUS ────────────────────────
                     Row {
                         id: fpRow
@@ -577,7 +633,7 @@ Scope {
 
                     readonly property var player: Mpris.players.values.length > 0 ? Mpris.players.values[0] : null
                     readonly property bool hasArt: player && player.trackArtUrl && player.trackArtUrl !== ""
-                    visible: player !== null
+                    visible: surface.isPrimary && player !== null
                     opacity: visible ? 1 : 0
                     Behavior on opacity { NumberAnimation { duration: 350; easing.type: Easing.InOutSine } }
 
@@ -597,6 +653,7 @@ Scope {
                     }
 
                     Rectangle {
+                        id: playerCard
                         anchors.fill: parent
                         radius: 30
                         color: Theme.hexToRgba(Theme.background, 0.4)
@@ -605,11 +662,31 @@ Scope {
                         clip: true
 
                         Image {
+                            id: bgArt
                             anchors.fill: parent
                             source: rightCol.hasArt ? rightCol.player.trackArtUrl : ""
                             fillMode: Image.PreserveAspectCrop
                             opacity: 0.3
                             visible: rightCol.hasArt
+
+                            layer.enabled: true
+                            layer.smooth: true
+                            layer.effect: MultiEffect {
+                                maskEnabled: true
+                                maskSource: playerCardMask
+                            }
+                        }
+
+                        Item {
+                            id: playerCardMask
+                            anchors.fill: playerCard
+                            layer.enabled: true
+                            visible: false
+                            Rectangle {
+                                anchors.fill: parent
+                                radius: playerCard.radius
+                                color: "black"
+                            }
                         }
 
                         ColumnLayout {
@@ -775,9 +852,82 @@ Scope {
                     }
                 }
 
+                // ── POWER BUTTON (top-left) ───────────────────────
+                Rectangle {
+                    id: powerButton
+                    anchors.top: parent.top
+                    anchors.left: parent.left
+                    anchors.topMargin: 44
+                    anchors.leftMargin: 54
+                    width: 40
+                    height: 40
+                    radius: 20
+                    color: powerConfirming
+                        ? Theme.hexToRgba(Theme.color1, 0.25)
+                        : (powerTap.hovered ? Theme.hexToRgba(Theme.foreground, 0.12) : Theme.hexToRgba(Theme.background, 0.4))
+                    border.color: powerConfirming ? Theme.color1 : Theme.hexToRgba(Theme.foreground, 0.15)
+                    border.width: 1
+                    Behavior on color { ColorAnimation { duration: 150 } }
+                    Behavior on border.color { ColorAnimation { duration: 150 } }
+
+                    property bool powerConfirming: false
+
+                    scale: powerTap.pressed ? 0.9 : 1
+                    Behavior on scale { NumberAnimation { duration: 120; easing.type: Easing.OutCubic } }
+
+                    Text {
+                        anchors.centerIn: parent
+                        text: "󰐥"
+                        color: powerButton.powerConfirming ? Theme.color1 : Theme.foreground
+                        font.pixelSize: 18
+                        font.family: "Symbols Nerd Font"
+                    }
+
+                    Text {
+                        anchors.top: parent.bottom
+                        anchors.topMargin: 8
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        width: 140
+                        horizontalAlignment: Text.AlignHCenter
+                        wrapMode: Text.WordWrap
+                        text: "Tap again to shut down"
+                        color: Theme.color1
+                        font.pixelSize: 11
+                        font.family: "Departure Mono"
+                        visible: powerButton.powerConfirming
+                        opacity: visible ? 1 : 0
+                        Behavior on opacity { NumberAnimation { duration: 150 } }
+                    }
+
+                    Timer {
+                        id: powerConfirmTimer
+                        interval: 3000
+                        onTriggered: powerButton.powerConfirming = false
+                    }
+
+                    Process {
+                        id: powerProc
+                        command: ["systemctl", "poweroff"]
+                    }
+
+                    TapHandler {
+                        id: powerTap
+                        onTapped: {
+                            if (powerButton.powerConfirming) {
+                                powerConfirmTimer.stop()
+                                powerProc.running = true
+                            } else {
+                                powerButton.powerConfirming = true
+                                powerConfirmTimer.restart()
+                            }
+                        }
+                    }
+                }
+
                 // ── STATUS CLUSTER (top-right) ────────────────────
                 Row {
                     id: statusCluster
+                    visible: surface.isPrimary
                     anchors.top: parent.top
                     anchors.right: parent.right
                     anchors.topMargin: 44
@@ -862,6 +1012,7 @@ Scope {
                 // ── BOTTOM: QUOTES ────────────────────────────────
                 Text {
                     id: quoteText
+                    visible: surface.isPrimary
                     anchors.bottom: parent.bottom
                     anchors.bottomMargin: 80
                     anchors.horizontalCenter: parent.horizontalCenter
@@ -883,12 +1034,36 @@ Scope {
                         easing.type: Easing.OutCubic
                     }
                 }
+
+                // ── SECONDARY MONITORS: plain clock only ──────────
+                Column {
+                    id: secondaryClock
+                    visible: !surface.isPrimary
+                    anchors.centerIn: parent
+                    spacing: -6
+
+                    Text {
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        text: Qt.formatDateTime(clock.date, "HH:mm")
+                        color: Theme.color7
+                        font.pixelSize: 85
+                        font.family: "Departure Mono"
+                        font.bold: true
+                    }
+                    Text {
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        text: Qt.formatDateTime(clock.date, "dd MMMM yyyy")
+                        color: Theme.color7
+                        font.pixelSize: 24
+                        font.family: "Departure Mono"
+                    }
+                }
             }
 
             Process {
                 id: quoteProc
                 command: ["/bin/bash", "-c", Quickshell.env("HOME") + "/.config/quickshell/scripts/quote.sh"]
-                running: true
+                running: surface.isPrimary
                 stdout: StdioCollector {
                     onStreamFinished: quoteText.text = text.trim()
                 }
@@ -896,7 +1071,7 @@ Scope {
 
             Timer {
                 interval: 14400000
-                running: true
+                running: surface.isPrimary
                 repeat: true
                 onTriggered: quoteProc.running = true
             }
