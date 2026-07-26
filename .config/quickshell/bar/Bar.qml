@@ -1,6 +1,7 @@
 import qs
 import qs.widgets
 import Quickshell
+import Quickshell.Io
 import Quickshell.Wayland
 import Quickshell.Hyprland
 import Quickshell.Services.SystemTray
@@ -74,20 +75,27 @@ Scope {
                     padding: 10
                     spacing: 10
 
-                    transformOrigin: Item.Center
-                    scale: wallpaperPicker.animIn ? 0.15 : 1
-                    opacity: wallpaperPicker.animIn ? 0 : 1
+                    readonly property real growDuration: Math.abs(ExpandPopupCoordinator.targetWidth - implicitWidth)
+                        / ExpandPopupCoordinator.growSpeed * 1000
 
-                    Behavior on scale {
-                        NumberAnimation {
-                            duration: wallpaperPicker.animIn ? 220 : 260
-                            easing.type: Easing.OutCubic
-                        }
+                    width: ExpandPopupCoordinator.expanded ? ExpandPopupCoordinator.targetWidth : implicitWidth
+                    Behavior on width {
+                        NumberAnimation { duration: centerPill.growDuration; easing.type: Easing.OutCubic }
                     }
-                    Behavior on opacity {
-                        NumberAnimation {
-                            duration: wallpaperPicker.animIn ? 150 : 200
-                            easing.type: Easing.OutCubic
+
+                    contentOpacity: (!ExpandPopupCoordinator.expanded && !shrinkGuard.running) ? 1 : 0
+                    Behavior on contentOpacity {
+                        NumberAnimation { duration: 150; easing.type: Easing.OutCubic }
+                    }
+
+                    Timer {
+                        id: shrinkGuard
+                        interval: centerPill.growDuration
+                    }
+                    Connections {
+                        target: ExpandPopupCoordinator
+                        function onExpandedChanged() {
+                            if (!ExpandPopupCoordinator.expanded) shrinkGuard.restart()
                         }
                     }
 
@@ -116,12 +124,25 @@ Scope {
                     NotificationBell { barWindow: barWindow }
                 }
 
-                Wallpaper {
-                    id: wallpaperPicker
-                    barWindow: barWindow
-                    originX: barWindow.width / 2
-                    originWidth: centerPill.width
+                Wallpaper { barWindow: barWindow; originX: barWindow.width / 2; originWidth: centerPill.implicitWidth }
+                Launcher  { barWindow: barWindow; originX: barWindow.width / 2; originWidth: centerPill.implicitWidth }
+                Clipboard { barWindow: barWindow; originX: barWindow.width / 2; originWidth: centerPill.implicitWidth }
+
+                LazyLoader {
+                    id: sysMonitorLoader
+                    active: false
+
+                    SysMonitorWindow {
+                        visible: true
+                        onCloseRequested: sysMonitorLoader.active = false
+                    }
                 }
+
+                IpcHandler {
+                    target: "sysmonitor"
+                    function open(): void { sysMonitorLoader.active = true }
+                }
+
             }
         }
     }

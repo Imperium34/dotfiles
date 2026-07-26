@@ -5,21 +5,22 @@ import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
 
-BasePanel {
+BaseExpandPopup {
     id: launcher
 
     ipcTarget: "launcher"
     placeholder: "Search applications..."
 
-    cardWidth: 480
-    cardHeight: Math.min(600, 74 + filteredApps.length * 50)
+    implicitWidth: 480
+    implicitHeight: Math.min(600, 74 + filteredApps.length * 50)
 
     searchHeight: 44
     columnSpacing: 8
     searchFontSize: 14
     searchIconSize: 16
 
-    maxIndex: Math.max(filteredApps.length - 1, 0)
+    minIndex: appsList.minIndex
+    maxIndex: appsList.maxIndex
 
     readonly property var allApps: DesktopEntries.applications.values
     readonly property string query: searchText.toLowerCase()
@@ -62,51 +63,33 @@ BasePanel {
         return Quickshell.iconPath("application-x-executable", true)
     }
 
-    ListView {
-        id: appList
+    SelectableListView {
+        id: appsList
         anchors.fill: parent
-        model: filteredApps
-        clip: true
-        currentIndex: selectedIndex
-        spacing: 2
+        model: launcher.filteredApps
+        rowHeight: 48
+        emptyText: ""
 
-        ScrollBar.vertical: ScrollBar {
-            policy: ScrollBar.AsNeeded
+        onSelectedIndexChanged: if (launcher.selectedIndex !== selectedIndex) launcher.selectedIndex = selectedIndex
+        Connections {
+            target: launcher
+            function onSelectedIndexChanged() {
+                if (appsList.selectedIndex !== launcher.selectedIndex) appsList.selectedIndex = launcher.selectedIndex
+            }
         }
 
-        onCurrentIndexChanged: positionViewAtIndex(currentIndex, ListView.Contain)
-
-        delegate: Rectangle {
-            required property var modelData
-            required property int index
-
-            width: appList.width
-            height: 48
-            radius: 8
-            color: index === selectedIndex
-                ? Theme.hexToRgba(Theme.color4, 0.7)
-                : (appHover.hovered ? Theme.hexToRgba(Theme.foreground, 0.07) : "transparent")
-
-            Behavior on color {
-                ColorAnimation { duration: 100 }
-            }
-
-            HoverHandler {
-                id: appHover
-                onHoveredChanged: if (hovered) selectedIndex = index
-            }
-
+        delegate: Component {
             RowLayout {
-                anchors {
-                    fill: parent
-                    leftMargin: 12
-                    rightMargin: 12
-                }
+                id: row
+                property var modelData
+                property int index
+                property bool selected: false
+
+                anchors { fill: parent; leftMargin: 12; rightMargin: 12 }
                 spacing: 12
 
                 IconImage {
-                    id: iconImg
-                    source: launcher.resolveIcon(modelData.icon)
+                    source: launcher.resolveIcon(row.modelData.icon)
                     implicitSize: 28
                     asynchronous: true
                 }
@@ -116,19 +99,17 @@ BasePanel {
                     spacing: 1
 
                     Text {
-                        text: modelData.name
-                        color: index === selectedIndex
-                            ? Theme.background
-                            : Theme.foreground
+                        text: row.modelData.name
+                        color: row.selected ? Theme.background : Theme.foreground
                         font.pixelSize: 13
-                        font.bold: index === selectedIndex
+                        font.bold: row.selected
                         elide: Text.ElideRight
                         Layout.fillWidth: true
                     }
 
                     Text {
-                        text: modelData.genericName || modelData.comment || ""
-                        color: index === selectedIndex
+                        text: row.modelData.genericName || row.modelData.comment || ""
+                        color: row.selected
                             ? Theme.hexToRgba(Theme.background, 0.7)
                             : Theme.hexToRgba(Theme.foreground, 0.5)
                         font.pixelSize: 11
@@ -137,10 +118,10 @@ BasePanel {
                         visible: text !== ""
                     }
                 }
-            }
 
-            TapHandler {
-                onTapped: launcher.launch(modelData)
+                TapHandler {
+                    onTapped: launcher.launch(row.modelData)
+                }
             }
         }
     }

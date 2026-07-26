@@ -5,21 +5,22 @@ import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
 
-BasePanel {
+BaseExpandPopup {
     id: clipboard
 
     ipcTarget: "clipboard"
     placeholder: "Search clipboard..."
 
-    cardWidth: 420
-    cardHeight: Math.min(500, 106 + Math.max(1, filteredEntries.length) * 34)
+    implicitWidth: 420
+    implicitHeight: Math.min(500, 106 + Math.max(1, filteredEntries.length) * 34)
 
     searchHeight: 40
     columnSpacing: 6
     searchFontSize: 13
     searchIconSize: 14
 
-    maxIndex: filteredEntries.length
+    minIndex: entryList.minIndex
+    maxIndex: entryList.maxIndex
 
     property var entries: []
 
@@ -87,172 +88,138 @@ BasePanel {
         command: ["/usr/bin/notify-send", "Clipboard", "History cleared successfully"]
     }
 
-    ListView {
-        id: clipList
+    SelectableListView {
+        id: entryList
         anchors.fill: parent
-        clip: true
-        currentIndex: selectedIndex
-        spacing: 2
+        model: clipboard.filteredEntries
+        rowHeight: 32
+        headerHeight: 36
+        accentColor: Theme.color4
+        headerAccentColor: Theme.color1
+        emptyText: clipboard.query !== "" ? "No matches found" : "Clipboard is empty"
 
-        ScrollBar.vertical: ScrollBar {
-            policy: ScrollBar.AsNeeded
+        onSelectedIndexChanged: if (clipboard.selectedIndex !== selectedIndex) clipboard.selectedIndex = selectedIndex
+        Connections {
+            target: clipboard
+            function onSelectedIndexChanged() {
+                if (entryList.selectedIndex !== clipboard.selectedIndex) entryList.selectedIndex = clipboard.selectedIndex
+            }
         }
 
-        onCurrentIndexChanged: positionViewAtIndex(currentIndex, ListView.Contain)
-
-        Text {
-            anchors.centerIn: parent
-            text: query !== "" ? "No matches found" : "Clipboard is empty"
-            color: Theme.hexToRgba(Theme.foreground, 0.4)
-            font.pixelSize: 13
-            visible: filteredEntries.length === 0
-        }
-
-        header: Rectangle {
-            width: clipList.width
-            height: 36
-            radius: 8
-            visible: filteredEntries.length > 0
-            color: selectedIndex === 0
-                ? Theme.hexToRgba(Theme.color1, 0.7)
-                : (clearHover.hovered ? Theme.hexToRgba(Theme.foreground, 0.07) : "transparent")
-
-            Behavior on color {
-                ColorAnimation { duration: 100 }
-            }
-
-            HoverHandler {
-                id: clearHover
-                onHoveredChanged: if (hovered) selectedIndex = 0
-            }
-
+        header: Component {
             RowLayout {
-                anchors {
-                    fill: parent
-                    leftMargin: 12
-                    rightMargin: 12
-                }
+                property bool selected: false
+                anchors { fill: parent; leftMargin: 12; rightMargin: 12 }
                 spacing: 8
 
                 Text {
                     text: "󰃢"
-                    color: selectedIndex === 0 ? Theme.background : Theme.color1
+                    color: selected ? Theme.background : Theme.color1
                     font.pixelSize: 14
                     font.family: "Symbols Nerd Font"
                 }
-
                 Text {
                     text: "Clear History"
-                    color: selectedIndex === 0 ? Theme.background : Theme.color1
+                    color: selected ? Theme.background : Theme.color1
                     font.pixelSize: 13
-                    font.bold: selectedIndex === 0
+                    font.bold: selected
                 }
-            }
 
-            TapHandler {
-                onTapped: {
-                    clearProc.running = true
-                    clipboard.close()
+                TapHandler {
+                    onTapped: {
+                        clearProc.running = true
+                        clipboard.close()
+                    }
                 }
             }
         }
 
-        model: filteredEntries
+        delegate: Component {
+            Item {
+                id: row
+                property var modelData
+                property int index
+                property bool selected: false
 
-        delegate: Rectangle {
-            id: entryRect
-            required property var modelData
-            required property int index
+                property bool flashing: false
 
-            width: clipList.width
-            height: 32
-            radius: 8
+                readonly property bool isImage: row.modelData.content.startsWith("[[")
+                readonly property bool isPath: row.modelData.content.startsWith("/") || row.modelData.content.startsWith("~/")
+                readonly property bool isUrl: row.modelData.content.startsWith("http://") || row.modelData.content.startsWith("https://")
+                readonly property bool isCode: row.modelData.content.startsWith("$") || row.modelData.content.includes("{") || row.modelData.content.includes("()")
 
-            property bool flashing: false
+                readonly property color rowAccentColor: {
+                    if (isImage) return Theme.color3
+                    if (isUrl)   return Theme.color6
+                    if (isPath)  return Theme.color5
+                    if (isCode)  return Theme.color2
+                    return Theme.hexToRgba(Theme.foreground, 0.2)
+                }
 
-            color: flashing
-                ? Theme.hexToRgba(Theme.color5, 0.4)
-                : ((index + 1) === selectedIndex
-                    ? Theme.hexToRgba(Theme.color4, 0.7)
-                    : (entryHover.hovered
-                        ? Theme.hexToRgba(Theme.foreground, 0.07)
-                        : "transparent"))
-
-            Behavior on color {
-                ColorAnimation { duration: 100 }
-            }
-
-            readonly property bool isImage: modelData.content.startsWith("[[")
-            readonly property bool isPath: modelData.content.startsWith("/") || modelData.content.startsWith("~/")
-            readonly property bool isUrl: modelData.content.startsWith("http://") || modelData.content.startsWith("https://")
-            readonly property bool isCode: modelData.content.startsWith("$") || modelData.content.includes("{") || modelData.content.includes("()")
-
-            readonly property color accentColor: {
-                if (isImage) return Theme.color3
-                if (isUrl)   return Theme.color6
-                if (isPath)  return Theme.color5
-                if (isCode)  return Theme.color2
-                return Theme.hexToRgba(Theme.foreground, 0.2)
-            }
-
-            HoverHandler {
-                id: entryHover
-                onHoveredChanged: if (hovered) selectedIndex = index + 1
-            }
-
-            RowLayout {
-                anchors.fill: parent
-                spacing: 0
-
+                // Flash feedback overlays the shared selection highlight
+                // briefly on tap, same as the original.
                 Rectangle {
-                    width: 3
-                    height: parent.height * 0.6
-                    radius: 2
-                    color: accentColor
-                    Layout.leftMargin: 6
-                    Layout.alignment: Qt.AlignVCenter
+                    anchors.fill: parent
+                    radius: 8
+                    color: Theme.hexToRgba(Theme.color5, 0.4)
+                    opacity: row.flashing ? 1 : 0
+                    Behavior on opacity { NumberAnimation { duration: 100 } }
                 }
 
-                Text {
-                    Layout.fillWidth: true
-                    Layout.leftMargin: 8
-                    Layout.rightMargin: 8
-                    verticalAlignment: Text.AlignVCenter
+                RowLayout {
+                    anchors.fill: parent
+                    spacing: 0
 
-                    text: isImage ? "  Image" : modelData.content
-                    color: (index + 1) === selectedIndex
-                        ? Theme.background
-                        : (isImage ? Theme.color3 : Theme.foreground)
-                    font.pixelSize: 12
-                    font.family: isImage ? "Symbols Nerd Font" : "Departure Mono"
-                    elide: Text.ElideRight
+                    Rectangle {
+                        width: 3
+                        height: parent.height * 0.6
+                        radius: 2
+                        color: row.rowAccentColor
+                        Layout.leftMargin: 6
+                        Layout.alignment: Qt.AlignVCenter
+                    }
+
+                    Text {
+                        Layout.fillWidth: true
+                        Layout.leftMargin: 8
+                        Layout.rightMargin: 8
+                        verticalAlignment: Text.AlignVCenter
+
+                        text: row.isImage ? "  Image" : row.modelData.content
+                        color: row.selected
+                            ? Theme.background
+                            : (row.isImage ? Theme.color3 : Theme.foreground)
+                        font.pixelSize: 12
+                        font.family: row.isImage ? "Symbols Nerd Font" : "Departure Mono"
+                        elide: Text.ElideRight
+                    }
+
+                    Text {
+                        text: "#" + row.index
+                        color: row.selected
+                            ? Theme.hexToRgba(Theme.background, 0.5)
+                            : Theme.hexToRgba(Theme.foreground, 0.25)
+                        font.pixelSize: 10
+                        font.family: "Departure Mono"
+                        Layout.rightMargin: 10
+                        Layout.alignment: Qt.AlignVCenter
+                    }
                 }
 
-                Text {
-                    text: "#" + (index + 1)
-                    color: (index + 1) === selectedIndex
-                        ? Theme.hexToRgba(Theme.background, 0.5)
-                        : Theme.hexToRgba(Theme.foreground, 0.25)
-                    font.pixelSize: 10
-                    font.family: "Departure Mono"
-                    Layout.rightMargin: 10
-                    Layout.alignment: Qt.AlignVCenter
+                TapHandler {
+                    onTapped: {
+                        row.flashing = true
+                        flashTimer.start()
+                    }
                 }
-            }
 
-            TapHandler {
-                onTapped: {
-                    entryRect.flashing = true
-                    flashTimer.start()
-                }
-            }
-
-            Timer {
-                id: flashTimer
-                interval: 120
-                onTriggered: {
-                    entryRect.flashing = false
-                    clipboard.paste(modelData)
+                Timer {
+                    id: flashTimer
+                    interval: 120
+                    onTriggered: {
+                        row.flashing = false
+                        clipboard.paste(row.modelData)
+                    }
                 }
             }
         }

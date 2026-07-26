@@ -4,7 +4,5 @@ import Quickshell
 Scope {
   Bar {}
   OSD {}
-  Launcher {}
-  Clipboard {}
   NotifToast {}
 }

@@ -7,6 +7,7 @@ Rectangle {
 
     property int padding: 20
     property alias spacing: row.spacing
+    property alias contentOpacity: row.opacity
     default property alias content: row.data
 
     implicitHeight: 44

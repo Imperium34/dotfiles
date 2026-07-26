@@ -39,17 +39,6 @@ if ! wallust run -C "$run_config" "$wallpaper"; then
   exit 1
 fi
 
-if ! magick "$wallpaper" ~/Pictures/current.png; then
-  notify-send "Wallust" "Theme updated but wallpaper copy failed" -u critical
-  exit 1
-fi
-
-rm -rf ~/.cache/fastfetch/
-
-notify-send "Reloading hypr apps..."
-hyprctl reload
-~/.config/hypr/scripts/set-blur.sh
-if pgrep -x "openrgb" >/dev/null; then
-  ~/.config/quickshell/scripts/update-rgb.sh
-fi
-notify-send "Colors updated successfully!"
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$script_dir/post-apply.sh"
+post_apply "$wallpaper"

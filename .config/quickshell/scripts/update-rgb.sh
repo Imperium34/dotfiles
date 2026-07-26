@@ -12,19 +12,25 @@ def hex_to_rgb(hex_code):
     if len(hex_code) != 6: return (0,0,0)
     return tuple(int(hex_code[i:i+2], 16) / 255.0 for i in (0, 2, 4))
 
-best_color = None
-max_saturation = -1
-
+candidates = []
 for hex_code in sys.stdin:
     hex_code = hex_code.strip()
     if not hex_code: continue
-    
     r, g, b = hex_to_rgb(hex_code)
     h, l, s = colorsys.rgb_to_hls(r, g, b)
-    
-    if s > max_saturation:
-        max_saturation = s
-        best_color = hex_code
+    candidates.append((hex_code, s, l))
+
+def most_saturated(pool):
+    best, best_s = None, -1
+    for hex_code, s, l in pool:
+        if s > best_s:
+            best, best_s = hex_code, s
+    return best
+
+# Prefer saturated colors that aren't near-black or near-white — those read
+# as washed out or barely visible on RGB hardware even at high saturation.
+mid_range = [c for c in candidates if 0.15 <= c[2] <= 0.85]
+best_color = most_saturated(mid_range) if mid_range else most_saturated(candidates)
 
 if best_color:
     print(best_color.lstrip('#'))
