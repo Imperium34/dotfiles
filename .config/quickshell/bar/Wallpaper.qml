@@ -86,6 +86,7 @@ PopupWindow {
         if (root.homeDir) {
             wallpaperScanner.running = true
         }
+        syncPresetSelection()
         focusGrab.active = true
         ExpandPopupCoordinator.expand(root)
         widthPhaseTimer.restart()
@@ -165,6 +166,7 @@ PopupWindow {
     property var presetPreviewPaths: ({})
     property var lastPresetByWallpaper: ({})
     readonly property string lastPresetStateFile: root.homeDir + "/.cache/quickshell/last-presets.json"
+    readonly property string currentWallpaperStateFile: root.homeDir + "/.cache/quickshell/current-wallpaper"
 
     function generatePresetsFor(wallpaper) {
         root.previewedWallpaper = wallpaper
@@ -182,9 +184,17 @@ PopupWindow {
         generateAllProc.running = true
     }
 
+    function syncPresetSelection() {
+        const last = root.lastPresetByWallpaper[root.currentWallpaper]
+        presetList.currentIndex = last ? root.themePresets.indexOf(last) : -1
+    }
+
     onShowingThemeTabChanged: {
-        if (showingThemeTab && root.previewedWallpaper !== root.currentWallpaper) {
-            root.generatePresetsFor(root.currentWallpaper)
+        if (showingThemeTab) {
+            root.syncPresetSelection()
+            if (root.previewedWallpaper !== root.currentWallpaper) {
+                root.generatePresetsFor(root.currentWallpaper)
+            }
         }
     }
 
@@ -192,17 +202,21 @@ PopupWindow {
         id: generateAllProc
         command: []
         stdout: StdioCollector {
-            onStreamFinished: {
-                const map = {}
-                if (text) {
-                    for (const line of text.trim().split("\n")) {
-                        const i = line.indexOf(":")
-                        if (i > 0) map[line.slice(0, i)] = line.slice(i + 1)
-                    }
+                onStreamFinished: {
+                  const map = {}
+                  if (text) {
+                      for (const line of text.trim().split("\n")) {
+                          const i = line.indexOf(":")
+                          if (i > 0) map[line.slice(0, i)] = line.slice(i + 1)
+                      }
+                  }
+
+                  if (map["#wallpaper"] !== root.previewedWallpaper) return
+                  delete map["#wallpaper"]
+
+                  root.presetPreviewPaths = map
+                  root.generatingPresets = false
                 }
-                root.presetPreviewPaths = map
-                root.generatingPresets = false
-            }
         }
     }
 
@@ -218,6 +232,7 @@ PopupWindow {
                 } catch (e) {
                     root.lastPresetByWallpaper = {}
                 }
+                if (root.visible) root.syncPresetSelection()
             }
         }
     }
@@ -275,12 +290,13 @@ PopupWindow {
 
     Process {
         id: currentWallpaperReader
-        command: ["bash", "-c", "readlink -f " + root.homeDir + "/Pictures/current.png 2>/dev/null || echo ''"]
+        command: ["bash", "-c",
+            "cat '" + root.currentWallpaperStateFile + "' 2>/dev/null || true"]
         running: false
         stdout: StdioCollector {
             onStreamFinished: {
-                if (!text) return
-                root.currentWallpaper = text.trim()
+                const p = text.trim()
+                if (p) root.currentWallpaper = p
             }
         }
     }
@@ -666,10 +682,6 @@ PopupWindow {
                 clip: true
                 model: root.themePresets
                 focus: root.showingThemeTab
-                currentIndex: {
-                    const last = root.lastPresetByWallpaper[root.currentWallpaper]
-                    return last ? root.themePresets.indexOf(last) : -1
-                }
 
                 Keys.onEscapePressed: root.close()
                 Keys.onReturnPressed: {

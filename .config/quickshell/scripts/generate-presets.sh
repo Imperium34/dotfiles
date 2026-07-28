@@ -21,9 +21,12 @@ cleanup() {
 }
 trap cleanup EXIT TERM INT
 
-wallpaper="$1"; shift
-presets_dir="$1"; shift
-out_dir="$1"; shift
+wallpaper="$1"
+shift
+presets_dir="$1"
+shift
+out_dir="$1"
+shift
 
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
@@ -40,7 +43,7 @@ for preset in "$@"; do
   outfiles["$preset"]="$out_json"
 
   if [ -f "$out_json" ]; then
-    continue   # already generated for this exact wallpaper+config, skip
+    continue # already generated for this exact wallpaper+config, skip
   fi
 
   "$script_dir/preview-theme.sh" "$wallpaper" "$preset_toml" "$out_json" &
@@ -51,6 +54,8 @@ done
 for pid in "${pids[@]:-}"; do
   [ -n "$pid" ] && wait "$pid" || true
 done
+
+printf '#wallpaper:%s\n' "$wallpaper"
 
 for preset in "$@"; do
   if [ -n "${outfiles[$preset]:-}" ]; then

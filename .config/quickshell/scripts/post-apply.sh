@@ -13,6 +13,10 @@ post_apply() {
     exit 1
   fi
 
+  local state_dir="${XDG_CACHE_HOME:-$HOME/.cache}/quickshell"
+  mkdir -p "$state_dir"
+  printf '%s\n' "$wallpaper" >"$state_dir/current-wallpaper"
+
   rm -rf ~/.cache/fastfetch/
 
   notify-send "Reloading hypr apps..."

@@ -13,6 +13,7 @@
 .config/wallust/wallust.json
 .config/cava/themes/wallust-colors
 .confıg/mako/config
+.config/quickshell/bar/theme.json
 
 # ignore stuff related to monitors
 
