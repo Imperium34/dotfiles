@@ -147,6 +147,13 @@ Scope {
                 id: pamFinger
                 config: "quickshell-fprint"
                 property int fails: 0
+                property bool started: false
+
+                function tryStart() {
+                    if (started) return
+                    started = true
+                    start()
+                }
 
                 Component.onCompleted: if (surface.isPrimary) start()
 
@@ -178,8 +185,10 @@ Scope {
                 id: rearmTimer
                 interval: 8000
                 onTriggered: {
-                    if (!surface.unlocking && !pamPassword.responseRequired)
+                    if (!surface.unlocking && !pamPassword.responseRequired) {
+                        pamPassword.failCount = 0
                         pamPassword.start()
+                    }
                 }
             }
 
@@ -262,7 +271,7 @@ Scope {
                 source: "file://" + Quickshell.env("HOME") + "/Pictures/current.png"
                 fillMode: Image.PreserveAspectCrop
                 sourceSize.width: 1280
-                cache: true
+                cache: false
                 visible: false
             }
 
@@ -490,8 +499,8 @@ Scope {
                         anchors.left: authRing.right
                         anchors.leftMargin: 12
                         anchors.verticalCenter: authRing.verticalCenter
-                        visible: surface.capsOn
-                        opacity: visible ? 1 : 0
+                        opacity: surface.capsOn ? 1 : 0
+                        visible: opacity > 0
                         Behavior on opacity { NumberAnimation { duration: 200 } }
                         implicitWidth: capsText.implicitWidth + 22
                         implicitHeight: 30
@@ -514,8 +523,8 @@ Scope {
                         anchors.left: capsPill.visible ? capsPill.right : authRing.right
                         anchors.leftMargin: 12
                         anchors.verticalCenter: authRing.verticalCenter
-                        visible: surface.kbLayout !== ""
-                        opacity: visible ? 1 : 0
+                        opacity: surface.kbLayout !== "" ? 1 : 0
+                        visible: opacity > 0
                         Behavior on opacity { NumberAnimation { duration: 200 } }
                         implicitWidth: layoutText.implicitWidth + 22
                         implicitHeight: 30
@@ -540,8 +549,8 @@ Scope {
                         anchors.top: authRing.bottom
                         anchors.topMargin: 22
                         spacing: 10
-                        visible: surface.fpAvailable
-                        opacity: visible ? 1 : 0
+                        opacity: surface.fpAvailable ? 1 : 0
+                        visible: opacity > 0
                         Behavior on opacity { NumberAnimation { duration: 300 } }
 
                         Rectangle {
@@ -584,8 +593,8 @@ Scope {
                         anchors.topMargin: 18
                         anchors.horizontalCenter: parent.horizontalCenter
                         spacing: 9
-                        visible: pamPassword.failCount > 0
-                        opacity: visible ? 1 : 0
+                        opacity: pamPassword.failCount > 0 ? 1 : 0
+                        visible: opacity > 0
                         Behavior on opacity { NumberAnimation { duration: 300 } }
 
                         readonly property int remaining: Math.max(0, surface.denyLimit - pamPassword.failCount)
@@ -649,8 +658,8 @@ Scope {
 
                     readonly property var player: Mpris.players.values.length > 0 ? Mpris.players.values[0] : null
                     readonly property bool hasArt: player && player.trackArtUrl && player.trackArtUrl !== ""
-                    visible: surface.isPrimary && player !== null
-                    opacity: visible ? 1 : 0
+                    opacity: (surface.isPrimary && player !== null) ? 1 : 0
+                    visible: opacity > 0
                     Behavior on opacity { NumberAnimation { duration: 350; easing.type: Easing.InOutSine } }
 
                     property real position: player ? player.position : 0
