@@ -2,9 +2,12 @@
 
 # --- This script finds the most vibrant color from wallust and applies it to OpenRGB ---
 
+set -uo pipefail
+
 COLORS=$(jq -r '.colors.color1, .colors.color2, .colors.color3, .colors.color4, .colors.color5, .colors.color6' ~/.config/wallust/wallust.json)
 
-BEST_COLOR=$(echo "$COLORS" | python3 -c "
+BEST_COLOR=$(
+  echo "$COLORS" | python3 - <<'PY'
 import sys, colorsys
 
 def hex_to_rgb(hex_code):
@@ -34,7 +37,8 @@ best_color = most_saturated(mid_range) if mid_range else most_saturated(candidat
 
 if best_color:
     print(best_color.lstrip('#'))
-")
+PY
+)
 
 if [ -z "$BEST_COLOR" ]; then
   echo "Error: Could not determine the best color from wallust."

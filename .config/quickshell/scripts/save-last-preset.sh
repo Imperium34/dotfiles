@@ -12,11 +12,11 @@ preset="$2"
 state_file="$3"
 
 mkdir -p "$(dirname "$state_file")"
-[ -f "$state_file" ] || echo '{}' > "$state_file"
+[ -f "$state_file" ] || echo '{}' >"$state_file"
 
-tmp=$(mktemp)
+tmp=$(mktemp -p "$(dirname "$state_file")")
 trap 'rm -f "$tmp"' EXIT
 
-if jq --arg k "$wallpaper" --arg v "$preset" '.[$k] = $v' "$state_file" > "$tmp"; then
+if jq --arg k "$wallpaper" --arg v "$preset" '.[$k] = $v' "$state_file" >"$tmp"; then
   mv "$tmp" "$state_file"
 fi

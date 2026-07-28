@@ -53,7 +53,7 @@ PopupWindow {
     readonly property int widthPhaseDuration: Math.round(
         Math.abs(root.implicitWidth - root.originWidth) / ExpandPopupCoordinator.growSpeed * 1000)
     readonly property int heightPhaseDuration: Math.round(
-        root.implicitHeight / ExpandPopupCoordinator.growSpeed * 1000)
+        root.implicitHeight / ExpandPopupCoordinator.growSpeed * 2000)
 
     ExpandPopupController {
         id: controller

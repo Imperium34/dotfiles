@@ -1,9 +1,9 @@
 #!/bin/bash
 set -euo pipefail
 
-wallpaper="$1"
-preset_config="${2:-}"   # optional: a preset's global-options-only toml.
-                         # Empty = current default behavior (main wallust.toml).
+wallpaper="${1:-}"
+preset_config="${2:-}" # optional: a preset's global-options-only toml.
+# Empty = current default behavior (main wallust.toml).
 
 if [ -z "$wallpaper" ]; then
   notify-send "Wallust" "No wallpaper path given" -u critical
@@ -29,7 +29,7 @@ if [ -n "$preset_config" ]; then
     echo "$preset_opts"
     echo
     echo "$real_templates"
-  } > "$tmp_toml"
+  } >"$tmp_toml"
 
   run_config="$tmp_toml"
 fi

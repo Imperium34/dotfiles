@@ -63,4 +63,4 @@ btop = { template = 'btop.theme', target = '~/.config/btop/themes/wallust.theme'
 wallust_json = { template = 'wallust-json.hbs', target = '~/.config/wallust/wallust.json' }
 vscode = { template = 'vscode.json', target = '~/.cache/wallust/colors.json' }
 vscode2 = { template = 'vscode', target = '~/.cache/wallust/colors' }
-quickshell = { template = 'quickshell-theme.json.hbs', target = '~/.config/quickshell/bar/theme.json' }
+quickshell = { template = 'quickshell-theme.json.hbs', target = '~/.config/quickshell/bar/theme.json.new' }

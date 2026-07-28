@@ -37,8 +37,9 @@ for preset in "$@"; do
   preset_toml="$presets_dir/$preset.toml"
   [ -f "$preset_toml" ] || continue
 
+  wp_mtime=$(stat -c %Y "$wallpaper" 2>/dev/null || echo 0)
   toml_mtime=$(stat -c %Y "$preset_toml" 2>/dev/null || echo 0)
-  key=$(printf '%s' "$wallpaper:$toml_mtime" | md5sum | cut -d' ' -f1)
+  key=$(printf '%s' "$wallpaper:$wp_mtime:$toml_mtime" | md5sum | cut -d' ' -f1)
   out_json="$out_dir/wallust-preview-${preset}-${key}.json"
   outfiles["$preset"]="$out_json"
 
@@ -58,7 +59,6 @@ done
 printf '#wallpaper:%s\n' "$wallpaper"
 
 for preset in "$@"; do
-  if [ -n "${outfiles[$preset]:-}" ]; then
-    echo "$preset:${outfiles[$preset]}"
-  fi
+  out="${outfiles[$preset]:-}"
+  [ -n "$out" ] && [ -s "$out" ] && echo "$preset:$out"
 done

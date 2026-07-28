@@ -12,7 +12,7 @@ PopupWindow {
     color: "transparent"
 
     property var barWindow: null
-    property string homeDir: ""
+    readonly property string homeDir: Quickshell.env("HOME") ?? ""
     property real originX: 0
     property real originWidth: 200
 
@@ -31,29 +31,13 @@ PopupWindow {
         )
     }
 
-    Process {
-        id: homeResolver
-        command: ["bash", "-c", "echo $HOME"]
-        running: true
-        stdout: StdioCollector {
-            id: homeCollector
-            onStreamFinished: {
-                const t = homeCollector.text
-                if (!t) return
-                root.homeDir = t.trim()
-                currentWallpaperReader.running = true
-                lastPresetReader.running = true
-            }
-        }
-    }
-
     // ---- open/close phase state ----
     property bool animIn: false
 
     readonly property int widthPhaseDuration: Math.round(
         Math.abs(root.implicitWidth - root.originWidth) / ExpandPopupCoordinator.growSpeed * 1000)
     readonly property int heightPhaseDuration: Math.round(
-        root.implicitHeight / ExpandPopupCoordinator.growSpeed * 1000)
+        root.implicitHeight / ExpandPopupCoordinator.growSpeed * 4000)
 
     // content (tabs/lists) only fades in once the height grow has actually
     // finished, and disappears the instant close() is called
@@ -83,16 +67,12 @@ PopupWindow {
         visible = true
         animIn = false
         applyingIndex = -1
-        if (root.homeDir) {
-            wallpaperScanner.running = true
-        }
+        wallpaperScanner.running = true
         syncPresetSelection()
         focusGrab.active = true
         ExpandPopupCoordinator.expand(root)
         widthPhaseTimer.restart()
     }
-
-    onHomeDirChanged: if (visible) wallpaperScanner.running = true
 
     function close() {
         focusGrab.active = false
@@ -224,7 +204,7 @@ PopupWindow {
     Process {
         id: lastPresetReader
         command: ["bash", "-c", "cat '" + root.lastPresetStateFile + "' 2>/dev/null || echo '{}'"]
-        running: false
+        running: true
         stdout: StdioCollector {
             onStreamFinished: {
                 try {
@@ -292,7 +272,7 @@ PopupWindow {
         id: currentWallpaperReader
         command: ["bash", "-c",
             "cat '" + root.currentWallpaperStateFile + "' 2>/dev/null || true"]
-        running: false
+        running: true
         stdout: StdioCollector {
             onStreamFinished: {
                 const p = text.trim()
@@ -334,7 +314,7 @@ PopupWindow {
             "--transition-fps", String(root.transitionFps)]
         awwwProcess.running = true
 
-        updateColors.command = [root.homeDir + "/.config/quickshell/scripts/update-colors.sh", path]
+        updateColors.command = [root.homeDir + "/.config/quickshell/scripts/apply-theme.sh", path]
         updateColors.running = true
 
         root.currentWallpaper = path
@@ -500,11 +480,11 @@ PopupWindow {
                         root.applyWallpaper(root.filteredWallpapers[currentIndex], currentIndex)
                     }
                 }
-                Keys.onTabPressed: {
+                Keys.onTabPressed: (event) => {
                     root.showingThemeTab = !root.showingThemeTab
                     event.accepted = true
                 }
-                Keys.onPressed: {
+                Keys.onPressed: (event) => {
                     if (event.key === Qt.Key_Space) {
                         root.cycleCategory(event.modifiers & Qt.ShiftModifier ? -1 : 1)
                         event.accepted = true
@@ -689,11 +669,11 @@ PopupWindow {
                         root.applyPreset(root.themePresets[currentIndex])
                     }
                 }
-                Keys.onTabPressed: {
+                Keys.onTabPressed: (event) => {
                     root.showingThemeTab = !root.showingThemeTab
                     event.accepted = true
                 }
-                Keys.onPressed: {
+                Keys.onPressed: (event) => {
                     if (event.key === Qt.Key_Space) {
                         root.showingThemeTab = !root.showingThemeTab
                         event.accepted = true
@@ -709,8 +689,7 @@ PopupWindow {
 
                     FileView {
                         id: previewFile
-                        path: root.presetPreviewPaths[presetThumb.presetName]
-                            || ("/tmp/wallust-preview-" + presetThumb.presetName + "-pending.json")
+                        path: root.presetPreviewPaths[presetThumb.presetName] ?? ""
                         watchChanges: true
                         onFileChanged: reload()
                         JsonAdapter {
