@@ -96,6 +96,11 @@ Scope {
                 onTriggered: surface.userPresent = false
             }
 
+            SystemClock {
+                id: clock
+                precision: SystemClock.Minutes
+            }
+
             // ── AUTH: PASSWORD ────────────────────────────────────
             PamContext {
                 id: pamPassword
@@ -279,21 +284,23 @@ Scope {
                 anchors.fill: parent
                 source: bgSource
                 blurEnabled: true
-                blur: 1.0
-                blurMax: 32 + surface.dimProgress * 32
+                blurMax: 64
+                blur: 0.5 + surface.dimProgress * 0.5
                 brightness: -0.35 - surface.dimProgress * 0.25
                 saturation: 0.1 - surface.dimProgress * 0.1
-                Behavior on blurMax { NumberAnimation { duration: 800; easing.type: Easing.InOutSine } }
+                Behavior on blur { NumberAnimation { duration: 800; easing.type: Easing.InOutSine } }
                 Behavior on brightness { NumberAnimation { duration: 800; easing.type: Easing.InOutSine } }
                 Behavior on saturation { NumberAnimation { duration: 800; easing.type: Easing.InOutSine } }
             }
 
-            Timer {
-                id: dimRampTimer
-                interval: 1000
-                repeat: true
+            NumberAnimation {
+                id: dimRamp
+                target: surface
+                property: "dimProgress"
+                to: 1
+                duration: 180000
+                easing.type: Easing.InOutSine
                 running: !surface.userPresent && !surface.unlocking
-                onTriggered: surface.dimProgress = Math.min(1, surface.dimProgress + (1 / 180))
             }
 
             // ── FOREGROUND (animated in/out) ──────────────────────
@@ -316,11 +323,6 @@ Scope {
                     anchors.horizontalCenterOffset: -400
                     width: 320
                     height: 600
-
-                    SystemClock {
-                        id: clock
-                        precision: SystemClock.Minutes
-                    }
 
                     Text {
                         id: timeText
@@ -363,7 +365,7 @@ Scope {
                         }
 
                         SequentialAnimation on scale {
-                            running: surface.userPresent && !surface.unlocking
+                            running: surface.isPrimary && surface.userPresent && !surface.unlocking
                             loops: Animation.Infinite
                             NumberAnimation { to: 1.015; duration: 2600; easing.type: Easing.InOutSine }
                             NumberAnimation { to: 1.0;   duration: 2600; easing.type: Easing.InOutSine }
@@ -656,7 +658,13 @@ Scope {
                     width: 500
                     height: 620
 
-                    readonly property var player: Mpris.players.values.length > 0 ? Mpris.players.values[0] : null
+                    readonly property var player: {
+                        const ps = Mpris.players.values
+                        if (ps.length === 0) return null
+                        for (let i = 0; i < ps.length; i++)
+                            if (ps[i].isPlaying) return ps[i]
+                        return ps[0]
+                    }
                     readonly property bool hasArt: player && player.trackArtUrl && player.trackArtUrl !== ""
                     opacity: (surface.isPrimary && player !== null) ? 1 : 0
                     visible: opacity > 0

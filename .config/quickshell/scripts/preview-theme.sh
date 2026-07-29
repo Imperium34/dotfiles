@@ -10,6 +10,9 @@ preset_config="$2" # e.g. ~/.config/quickshell/wallust-presets/vibrant.toml
 # palette/saturation/check_contrast — no [templates])
 out_json="$3" # e.g. /tmp/wallust-preview-vibrant.json
 
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+still=$("$script_dir/derive-still.sh" "$wallpaper")
+
 if [ -z "$wallpaper" ] || [ -z "$preset_config" ] || [ -z "$out_json" ]; then
   echo "usage: preview-theme.sh <wallpaper> <preset.toml> <out.json>" >&2
   exit 1
@@ -29,5 +32,5 @@ trap 'rm -f "$tmp_toml" "$out_json.tmp"' EXIT
   echo "preview = { template = 'quickshell-theme.json.hbs', target = '$out_json.tmp' }"
 } >"$tmp_toml"
 
-wallust run -s -q -C "$tmp_toml" "$wallpaper"
+wallust run -s -q -C "$tmp_toml" "$still"
 mv "$out_json.tmp" "$out_json"

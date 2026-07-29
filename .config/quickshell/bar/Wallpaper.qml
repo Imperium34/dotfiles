@@ -58,11 +58,6 @@ PopupWindow {
     property int applyingIndex: -1
     property string pendingFilename: ""
 
-    property string transitionType: "grow"
-    property string transitionPos: "center"
-    property real transitionDuration: 0.7
-    property int transitionFps: 144
-
     function open() {
         visible = true
         animIn = false
@@ -120,6 +115,7 @@ PopupWindow {
         function toggle() { root.toggle() }
     }
 
+    property var thumbPaths: ({})
     property var wallpapers: []
     property string currentWallpaper: ""
 
@@ -251,16 +247,23 @@ PopupWindow {
 
     Process {
         id: wallpaperScanner
-        command: ["bash", "-c",
-            "cd '" + root.homeDir + "/Pictures/wallpapers' && " +
-            "find . -mindepth 2 -maxdepth 2 -type f | sed 's|^\\./||' | sort"]
+        command: [root.homeDir + "/.config/quickshell/scripts/scan-wallpapers.sh"]
         running: false
         stdout: StdioCollector {
             onStreamFinished: {
                 if (!text) return
-                root.wallpapers = text.trim().split("\n")
-                    .filter(f => f.match(/\.(jpg|jpeg|png|webp|gif)$/i))
-                root.categories = [...new Set(root.wallpapers.map(f => f.split("/")[0]))].sort()
+                const files = []
+                const thumbs = {}
+                for (const line of text.trim().split("\n")) {
+                    const i = line.indexOf("\t")
+                    if (i <= 0) continue
+                    const rel = line.slice(0, i)
+                    files.push(rel)
+                    thumbs[rel] = line.slice(i + 1)
+                }
+                root.wallpapers = files
+                root.thumbPaths = thumbs
+                root.categories = [...new Set(files.map(f => f.split("/")[0]))].sort()
                 if (root.selectedCategory !== "All" && !root.categories.includes(root.selectedCategory)) {
                     root.selectedCategory = "All"
                 }
@@ -282,12 +285,7 @@ PopupWindow {
     }
 
     Process {
-        id: awwwProcess
-        command: []
-    }
-
-    Process {
-        id: updateColors
+        id: applyWallpaperProc
         command: []
     }
 
@@ -307,15 +305,11 @@ PopupWindow {
     function commitWallpaper() {
         const path = root.homeDir + "/Pictures/wallpapers/" + root.pendingFilename
 
-        awwwProcess.command = ["awww", "img", path,
-            "--transition-type", root.transitionType,
-            "--transition-pos", root.transitionPos,
-            "--transition-duration", String(root.transitionDuration),
-            "--transition-fps", String(root.transitionFps)]
-        awwwProcess.running = true
-
-        updateColors.command = [root.homeDir + "/.config/quickshell/scripts/apply-theme.sh", path]
-        updateColors.running = true
+        applyWallpaperProc.command = [
+            root.homeDir + "/.config/quickshell/scripts/apply-wallpaper.sh",
+            path
+        ]
+        applyWallpaperProc.running = true
 
         root.currentWallpaper = path
         root.generatePresetsFor(path)
@@ -542,7 +536,8 @@ PopupWindow {
                         id: thumbImg
                         anchors.fill: parent
                         anchors.margins: thumb.isCurrent ? 3 : 0
-                        source: "file://" + root.homeDir + "/Pictures/wallpapers/" + filename
+                        source: "file://" + (root.thumbPaths[filename]
+                            ?? (root.homeDir + "/Pictures/wallpapers/" + filename))
                         fillMode: Image.PreserveAspectCrop
                         sourceSize.width: 400
                         asynchronous: true

@@ -9,6 +9,7 @@ post_apply() {
   local -
   set -euo pipefail
   local wallpaper="$1"
+  local still="$2"
   local script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
   local theme_dir="$HOME/.config/quickshell/bar"
 
@@ -18,7 +19,7 @@ post_apply() {
     notify-send "Wallust" "theme.json.new missing — shell colors not updated" -u critical
   fi
 
-  if ! magick "$wallpaper[0]" ~/Pictures/current.png; then
+  if ! magick "$still" ~/Pictures/current.png; then
     notify-send "Wallust" "Theme updated but wallpaper copy failed" -u critical
     return 1
   fi

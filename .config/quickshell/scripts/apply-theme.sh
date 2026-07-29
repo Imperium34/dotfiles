@@ -34,11 +34,14 @@ if [ -n "$preset_config" ]; then
   run_config="$tmp_toml"
 fi
 
-if ! wallust run -C "$run_config" "$wallpaper"; then
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+still=$("$script_dir/derive-still.sh" "$wallpaper")
+
+if ! wallust run -C "$run_config" "$still"; then
   notify-send "Wallust failed" "Check the image format/path" -u critical
   exit 1
 fi
 
-script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$script_dir/post-apply.sh"
-post_apply "$wallpaper"
+post_apply "$wallpaper" "$still"
