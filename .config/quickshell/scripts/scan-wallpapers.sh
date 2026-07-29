@@ -1,25 +1,24 @@
-#!/bin/bash
-# Lists wallpapers with a renderable thumbnail for each.
-# Output: <relpath>\t<thumb-abs-path>
-#
-# Video sources get their derived still, since QML's Image can't decode
-# them. Everything else points at itself. Qt renders frame 0 of a GIF
-# or WebP fine, and we want the picker showing the real file.
+#!/usr/bin/env bash
 set -euo pipefail
 
-root_dir="${1:-$HOME/Pictures/wallpapers}"
-script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT_DIR="${1:-$HOME/Pictures/wallpapers}"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+export ROOT_DIR SCRIPT_DIR
 
-cd "$root_dir" 2>/dev/null || exit 0
+cd "$ROOT_DIR" 2>/dev/null || exit 0
 
-find . -mindepth 2 -maxdepth 2 -type f | sed 's|^\./||' | sort | while IFS= read -r f; do
-  case "${f,,}" in
-  *.jpg | *.jpeg | *.png | *.bmp | *.tiff | *.gif | *.webp)
-    printf '%s\t%s/%s\n' "$f" "$root_dir" "$f"
-    ;;
-  *.mp4 | *.webm | *.mkv | *.mov)
-    still=$("$script_dir/derive-still.sh" "$root_dir/$f" 2>/dev/null) || continue
-    printf '%s\t%s\n' "$f" "$still"
-    ;;
-  esac
-done
+gen_line() {
+  local rel="$1" thumb
+  thumb=$("$SCRIPT_DIR/wallpaper-thumbnail.sh" "$ROOT_DIR/$rel" 2>/dev/null) || return 0
+  printf '%s\t%s\n' "$rel" "$thumb"
+}
+export -f gen_line
+
+find . -mindepth 2 -maxdepth 2 -type f \
+  \( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' \
+  -o -iname '*.bmp' -o -iname '*.tiff' -o -iname '*.gif' \
+  -o -iname '*.webp' -o -iname '*.mp4' -o -iname '*.webm' \
+  -o -iname '*.mkv' -o -iname '*.mov' \) |
+  sed 's|^\./||' |
+  xargs -d '\n' -r -P "$(nproc)" -I{} bash -c 'gen_line "$@"' _ {} |
+  sort

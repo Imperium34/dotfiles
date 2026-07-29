@@ -16,6 +16,8 @@ hl.on("hyprland.start", function()
 	hl.exec_cmd("QS_START_LOCKED=1 quickshell -p ~/.config/quickshell/lockscreen/lock.qml")
 	hl.exec_cmd(vars.apps.idlehandler)
 	hl.exec_cmd("awww-daemon")
+	hl.exec_cmd("~/.config/quickshell/scripts/video-wallpaper.sh resume")
+	hl.exec_cmd("nice -n 19 ionice -c 3 ~/.config/quickshell/scripts/scan-wallpapers.sh > /dev/null")
 
 	-- Clipboard Utilities
 	hl.exec_cmd("wl-paste --type text --watch cliphist store")

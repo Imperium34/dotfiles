@@ -36,6 +36,11 @@ fi
 
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+lock_dir="${XDG_CACHE_HOME:-$HOME/.cache}/quickshell"
+mkdir -p "$lock_dir"
+exec 9>"$lock_dir/apply.lock"
+flock 9
+
 still=$("$script_dir/derive-still.sh" "$wallpaper")
 
 if ! wallust run -C "$run_config" "$still"; then
