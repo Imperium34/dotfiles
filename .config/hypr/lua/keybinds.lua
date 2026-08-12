@@ -20,6 +20,7 @@ hl.bind(mod .. " + M", hl.dsp.exec_cmd("~/.config/hypr/scripts/toggle-music.sh")
 -- ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 -- object dispatchers
 hl.bind(mod .. " + Q", hl.dsp.window.close())
+hl.bind(mod .. " + SHIFT + Q", hl.dsp.window.kill())
 hl.bind(mod .. " + SHIFT + F", hl.dsp.window.fullscreen())
 hl.bind(mod .. " + V", hl.dsp.window.float({ action = "toggle" }))
 hl.bind(mod .. " + Y", hl.dsp.window.pin())

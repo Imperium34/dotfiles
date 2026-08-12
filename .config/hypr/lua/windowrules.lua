@@ -179,7 +179,6 @@ hl.window_rule({ match = { class = "^([Ss]team)$" }, suppress_event = "maximize"
 
 hl.window_rule({ match = { fullscreen = true }, border_color = "rgb(EE4B55) rgb(880808)" })
 hl.window_rule({ match = { float = true }, border_color = "rgb(282737) rgb(1E1D2D)" })
-hl.window_rule({ match = { pin = true }, opacity = "0.8 0.8" })
 
 -- ============================================================
 -- 10. MISC APP FIXES

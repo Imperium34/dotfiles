@@ -1,7 +1,16 @@
 -- ~/.config/hypr/lua/machine.lua
 
+local function file_exists(path)
+	local f = io.open(path, "r")
+	if f then
+		f:close()
+		return true
+	end
+	return false
+end
+
 local function is_laptop()
-	return io.open("/sys/class/power_supply/BAT0", "r") ~= nil or io.open("/sys/class/power_supply/BAT1", "r") ~= nil
+	return file_exists("/sys/class/power_supply/BAT0") or file_exists("/sys/class/power_supply/BAT1")
 end
 
 local laptop = is_laptop()
