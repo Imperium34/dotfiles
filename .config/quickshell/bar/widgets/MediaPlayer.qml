@@ -2,20 +2,16 @@ import "../popups/media"
 import qs
 import qs.widgets
 import Quickshell
-import Quickshell.Services.Mpris
 import QtQuick
 import QtQuick.Layouts
 
 BarButton {
     id: root
 
-    readonly property var player: {
-        const players = Mpris.players.values
-        return players.find(p => p.isPlaying) ?? players[0] ?? null
-    }
+    readonly property bool hasPlayer: MprisState.hasPlayer
+    readonly property bool isPlaying: MprisState.isPlaying
 
-    readonly property bool hasPlayer: player !== null
-    readonly property bool isPlaying: hasPlayer && player.isPlaying
+    readonly property int marqueeWidth: 120
 
     visible: hasPlayer
     implicitWidth: hasPlayer ? innerRow.implicitWidth + 16 : 0
@@ -25,7 +21,7 @@ BarButton {
         NumberAnimation { duration: 200; easing.type: Easing.InOutQuart }
     }
 
-    popup: MediaPopup { player: root.player }
+    popup: MediaPopup {}
 
     onVisibleChanged: if (!visible && popup) popup.visible = false
 
@@ -34,9 +30,10 @@ BarButton {
         anchors.centerIn: parent
         spacing: 8
 
+        // Playing: animated equaliser bars.
         Row {
             spacing: 2
-            visible: isPlaying
+            visible: root.isPlaying
 
             Repeater {
                 model: 3
@@ -47,7 +44,7 @@ BarButton {
                     color: Theme.color5
 
                     SequentialAnimation on height {
-                        running: isPlaying
+                        running: root.isPlaying
                         loops: Animation.Infinite
                         NumberAnimation {
                             to: 14
@@ -65,28 +62,31 @@ BarButton {
         }
 
         Text {
-            visible: hasPlayer && !isPlaying
-            text: ""
+            visible: root.hasPlayer && !root.isPlaying
+            text: "󰏤"
             color: Theme.foreground
             font.pixelSize: 12
+            font.family: "Symbols Nerd Font"
         }
 
         Item {
-            width: 120
+            width: root.marqueeWidth
             height: titleText.implicitHeight
             clip: true
 
             Text {
                 id: titleText
-                text: hasPlayer ? (player.trackTitle || "Unknown") : ""
+                text: root.hasPlayer ? (MprisState.trackTitle || "Unknown") : ""
                 color: Theme.foreground
                 font.pixelSize: 13
 
+                readonly property real overflow: Math.max(0, titleText.implicitWidth - root.marqueeWidth)
+
                 NumberAnimation on x {
-                    running: isPlaying && titleText.implicitWidth > 120
+                    running: root.isPlaying && titleText.overflow > 0
                     from: 0
-                    to: titleText.implicitWidth > 100 ? -(titleText.implicitWidth - 100) : 0
-                    duration: Math.max(0, (titleText.implicitWidth - 100) * 30)
+                    to: -titleText.overflow
+                    duration: Math.max(300, titleText.overflow * 30)
                     loops: Animation.Infinite
                     easing.type: Easing.Linear
                 }

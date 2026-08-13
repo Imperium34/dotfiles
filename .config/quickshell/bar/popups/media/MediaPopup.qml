@@ -1,28 +1,28 @@
 import "../../widgets"
 import qs
 import Quickshell
-import Quickshell.Services.Mpris
 import QtQuick
 import QtQuick.Effects
 import QtQuick.Layouts
 
 BasePopup {
     id: popup
-    required property var player
 
     implicitWidth: 560
     implicitHeight: 205
 
     roundedMask: true
 
-    readonly property bool hasArt: player
-        && player.trackArtUrl
-        && player.trackArtUrl !== ""
+    Binding {
+        target: MprisState
+        property: "positionPolling"
+        value: popup.visible
+    }
 
     Image {
         id: artSource
         anchors.fill: parent
-        source: popup.hasArt ? player.trackArtUrl : ""
+        source: MprisState.hasArt ? MprisState.trackArtUrl : ""
         fillMode: Image.PreserveAspectCrop
         sourceSize.width: 560
         cache: true
@@ -34,7 +34,7 @@ BasePopup {
         id: artBlur
         anchors.fill: parent
         source: artSource
-        visible: popup.hasArt
+        visible: MprisState.hasArt
         blurEnabled: true
         blur: 1.0
         blurMax: 32
@@ -43,7 +43,7 @@ BasePopup {
         transformOrigin: Item.Center
 
         SequentialAnimation on scale {
-            running: popup.hasArt && popup.animIn
+            running: MprisState.hasArt && popup.animIn
             loops: Animation.Infinite
             NumberAnimation {
                 from: 1.0; to: 1.08
@@ -74,18 +74,18 @@ BasePopup {
         spacing: 16
 
         Rectangle {
-            width: 140
-            height: 140
+            Layout.preferredWidth: 140
+            Layout.preferredHeight: 140
             radius: 8
             color: Theme.hexToRgba(Theme.foreground, 0.05)
             clip: true
 
             Image {
                 anchors.fill: parent
-                source: popup.hasArt ? player.trackArtUrl : ""
+                source: MprisState.hasArt ? MprisState.trackArtUrl : ""
                 fillMode: Image.PreserveAspectCrop
                 asynchronous: true
-                visible: popup.hasArt
+                visible: MprisState.hasArt
             }
 
             Text {
@@ -93,7 +93,7 @@ BasePopup {
                 text: "󰎆"
                 color: Theme.foreground
                 font.pixelSize: 40
-                visible: !popup.hasArt
+                visible: !MprisState.hasArt
             }
         }
 
@@ -103,7 +103,7 @@ BasePopup {
 
             Text {
                 Layout.fillWidth: true
-                text: player ? (player.trackTitle || "Unknown Title") : ""
+                text: MprisState.hasPlayer ? (MprisState.trackTitle || "Unknown Title") : ""
                 color: Theme.foreground
                 font.pixelSize: 15
                 font.bold: true
@@ -112,7 +112,7 @@ BasePopup {
 
             Text {
                 Layout.fillWidth: true
-                text: player ? (player.trackArtist || "Unknown Artist") : ""
+                text: MprisState.hasPlayer ? (MprisState.trackArtist || "Unknown Artist") : ""
                 color: Theme.hexToRgba(Theme.foreground, 0.6)
                 font.pixelSize: 12
                 elide: Text.ElideRight
@@ -125,7 +125,7 @@ BasePopup {
                 Text {
                     id: prevBtn
                     text: "󰒮"
-                    color: player && player.canGoPrevious
+                    color: MprisState.canGoPrevious
                         ? Theme.foreground
                         : Theme.hexToRgba(Theme.foreground, 0.3)
                     font.pixelSize: 20
@@ -139,14 +139,14 @@ BasePopup {
 
                     TapHandler {
                         id: prevTap
-                        onTapped: if (player && player.canGoPrevious) player.previous()
+                        onTapped: MprisState.previous()
                     }
                 }
 
                 Rectangle {
                     id: playButton
-                    width: 40
-                    height: 40
+                    Layout.preferredWidth: 40
+                    Layout.preferredHeight: 40
                     radius: 20
                     color: Theme.color5
                     border.color: Theme.hexToRgba(Theme.foreground, 0.15)
@@ -160,8 +160,8 @@ BasePopup {
 
                     Text {
                         anchors.centerIn: parent
-                        anchors.horizontalCenterOffset: player && player.isPlaying ? 0 : 1
-                        text: player && player.isPlaying ? "󰏤" : "󰐊"
+                        anchors.horizontalCenterOffset: MprisState.isPlaying ? 0 : 1
+                        text: MprisState.isPlaying ? "󰏤" : "󰐊"
                         color: Theme.background
                         font.pixelSize: 18
                         font.family: "Symbols Nerd Font"
@@ -169,14 +169,14 @@ BasePopup {
 
                     TapHandler {
                         id: playTap
-                        onTapped: if (player && player.canTogglePlaying) player.togglePlaying()
+                        onTapped: MprisState.togglePlaying()
                     }
                 }
 
                 Text {
                     id: nextBtn
                     text: "󰒭"
-                    color: player && player.canGoNext
+                    color: MprisState.canGoNext
                         ? Theme.foreground
                         : Theme.hexToRgba(Theme.foreground, 0.3)
                     font.pixelSize: 20
@@ -190,7 +190,7 @@ BasePopup {
 
                     TapHandler {
                         id: nextTap
-                        onTapped: if (player && player.canGoNext) player.next()
+                        onTapped: MprisState.next()
                     }
                 }
             }
@@ -200,19 +200,10 @@ BasePopup {
                 Layout.fillWidth: true
                 spacing: 4
 
-                property real position: player ? player.position : 0
-
-                Timer {
-                    interval: 1000
-                    running: player && player.isPlaying && popup.visible
-                    repeat: true
-                    onTriggered: seekCol.position = player ? player.position : 0
-                }
-
                 Item {
                     id: seekArea
                     Layout.fillWidth: true
-                    height: 20
+                    Layout.preferredHeight: 20
 
                     Rectangle {
                         anchors {
@@ -225,8 +216,7 @@ BasePopup {
                         color: Theme.hexToRgba(Theme.foreground, 0.15)
 
                         Rectangle {
-                            width: player && player.length > 0
-                                ? parent.width * (seekCol.position / player.length) : 0
+                            width: parent.width * MprisState.progress
                             height: parent.height
                             radius: 2
                             color: Theme.color5
@@ -238,8 +228,7 @@ BasePopup {
 
                     TapHandler {
                         onTapped: (eventPoint) => {
-                            if (!player || !player.canSeek) return
-                            player.position = (eventPoint.position.x / seekArea.width) * player.length
+                            MprisState.seekToRatio(eventPoint.position.x / seekArea.width)
                         }
                     }
 
@@ -247,11 +236,8 @@ BasePopup {
                         target: null
                         yAxis.enabled: false
                         onCentroidChanged: {
-                            if (active && player && player.canSeek) {
-                                const ratio = Math.max(0, Math.min(1,
-                                    centroid.position.x / seekArea.width))
-                                player.position = ratio * player.length
-                            }
+                            if (active)
+                                MprisState.seekToRatio(centroid.position.x / seekArea.width)
                         }
                     }
                 }
@@ -259,24 +245,18 @@ BasePopup {
                 RowLayout {
                     Layout.fillWidth: true
                     Text {
-                        text: formatTime(seekCol.position)
+                        text: MprisState.formatTime(MprisState.position)
                         color: Theme.hexToRgba(Theme.foreground, 0.6)
                         font.pixelSize: 11
                     }
                     Item { Layout.fillWidth: true }
                     Text {
-                        text: player ? formatTime(player.length) : "0:00"
+                        text: MprisState.formatTime(MprisState.length)
                         color: Theme.hexToRgba(Theme.foreground, 0.6)
                         font.pixelSize: 11
                     }
                 }
             }
         }
-    }
-
-    function formatTime(seconds) {
-        const m = Math.floor(seconds / 60)
-        const s = Math.floor(seconds % 60)
-        return m + ":" + (s < 10 ? "0" + s : s)
     }
 }

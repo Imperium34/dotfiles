@@ -43,9 +43,10 @@ Scope {
             property bool userPresent: true
             property real dimProgress: 0
 
-            readonly property bool isPrimary: surface.screen
-                && (surface.screen.name === Quickshell.screens[0].name
-                    || Quickshell.screens.length === 1)
+            readonly property bool isPrimary: !!surface.screen
+                && Quickshell.screens.length > 0
+                && (Quickshell.screens.length === 1
+                    || surface.screen.name === Quickshell.screens[0].name)
 
             function wake() {
                 if (!surface.userPresent) {
@@ -160,7 +161,7 @@ Scope {
                     start()
                 }
 
-                Component.onCompleted: if (surface.isPrimary) start()
+                Component.onCompleted: if (surface.isPrimary) tryStart()
 
                 onCompleted: (result) => {
                     if (surface.unlocking) return
@@ -658,31 +659,14 @@ Scope {
                     width: 500
                     height: 620
 
-                    readonly property var player: {
-                        const ps = Mpris.players.values
-                        if (ps.length === 0) return null
-                        for (let i = 0; i < ps.length; i++)
-                            if (ps[i].isPlaying) return ps[i]
-                        return ps[0]
-                    }
-                    readonly property bool hasArt: player && player.trackArtUrl && player.trackArtUrl !== ""
-                    opacity: (surface.isPrimary && player !== null) ? 1 : 0
+                    opacity: (surface.isPrimary && MprisState.hasPlayer) ? 1 : 0
                     visible: opacity > 0
                     Behavior on opacity { NumberAnimation { duration: 350; easing.type: Easing.InOutSine } }
 
-                    property real position: player ? player.position : 0
-                    Timer {
-                        interval: 1000
-                        running: rightCol.player && rightCol.player.isPlaying
-                        repeat: true
-                        onTriggered: rightCol.position = rightCol.player ? rightCol.player.position : 0
-                    }
-
-                    function formatTime(seconds) {
-                        if (!seconds || seconds < 0) seconds = 0
-                        var m = Math.floor(seconds / 60)
-                        var s = Math.floor(seconds % 60)
-                        return m + ":" + (s < 10 ? "0" + s : s)
+                    Binding {
+                        target: MprisState
+                        property: "positionPolling"
+                        value: surface.isPrimary && surface.userPresent && !surface.unlocking
                     }
 
                     Rectangle {
@@ -697,10 +681,10 @@ Scope {
                         Image {
                             id: bgArt
                             anchors.fill: parent
-                            source: rightCol.hasArt ? rightCol.player.trackArtUrl : ""
+                            source: MprisState.hasArt ? MprisState.trackArtUrl : ""
                             fillMode: Image.PreserveAspectCrop
                             opacity: 0.3
-                            visible: rightCol.hasArt
+                            visible: MprisState.hasArt
 
                             layer.enabled: true
                             layer.smooth: true
@@ -729,23 +713,23 @@ Scope {
 
                             Rectangle {
                                 Layout.alignment: Qt.AlignHCenter
-                                width: 300
-                                height: 300
+                                Layout.preferredWidth: 300
+                                Layout.preferredHeight: 300
                                 radius: 20
                                 color: Theme.hexToRgba(Theme.foreground, 0.1)
                                 clip: true
 
                                 Image {
                                     anchors.fill: parent
-                                    source: rightCol.hasArt ? rightCol.player.trackArtUrl : ""
+                                    source: MprisState.hasArt ? MprisState.trackArtUrl : ""
                                     fillMode: Image.PreserveAspectCrop
-                                    visible: rightCol.hasArt
+                                    visible: MprisState.hasArt
                                 }
                             }
 
                             Text {
                                 Layout.fillWidth: true
-                                text: rightCol.player ? (rightCol.player.trackTitle || "Unknown") : ""
+                                text: MprisState.hasPlayer ? (MprisState.trackTitle || "Unknown") : ""
                                 color: Theme.foreground
                                 font.pixelSize: 22
                                 font.family: "Departure Mono"
@@ -756,7 +740,7 @@ Scope {
 
                             Text {
                                 Layout.fillWidth: true
-                                text: rightCol.player ? (rightCol.player.trackArtist || "Unknown Artist") : ""
+                                text: MprisState.hasPlayer ? (MprisState.trackArtist || "Unknown Artist") : ""
                                 color: Theme.hexToRgba(Theme.foreground, 0.7)
                                 font.pixelSize: 18
                                 font.family: "Departure Mono"
@@ -772,7 +756,7 @@ Scope {
 
                                 Text {
                                     text: "󰒮"
-                                    color: rightCol.player && rightCol.player.canGoPrevious
+                                    color: MprisState.canGoPrevious
                                            ? Theme.foreground : Theme.hexToRgba(Theme.foreground, 0.3)
                                     font.pixelSize: 24
                                     font.family: "Symbols Nerd Font"
@@ -781,13 +765,13 @@ Scope {
                                     Behavior on scale { NumberAnimation { duration: 120; easing.type: Easing.OutCubic } }
                                     TapHandler {
                                         id: prevTap
-                                        onTapped: if (rightCol.player && rightCol.player.canGoPrevious) rightCol.player.previous()
+                                        onTapped: MprisState.previous()
                                     }
                                 }
 
                                 Rectangle {
-                                    width: 46
-                                    height: 46
+                                    Layout.preferredWidth: 46
+                                    Layout.preferredHeight: 46
                                     radius: 23
                                     color: Theme.color5
                                     Layout.alignment: Qt.AlignVCenter
@@ -795,21 +779,21 @@ Scope {
                                     Behavior on scale { NumberAnimation { duration: 120; easing.type: Easing.OutCubic } }
                                     Text {
                                         anchors.centerIn: parent
-                                        anchors.horizontalCenterOffset: rightCol.player && rightCol.player.isPlaying ? 0 : 1
-                                        text: rightCol.player && rightCol.player.isPlaying ? "󰏤" : "󰐊"
+                                        anchors.horizontalCenterOffset: MprisState.isPlaying ? 0 : 1
+                                        text: MprisState.isPlaying ? "󰏤" : "󰐊"
                                         color: Theme.background
                                         font.pixelSize: 20
                                         font.family: "Symbols Nerd Font"
                                     }
                                     TapHandler {
                                         id: playTap
-                                        onTapped: if (rightCol.player && rightCol.player.canTogglePlaying) rightCol.player.togglePlaying()
+                                        onTapped: MprisState.togglePlaying()
                                     }
                                 }
 
                                 Text {
                                     text: "󰒭"
-                                    color: rightCol.player && rightCol.player.canGoNext
+                                    color: MprisState.canGoNext
                                            ? Theme.foreground : Theme.hexToRgba(Theme.foreground, 0.3)
                                     font.pixelSize: 24
                                     font.family: "Symbols Nerd Font"
@@ -818,7 +802,7 @@ Scope {
                                     Behavior on scale { NumberAnimation { duration: 120; easing.type: Easing.OutCubic } }
                                     TapHandler {
                                         id: nextTap
-                                        onTapped: if (rightCol.player && rightCol.player.canGoNext) rightCol.player.next()
+                                        onTapped: MprisState.next()
                                     }
                                 }
                             }
@@ -832,7 +816,7 @@ Scope {
                                 Item {
                                     id: seekArea
                                     Layout.fillWidth: true
-                                    height: 16
+                                    Layout.preferredHeight: 16
 
                                     Rectangle {
                                         anchors.left: parent.left
@@ -844,9 +828,7 @@ Scope {
 
                                         Rectangle {
                                             id: fill
-                                            width: rightCol.player && rightCol.player.length > 0
-                                                   ? parent.width * (rightCol.position / rightCol.player.length)
-                                                   : 0
+                                            width: parent.width * MprisState.progress
                                             height: parent.height
                                             radius: 2.5
                                             color: Theme.color5
@@ -856,10 +838,7 @@ Scope {
 
                                     TapHandler {
                                         onTapped: (eventPoint) => {
-                                            if (!rightCol.player || !rightCol.player.canSeek) return
-                                            var ratio = Math.max(0, Math.min(1, eventPoint.position.x / seekArea.width))
-                                            rightCol.player.position = ratio * rightCol.player.length
-                                            rightCol.position = rightCol.player.position
+                                            MprisState.seekToRatio(eventPoint.position.x / seekArea.width)
                                         }
                                     }
                                 }
@@ -867,14 +846,14 @@ Scope {
                                 RowLayout {
                                     Layout.fillWidth: true
                                     Text {
-                                        text: rightCol.formatTime(rightCol.position)
+                                        text: MprisState.formatTime(MprisState.position)
                                         color: Theme.hexToRgba(Theme.foreground, 0.6)
                                         font.pixelSize: 13
                                         font.family: "Departure Mono"
                                     }
                                     Item { Layout.fillWidth: true }
                                     Text {
-                                        text: rightCol.player ? rightCol.formatTime(rightCol.player.length) : "0:00"
+                                        text: MprisState.formatTime(MprisState.length)
                                         color: Theme.hexToRgba(Theme.foreground, 0.6)
                                         font.pixelSize: 13
                                         font.family: "Departure Mono"

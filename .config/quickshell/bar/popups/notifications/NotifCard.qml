@@ -10,20 +10,23 @@ Item {
 
     implicitHeight: inner.implicitHeight + 16
 
+    readonly property bool isCritical: NotifService.isCritical(notification)
+    readonly property string imageSource: (notification && notification.image) ? notification.image : ""
+
     Rectangle {
         anchors.fill: parent
         radius: 10
         color: {
-            if (!notification) return "transparent"
-            if (notification.urgency === NotificationUrgency.Critical)
-                return Theme.hexToRgba(Theme.color1, 0.08)
-            return Theme.hexToRgba(Theme.foreground, 0.04)
+            if (!root.notification) return "transparent"
+            return root.isCritical
+                ? Theme.hexToRgba(Theme.color1, 0.08)
+                : Theme.hexToRgba(Theme.foreground, 0.04)
         }
         border.color: {
-            if (!notification) return "transparent"
-            if (notification.urgency === NotificationUrgency.Critical)
-                return Theme.hexToRgba(Theme.color1, 0.3)
-            return Theme.hexToRgba(Theme.foreground, 0.08)
+            if (!root.notification) return "transparent"
+            return root.isCritical
+                ? Theme.hexToRgba(Theme.color1, 0.3)
+                : Theme.hexToRgba(Theme.foreground, 0.08)
         }
         border.width: 1
     }
@@ -38,26 +41,34 @@ Item {
         }
         spacing: 3
 
+        // ---- header ----
         RowLayout {
             Layout.fillWidth: true
             spacing: 6
 
             Image {
-                width: 14
-                height: 14
-                source: notification
-                    ? Quickshell.iconPath(notification.appIcon, 32)
-                    : ""
+                Layout.preferredWidth: 14
+                Layout.preferredHeight: 14
+                source: root.notification ? Quickshell.iconPath(root.notification.appIcon, true) : ""
                 visible: source !== ""
                 fillMode: Image.PreserveAspectFit
+                asynchronous: true
             }
 
             Text {
-                text: notification ? notification.appName : ""
+                Layout.fillWidth: true
+                text: root.notification ? root.notification.appName : ""
                 color: Theme.hexToRgba(Theme.foreground, 0.45)
                 font.pixelSize: 11
-                Layout.fillWidth: true
                 elide: Text.ElideRight
+            }
+
+            Text {
+                text: NotifService.relativeTime(root.notification)
+                color: Theme.hexToRgba(Theme.foreground, 0.3)
+                font.pixelSize: 10
+                font.family: "Departure Mono"
+                visible: text !== ""
             }
 
             Text {
@@ -67,31 +78,53 @@ Item {
                 font.family: "Symbols Nerd Font"
 
                 TapHandler {
-                    onTapped: if (notification) notification.dismiss()
+                    onTapped: if (root.notification) root.notification.dismiss()
                 }
             }
         }
 
-        Text {
+        // ---- body, with optional image ----
+        RowLayout {
             Layout.fillWidth: true
-            text: notification ? notification.summary : ""
-            color: Theme.foreground
-            font.pixelSize: 12
-            font.bold: true
-            elide: Text.ElideRight
-            visible: text !== ""
-        }
+            spacing: 8
 
-        Text {
-            Layout.fillWidth: true
-            text: notification ? notification.body : ""
-            color: Theme.hexToRgba(Theme.foreground, 0.7)
-            font.pixelSize: 11
-            wrapMode: Text.WordWrap
-            maximumLineCount: 4
-            elide: Text.ElideRight
-            textFormat: Text.PlainText
-            visible: text !== ""
+            Image {
+                visible: root.imageSource !== ""
+                source: root.imageSource
+                Layout.preferredWidth: 40
+                Layout.preferredHeight: 40
+                Layout.alignment: Qt.AlignTop
+                fillMode: Image.PreserveAspectCrop
+                asynchronous: true
+                cache: false
+            }
+
+            ColumnLayout {
+                Layout.fillWidth: true
+                spacing: 2
+
+                Text {
+                    Layout.fillWidth: true
+                    text: root.notification ? root.notification.summary : ""
+                    color: Theme.foreground
+                    font.pixelSize: 12
+                    font.bold: true
+                    elide: Text.ElideRight
+                    visible: text !== ""
+                }
+
+                Text {
+                    Layout.fillWidth: true
+                    text: root.notification ? root.notification.body : ""
+                    color: Theme.hexToRgba(Theme.foreground, 0.7)
+                    font.pixelSize: 11
+                    wrapMode: Text.WordWrap
+                    maximumLineCount: 4
+                    elide: Text.ElideRight
+                    textFormat: Text.PlainText
+                    visible: text !== ""
+                }
+            }
         }
     }
 }

@@ -14,12 +14,15 @@ BasePopup {
     implicitHeight: contentCol.implicitHeight + 32
 
     readonly property var bat: UPower.displayDevice
-    readonly property bool charging: bat.state === UPowerDeviceState.Charging
-                                  || bat.state === UPowerDeviceState.PendingCharge
-    readonly property string nativePath: bat.ready ? bat.nativePath : "BAT0"
+
+    readonly property bool ready: !!bat && bat.ready
+
+    readonly property bool charging: ready && bat.state === UPowerDeviceState.Charging
+    readonly property bool pluggedIdle: ready && bat.state === UPowerDeviceState.PendingCharge
+    readonly property bool full: ready && bat.state === UPowerDeviceState.FullyCharged
 
     readonly property color levelColor: {
-        if (!bat.ready) return Theme.foreground
+        if (!ready) return Theme.foreground
         if (bat.percentage * 100 <= 15) return Theme.color1
         if (bat.percentage * 100 <= 30) return Theme.color3
         return charging ? Theme.color2 : Theme.color5
@@ -28,7 +31,15 @@ BasePopup {
     property string tlpProfile: ""
     property string thresholdStart: ""
     property string thresholdEnd: ""
-    readonly property bool thresholdSupported: thresholdStart !== "" && thresholdEnd !== ""
+
+    readonly property bool thresholdSupported: thresholdEnd !== ""
+
+    readonly property string thresholdText: {
+        if (!popup.thresholdSupported) return "Not available"
+        if (popup.thresholdStart !== "")
+            return popup.thresholdStart + "% – " + popup.thresholdEnd + "%"
+        return "Stops at " + popup.thresholdEnd + "%"
+    }
 
     function formatDuration(seconds) {
         if (!seconds || seconds <= 0) return "—"
@@ -38,13 +49,15 @@ BasePopup {
     }
 
     readonly property string timeText: {
-        if (!bat.ready || charging === undefined) return "—"
+        if (!ready) return "—"
+        if (full) return "Fully charged"
+        if (pluggedIdle) return "Not charging"
         if (charging) return formatDuration(bat.timeToFull) + " to full"
         return formatDuration(bat.timeToEmpty) + " remaining"
     }
 
     readonly property string powerText: {
-        if (!bat.ready || bat.changeRate === 0) return "—"
+        if (!ready || bat.changeRate === 0) return "—"
         return Math.abs(bat.changeRate).toFixed(1) + " W " + (charging ? "charging" : "discharging")
     }
 
@@ -59,8 +72,8 @@ BasePopup {
     function refreshThresholds() { thresholdProc.running = true }
 
     function setProfile(name) {
-        popup.tlpProfile = name
-        Quickshell.execDetached(["/usr/bin/tlpctl", "set", name])
+      popup.tlpProfile = name
+      Quickshell.execDetached(["/usr/bin/tlpctl", "set", name])
         confirmTimer.restart()
     }
 
@@ -98,15 +111,17 @@ BasePopup {
     Process {
         id: thresholdProc
         command: ["/usr/bin/bash", "-c",
-            `S=$(cat /sys/class/power_supply/${popup.nativePath}/charge_control_start_threshold 2>/dev/null || cat /sys/class/power_supply/${popup.nativePath}/charge_start_threshold 2>/dev/null); ` +
-            `E=$(cat /sys/class/power_supply/${popup.nativePath}/charge_control_end_threshold 2>/dev/null || cat /sys/class/power_supply/${popup.nativePath}/charge_stop_threshold 2>/dev/null); ` +
-            `echo "$S|$E"`
+            'BAT=$(ls -d /sys/class/power_supply/BAT* 2>/dev/null | head -n1); ' +
+            '[ -n "$BAT" ] || { echo "|"; exit 0; }; ' +
+            'S=$(cat "$BAT/charge_control_start_threshold" 2>/dev/null || cat "$BAT/charge_start_threshold" 2>/dev/null); ' +
+            'E=$(cat "$BAT/charge_control_end_threshold" 2>/dev/null || cat "$BAT/charge_stop_threshold" 2>/dev/null); ' +
+            'echo "$S|$E"'
         ]
         stdout: StdioCollector {
             onStreamFinished: {
                 const parts = text.trim().split("|")
-                popup.thresholdStart = parts[0] || ""
-                popup.thresholdEnd = parts.length > 1 ? parts[1] : ""
+                popup.thresholdStart = (parts[0] || "").trim()
+                popup.thresholdEnd = parts.length > 1 ? (parts[1] || "").trim() : ""
             }
         }
     }
@@ -114,7 +129,9 @@ BasePopup {
     ColumnLayout {
         id: contentCol
         anchors {
-            fill: parent
+            top: parent.top
+            left: parent.left
+            right: parent.right
             margins: 16
         }
         spacing: 14
@@ -129,7 +146,7 @@ BasePopup {
             }
             Item { Layout.fillWidth: true }
             Text {
-                text: popup.bat.ready ? Math.round(popup.bat.percentage * 100) + "%" : "--"
+                text: popup.ready ? Math.round(popup.bat.percentage * 100) + "%" : "--"
                 color: popup.levelColor
                 font.pixelSize: 12
                 font.bold: true
@@ -138,13 +155,13 @@ BasePopup {
 
         Rectangle {
             Layout.fillWidth: true
-            height: 8
+            Layout.preferredHeight: 8
             radius: 4
             color: Theme.hexToRgba(Theme.foreground, 0.1)
 
             Rectangle {
                 anchors { left: parent.left; top: parent.top; bottom: parent.bottom }
-                width: parent.width * (popup.bat.ready ? popup.bat.percentage : 0)
+                width: parent.width * (popup.ready ? popup.bat.percentage : 0)
                 radius: 4
                 color: popup.levelColor
                 Behavior on width { NumberAnimation { duration: 400; easing.type: Easing.OutCubic } }
@@ -170,13 +187,15 @@ BasePopup {
             Text { text: "Health"; color: Theme.hexToRgba(Theme.foreground, 0.8); font.pixelSize: 12 }
             Item { Layout.fillWidth: true }
             Text {
-                text: popup.bat.healthSupported ? Math.round(popup.bat.healthPercentage) + "%" : "—"
+                text: (popup.ready && popup.bat.healthSupported)
+                    ? Math.round(popup.bat.healthPercentage) + "%"
+                    : "—"
                 color: Theme.hexToRgba(Theme.foreground, 0.6)
                 font.pixelSize: 12
             }
         }
 
-        Rectangle { Layout.fillWidth: true; height: 1; color: Theme.hexToRgba(Theme.foreground, 0.08) }
+        Rectangle { Layout.fillWidth: true; Layout.preferredHeight: 1; color: Theme.hexToRgba(Theme.foreground, 0.08) }
 
         RowLayout {
             Layout.fillWidth: true
@@ -188,15 +207,13 @@ BasePopup {
             }
             Item { Layout.fillWidth: true }
             Text {
-                text: popup.thresholdSupported
-                    ? (popup.thresholdStart + "% – " + popup.thresholdEnd + "%")
-                    : "Not available"
+                text: popup.thresholdText
                 color: Theme.hexToRgba(Theme.foreground, 0.6)
                 font.pixelSize: 12
             }
         }
 
-        Rectangle { Layout.fillWidth: true; height: 1; color: Theme.hexToRgba(Theme.foreground, 0.08) }
+        Rectangle { Layout.fillWidth: true; Layout.preferredHeight: 1; color: Theme.hexToRgba(Theme.foreground, 0.08) }
 
         RowLayout {
             Layout.fillWidth: true
@@ -226,13 +243,14 @@ BasePopup {
                 ]
 
                 delegate: Rectangle {
+                    id: profileBtn
                     required property var modelData
                     readonly property bool active: popup.tlpProfile === modelData.id
 
                     Layout.fillWidth: true
-                    height: 28
+                    Layout.preferredHeight: 28
                     radius: 8
-                    color: active
+                    color: profileBtn.active
                         ? Theme.hexToRgba(Theme.color4, 0.7)
                         : (btnHover.hovered ? Theme.hexToRgba(Theme.foreground, 0.07) : Theme.hexToRgba(Theme.foreground, 0.04))
 
@@ -242,14 +260,14 @@ BasePopup {
 
                     Text {
                         anchors.centerIn: parent
-                        text: modelData.label
+                        text: profileBtn.modelData.label
                         font.pixelSize: 11
-                        font.bold: parent.active
-                        color: parent.active ? Theme.background : Theme.foreground
+                        font.bold: profileBtn.active
+                        color: profileBtn.active ? Theme.background : Theme.foreground
                     }
 
                     TapHandler {
-                        onTapped: popup.setProfile(modelData.id)
+                        onTapped: popup.setProfile(profileBtn.modelData.id)
                     }
                 }
             }

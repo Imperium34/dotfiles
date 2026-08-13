@@ -19,6 +19,10 @@ Item {
         closeTimer.start()
     }
 
+    function cancelClose() {
+        closeTimer.stop()
+    }
+
     Timer {
         id: closeTimer
         interval: root.animExit

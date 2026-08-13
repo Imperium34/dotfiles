@@ -32,26 +32,34 @@ PopupWindow {
     }
 
     // ---- open/close phase state ----
-    property bool animIn: false
-
     readonly property int widthPhaseDuration: Math.round(
         Math.abs(root.implicitWidth - root.originWidth) / ExpandPopupCoordinator.growSpeed * 1000)
     readonly property int heightPhaseDuration: Math.round(
         root.implicitHeight / ExpandPopupCoordinator.growSpeed * 4000)
 
+    property int openPhaseDuration: root.widthPhaseDuration
+
+    ExpandPopupController {
+        id: controller
+        animEnter: root.heightPhaseDuration
+        animExit: root.heightPhaseDuration
+        onClosed: {
+            ExpandPopupCoordinator.collapse(root)
+            widthShrinkTimer.restart()
+        }
+    }
+
     // content (tabs/lists) only fades in once the height grow has actually
     // finished, and disappears the instant close() is called
-    readonly property bool contentReady: root.animIn && !growGuard.running
+    readonly property bool contentReady: controller.animIn && !growGuard.running
     Timer {
         id: growGuard
         interval: root.heightPhaseDuration
     }
-
-    onAnimInChanged: {
-        if (animIn) {
-            growGuard.restart()
-        } else {
-            heightShrinkTimer.restart()
+    Connections {
+        target: controller
+        function onAnimInChanged() {
+            if (controller.animIn) growGuard.restart()
         }
     }
 
@@ -59,19 +67,21 @@ PopupWindow {
     property string pendingFilename: ""
 
     function open() {
+        widthShrinkTimer.stop()
         visible = true
-        animIn = false
         applyingIndex = -1
         wallpaperScanner.running = true
         syncPresetSelection()
         focusGrab.active = true
-        ExpandPopupCoordinator.expand(root)
+        const startWidth = ExpandPopupCoordinator.expand(root)
+        root.openPhaseDuration = Math.round(
+            Math.abs(root.implicitWidth - startWidth) / ExpandPopupCoordinator.growSpeed * 1000)
         widthPhaseTimer.restart()
     }
 
     function close() {
         focusGrab.active = false
-        animIn = false   // triggers heightShrinkTimer via onAnimInChanged
+        controller.close()
     }
 
     function toggle() {
@@ -88,17 +98,8 @@ PopupWindow {
     // ---- phase timers ----
     Timer {
         id: widthPhaseTimer
-        interval: root.widthPhaseDuration
-        onTriggered: root.animIn = true
-    }
-
-    Timer {
-        id: heightShrinkTimer
-        interval: root.heightPhaseDuration
-        onTriggered: {
-            ExpandPopupCoordinator.collapse(root)
-            widthShrinkTimer.restart()
-        }
+        interval: root.openPhaseDuration
+        onTriggered: controller.open()
     }
 
     Timer {
@@ -109,7 +110,6 @@ PopupWindow {
             ExpandPopupCoordinator.notifyClosed(root)
         }
     }
-
     IpcHandler {
         target: "wallpaper"
         function toggle() { root.toggle() }
@@ -321,7 +321,7 @@ PopupWindow {
     Rectangle {
         id: bg
         anchors { top: parent.top; left: parent.left; right: parent.right }
-        height: root.animIn ? root.implicitHeight : 0
+        height: controller.animIn ? root.implicitHeight : 0
         clip: true
         radius: Math.min(20, height / 2)
         antialiasing: true

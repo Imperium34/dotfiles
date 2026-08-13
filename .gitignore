@@ -12,13 +12,18 @@
 .config/wofi/colors.css
 .config/wallust/wallust.json
 .config/cava/themes/wallust-colors
-.confıg/mako/config
+.config/mako/config
 .config/quickshell/bar/theme.json
 
 # ignore stuff related to monitors
 
 .config/hypr/monitors.conf
-.confit/hypr/workspaces.conf
+.config/hypr/workspaces.conf
 
 #ignore wallpapers
 wallpapers
+
+# ignore calendar stuff
+.config/quickshell/bar/popups/calendar/weather.json
+.config/quickshell/scripts/credentials.json
+.config/quickshell/scripts/token.json

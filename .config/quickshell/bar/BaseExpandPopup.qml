@@ -38,6 +38,16 @@ PopupWindow {
     color: "transparent"
     visible: false
 
+    ExpandPopupController {
+        id: controller
+        animEnter: root.heightPhaseDuration
+        animExit: root.heightPhaseDuration
+        onClosed: {
+            ExpandPopupCoordinator.collapse(root)
+            widthShrinkTimer.restart()
+        }
+    }
+
     anchor {
         window: barWindow
         rect: Qt.rect(
@@ -55,19 +65,11 @@ PopupWindow {
     readonly property int heightPhaseDuration: Math.round(
         root.implicitHeight / ExpandPopupCoordinator.growSpeed * 2000)
 
-    ExpandPopupController {
-        id: controller
-        animEnter: root.heightPhaseDuration
-        animExit: root.heightPhaseDuration
-        onClosed: {
-            ExpandPopupCoordinator.collapse(root)
-            widthShrinkTimer.restart()
-        }
-    }
+    property int openPhaseDuration: root.widthPhaseDuration
 
     Timer {
         id: widthPhaseTimer
-        interval: root.widthPhaseDuration
+        interval: root.openPhaseDuration
         onTriggered: {
             controller.open()
             Qt.callLater(() => searchField.forceActiveFocus())
@@ -88,7 +90,9 @@ PopupWindow {
         selectedIndex = 0
         searchField.text = ""
         focusGrab.active = true
-        ExpandPopupCoordinator.expand(root)
+        const startWidth = ExpandPopupCoordinator.expand(root)
+        root.openPhaseDuration = Math.round(
+            Math.abs(root.implicitWidth - startWidth) / ExpandPopupCoordinator.growSpeed * 1000)
         widthPhaseTimer.restart()
         root.opened()
     }

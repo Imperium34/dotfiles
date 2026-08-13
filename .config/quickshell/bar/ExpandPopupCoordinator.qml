@@ -13,12 +13,14 @@ Singleton {
     property real growSpeed: 2500
 
     function expand(popup) {
+        const previousWidth = root.expanded ? root.targetWidth : popup.originWidth
         if (root.active && root.active !== popup) {
             root.active.close()
         }
         root.active = popup
         root.targetWidth = popup.implicitWidth
         root.expanded = true
+        return previousWidth
     }
 
     function collapse(popup) {

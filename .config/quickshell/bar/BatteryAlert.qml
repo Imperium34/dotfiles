@@ -9,37 +9,47 @@ Singleton {
     id: root
 
     readonly property var bat: UPower.displayDevice
+
+    readonly property int lowThreshold: 15
+    readonly property int criticalThreshold: 5
+
     property bool warnedLow: false
     property bool warnedCritical: false
 
+    readonly property bool discharging: !!bat && bat.ready
+        && bat.state === UPowerDeviceState.Discharging
+
     Process { id: notifyProc }
 
-    Connections {
-        target: bat
-        function onPercentageChanged() {
-            if (!bat || !bat.ready) return
+    function notify(urgency, summary, body) {
+        notifyProc.command = ["notify-send", "-u", urgency, summary, body]
+        notifyProc.running = true
+    }
 
-            const pct = bat.percentage * 100
-            const charging = bat.state === UPowerDeviceState.Charging
-                || bat.state === UPowerDeviceState.PendingCharge
+    function check() {
+        if (!root.bat || !root.bat.ready) return
 
-            if (charging) {
-                root.warnedLow = false
-                root.warnedCritical = false
-                return
-            }
-
-            if (pct <= 5 && !root.warnedCritical) {
-                root.warnedCritical = true
-                notifyProc.command = ["notify-send", "-u", "critical",
-                    "Battery critical", Math.round(pct) + "% remaining"]
-                notifyProc.running = true
-            } else if (pct <= 15 && !root.warnedLow) {
-                root.warnedLow = true
-                notifyProc.command = ["notify-send", "-u", "normal",
-                    "Battery low", Math.round(pct) + "% remaining"]
-                notifyProc.running = true
-            }
+        if (!root.discharging) {
+            root.warnedLow = false
+            root.warnedCritical = false
+            return
         }
+
+        const pct = root.bat.percentage * 100
+
+        if (pct <= root.criticalThreshold && !root.warnedCritical) {
+            root.warnedCritical = true
+            root.warnedLow = true
+            root.notify("critical", "Battery critical", Math.round(pct) + "% remaining")
+        } else if (pct <= root.lowThreshold && !root.warnedLow) {
+            root.warnedLow = true
+            root.notify("normal", "Battery low", Math.round(pct) + "% remaining")
+        }
+    }
+
+    Connections {
+        target: root.bat
+        function onPercentageChanged() { root.check() }
+        function onStateChanged() { root.check() }
     }
 }

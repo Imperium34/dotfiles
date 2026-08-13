@@ -1,0 +1,156 @@
+# === Programming & Dev Life ===
+The code is the documentation.
+It works on my machine.
+Copying from one source is plagiarism. Copying from many is research. Copying from Stack Overflow is programming.
+Programming is 10% writing code and 90% understanding why it's not working.
+99 little bugs in the code, 99 little bugs in the code. Take one down, patch it around... 127 little bugs in the code.
+Algorithm: A word used by programmers when they don't want to explain what they did.
+The user interface is like a joke. If you have to explain it, it's not that good.
+A good programmer looks both ways before crossing a one-way street.
+My code doesn't work, I have no idea why. My code works, I have no idea why.
+Semicolon missing on line 42. (There are only 40 lines)
+Keep Calm and git push --force.
+The problem with troubleshooting is that trouble shoots back.
+Memory leak? No, that's just surprise data retention.
+Binary search: The only time in life where cutting corners is mathematically optimal.
+O(n!): The algorithm of 'I'll just buy a faster computer'.
+Debugging: being the detective in a crime movie where you are also the murderer.
+Prompt Engineering: The art of sweet-talking a calculator.
+Claude wrote this, I'm just here to take the blame.
+POV: You just broke your config again.
+Full Stack Developer: I can break the frontend AND the backend.
+I don't have bugs; I have unexpected features.
+While(1) { endure(); }
+There is nothing more permanent than a temporary fix.
+Code never lies. comments sometimes do.
+Every abstraction is perfect until you need to debug it.
+git commit -m 'Fixed the thing that broke the other thing.'
+git blame: archaeology for programmers.
+404: Motivation Not Found.
+Have you tried turning it off and on again?
+There are 10 types of people: those who understand binary and those who don't.
+There are two hard things in computer science: cache invalidation, naming things, and off-by-one errors.
+It's not technical debt if nobody checks the balance.
+The first 90% of the code takes 90% of the time. the last 10% takes the other 90%.
+
+# === Linux & Terminal Culture ===
+chmod 777: Because security is just a suggestion.
+Linux is only free if your time has no value.
+You can't handle the root!
+sudo make me a sandwich.
+I use Arch, by the way.
+Read The Fucking Manual.
+rm -fr / — The only command that truly solves all your problems.
+Hyprland: Because who needs window borders when you have animations?
+I spent 4 hours customizing my Waybar and 0 hours doing actual work.
+Friendship ended with Waybar. Now QML is my best friend.
+Quickshell: Because configuring a status bar in JSON just wasn't tedious enough.
+Quickshell: Because a status bar shouldn't just be a config file, it should be a full-stack UI project.
+Why just edit a config when you can engineer a framework for your taskbar?
+My desktop isn't configured; it's compiled.
+:wq! — The universal sign of giving up and going to bed
+Distro Hopping: The art of reinstalling your OS to avoid doing actual work.
+NixOS: Because I want my operating system to be a reproducible math problem.
+If it's not in the AUR, does it even exist?
+Freedom is the ability to break your own system.
+If you can't fix it with sudo, you probably shouldn't be touching it.
+Born to rice, forced to actually use my computer.
+man woman
+My desktop environment is a personality trait.
+Driver conflict detected.
+The system is stable... As long as I don't touch it.
+
+# === Gaming ===
+Did I ever tell you the definition of insanity?
+Honor died on the beach.
+Hesitation is defeat.
+War. War never changes.
+War never changes. Good thing we do.
+Ah shit, here we go again.
+Rip and Tear, until it is done.
+Do a barrel roll!
+Hey you, you're finally awake.
+Stop right there, criminal scum!
+Wake the fuck up, Samurai. We have a city to burn.
+Lost? I am not lost. I am merely exploring the alternative route.
+It's dangerous to go alone! Take this.
+Standby for Titanfall.
+All your base are belong to us.
+Wind's howling.
+Grinding for XP in real life.
+Save file corrupted.
+AFK
+
+# === Dark Souls ===
+Skill issue.
+Touch grass.
+Git Gud.
+Beware of dog.
+Try finger, but hole.
+Amazing chest ahead.
+Plin plin plon
+Every soul has its dark.
+Don't you dare go Hollow.
+Praise the Sun!
+
+# === Lord of the Mysteries ===
+Save me... Save me... Don't save me...
+A price is always exacted for what fate bestows.
+It was the best of times, it was the worst of times...
+Captain, look... We saved Tingen.
+There are no coincidences in this world.
+Beware of the spectator.
+The taste of a Demoness ain't bad.
+Praise the Fool!
+We are guardians, but also a bunch of miserable wretches that are constantly fighting against threats and madness.
+A Magician never performs unprepared.
+Tonight, Gehrman joins the hunt.
+To record is to remember; to travel is to witness
+Space is just a concept to be folded.
+A Traveler has no home, only destinations.
+I came, I saw, I record.
+The stars are not the limit; they are the destination.
+I am everywhere and nowhere.
+Distance is merely a suggestion.
+Teleportation: The art of being late, instantly.
+They say curiousity killed the cat. For an Apprentice, curiosity kills the entire bloodline.
+Do not look directly at God.
+A Sequence pathway might very well be a path destined to be crazy and filled with despair.
+The oldest and strongest emotion of mankind is fear and the oldest and strongest fear is the fear of the unknown.
+
+# === Other Webnovels ===
+There is nothing more pathetic than a slave who trusts his master.
+Lost from Light, born of shadow
+But I was the better swordsman.
+Good morning, brother! Morning, morning, MORNING!
+This story is for just that one reader.
+"Tell me, fool. If I continue to regress, will I ever meet you again?"
+[The Constellation 'Demon-like Judge of Fire' likes your sheer audacity.]
+[The Constellation 'Demon-like Judge of Fire' is waiting for you to type your password faster.]
+[The Constellation 'Secretive Plotter' is watching your login attempt.]
+[The Fourth Wall is shaking slightly.]
+You are courting death!
+
+# === Others ===
+Hello there.
+Sand. I hate sand.
+Redstone is simple. It's just electrical engineering with dust.
+I don't need sex, the government fucks me every day
+Fuck it, we ball.
+Future me can deal with it.
+Past me was an idiot.
+Present me is also an idiot.
+Future me is someone else's problem.
+We'll cross that bridge when we get there.
+What could possibly go wrong?
+
+# === Philosophy & Wordplay ===
+Schrodinger's Cat walks into a bar. And doesn't.
+Anything that can go wrong, will go wrong.
+The simplest solution is usually the correct one.
+I think, therefore I am. I think...
+Reality is merely an illusion, albeit a very persistent one.
+If you wish to make an apple pie from scratch, you must first invent the universe.
+The universe doesn't owe you an explanation.
+This statement is false.
+The universe is incomprehensible, Linux is broken, God may be watching, Gwyn is sad, and Anakin really doesn't like sand

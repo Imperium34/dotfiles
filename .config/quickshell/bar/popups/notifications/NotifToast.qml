@@ -27,18 +27,19 @@ PanelWindow {
     WlrLayershell.layer: WlrLayer.Overlay
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
 
+    readonly property var notif: NotifService.toastNotification
+    readonly property bool isCritical: NotifService.isCritical(notif)
+    readonly property string imageSource: (notif && notif.image) ? notif.image : ""
+
     Rectangle {
         id: card
         width: parent.width
         implicitHeight: contentCol.implicitHeight + 24
         radius: 14
         color: Theme.hexToRgba(Theme.background, Theme.surfaceAlpha(0.92))
-        border.color: {
-            if (!NotifService.toastNotification) return Theme.hexToRgba(Theme.foreground, 0.1)
-            return NotifService.toastNotification.urgency === NotificationUrgency.Critical
-                ? Theme.hexToRgba(Theme.color1, 0.8)
-                : Theme.hexToRgba(Theme.foreground, 0.1)
-        }
+        border.color: root.isCritical
+            ? Theme.hexToRgba(Theme.color1, 0.8)
+            : Theme.hexToRgba(Theme.foreground, 0.1)
         border.width: 1
 
         opacity: NotifService.toastVisible ? 1 : 0
@@ -52,6 +53,11 @@ PanelWindow {
             NumberAnimation { duration: 200; easing.type: Easing.OutCubic }
         }
 
+        HoverHandler {
+            id: toastHover
+            onHoveredChanged: NotifService.toastPaused = hovered
+        }
+
         ColumnLayout {
             id: contentCol
             anchors {
@@ -62,28 +68,43 @@ PanelWindow {
             }
             spacing: 4
 
+            // ---- header ----
             RowLayout {
                 Layout.fillWidth: true
                 spacing: 6
 
                 Image {
-                    width: 16
-                    height: 16
-                    source: NotifService.toastNotification
-                        ? Quickshell.iconPath(NotifService.toastNotification.appIcon, 32)
-                        : ""
+                    Layout.preferredWidth: 16
+                    Layout.preferredHeight: 16
+                    source: root.notif ? Quickshell.iconPath(root.notif.appIcon, true) : ""
                     visible: source !== ""
                     fillMode: Image.PreserveAspectFit
+                    asynchronous: true
                 }
 
                 Text {
-                    text: NotifService.toastNotification
-                        ? NotifService.toastNotification.appName
-                        : ""
+                    Layout.fillWidth: true
+                    text: root.notif ? root.notif.appName : ""
                     color: Theme.hexToRgba(Theme.foreground, 0.5)
                     font.pixelSize: 11
-                    Layout.fillWidth: true
                     elide: Text.ElideRight
+                }
+
+                Rectangle {
+                    visible: NotifService.queuedCount > 0
+                    Layout.preferredWidth: queueLabel.implicitWidth + 10
+                    Layout.preferredHeight: 16
+                    radius: 8
+                    color: Theme.hexToRgba(Theme.color1, 0.2)
+
+                    Text {
+                        id: queueLabel
+                        anchors.centerIn: parent
+                        text: "+" + NotifService.queuedCount
+                        color: Theme.color1
+                        font.pixelSize: 10
+                        font.bold: true
+                    }
                 }
 
                 Text {
@@ -97,30 +118,48 @@ PanelWindow {
                 }
             }
 
-            Text {
+            // ---- body, with optional image ----
+            RowLayout {
                 Layout.fillWidth: true
-                text: NotifService.toastNotification
-                    ? NotifService.toastNotification.summary
-                    : ""
-                color: Theme.foreground
-                font.pixelSize: 13
-                font.bold: true
-                elide: Text.ElideRight
-                visible: text !== ""
-            }
+                spacing: 10
 
-            Text {
-                Layout.fillWidth: true
-                text: NotifService.toastNotification
-                    ? NotifService.toastNotification.body
-                    : ""
-                color: Theme.hexToRgba(Theme.foreground, 0.75)
-                font.pixelSize: 12
-                wrapMode: Text.WordWrap
-                maximumLineCount: 3
-                elide: Text.ElideRight
-                textFormat: Text.PlainText
-                visible: text !== ""
+                Image {
+                    visible: root.imageSource !== ""
+                    source: root.imageSource
+                    Layout.preferredWidth: 48
+                    Layout.preferredHeight: 48
+                    Layout.alignment: Qt.AlignTop
+                    fillMode: Image.PreserveAspectCrop
+                    asynchronous: true
+                    cache: false
+                }
+
+                ColumnLayout {
+                    Layout.fillWidth: true
+                    spacing: 2
+
+                    Text {
+                        Layout.fillWidth: true
+                        text: root.notif ? root.notif.summary : ""
+                        color: Theme.foreground
+                        font.pixelSize: 13
+                        font.bold: true
+                        elide: Text.ElideRight
+                        visible: text !== ""
+                    }
+
+                    Text {
+                        Layout.fillWidth: true
+                        text: root.notif ? root.notif.body : ""
+                        color: Theme.hexToRgba(Theme.foreground, 0.75)
+                        font.pixelSize: 12
+                        wrapMode: Text.WordWrap
+                        maximumLineCount: 3
+                        elide: Text.ElideRight
+                        textFormat: Text.PlainText
+                        visible: text !== ""
+                    }
+                }
             }
         }
 
