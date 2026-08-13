@@ -25,12 +25,13 @@ Singleton {
     readonly property string color14: adapter.color14
     readonly property string color15: adapter.color15
 
-  FileView {
-      id: colorFile
-      path: Qt.resolvedUrl("./theme.json")
-      watchChanges: true
-      onFileChanged: reload()
-    
+    FileView {
+        id: colorFile
+        path: Qt.resolvedUrl("./theme.json")
+        watchChanges: true
+        blockLoading: true
+        onFileChanged: reload()
+
         JsonAdapter {
             id: adapter
             property string background: "#000000"
@@ -52,19 +53,18 @@ Singleton {
             property string color14: "#000000"
             property string color15: "#000000"
         }
-  }
+    }
 
-  function hexToRgba(hex, alpha) {
-    return Qt.rgba(
-        parseInt(hex.slice(1,3), 16) / 255,
-        parseInt(hex.slice(3,5), 16) / 255,
-        parseInt(hex.slice(5,7), 16) / 255,
-        alpha
-    )
-  }
+    function hexToRgba(hex, alpha) {
+        return Qt.rgba(
+            parseInt(hex.slice(1, 3), 16) / 255,
+            parseInt(hex.slice(3, 5), 16) / 255,
+            parseInt(hex.slice(5, 7), 16) / 255,
+            alpha
+        )
+    }
 
-  function surfaceAlpha(base) {
-    return BlurState.blurEnabled ? base : Math.min(1.0, base + 0.15)
-  }
-
+    function surfaceAlpha(base) {
+        return PowerState.blurEnabled ? base : Math.min(1.0, base + 0.15)
+    }
 }

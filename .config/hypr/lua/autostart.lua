@@ -22,7 +22,4 @@ hl.on("hyprland.start", function()
 	-- Clipboard Utilities
 	hl.exec_cmd("wl-paste --type text --watch cliphist store")
 	hl.exec_cmd("wl-paste --type image --watch cliphist store")
-
-	-- Custom Background Scripts
-	hl.exec_cmd("~/.config/hypr/scripts/auto-blur.sh")
 end)
