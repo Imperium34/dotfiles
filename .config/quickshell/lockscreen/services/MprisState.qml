@@ -1,0 +1,1 @@
+../../bar/services/MprisState.qml

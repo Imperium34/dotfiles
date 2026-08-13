@@ -1,4 +1,5 @@
 import qs
+import qs.services
 import Quickshell.Networking
 import QtQuick
 import QtQuick.Layouts

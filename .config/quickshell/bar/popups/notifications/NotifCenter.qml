@@ -1,5 +1,6 @@
-import "../../widgets"
 import qs
+import qs.services
+import qs.widgets
 import Quickshell
 import Quickshell.Services.Notifications
 import QtQuick

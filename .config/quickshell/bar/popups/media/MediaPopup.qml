@@ -1,5 +1,6 @@
 import "../../widgets"
 import qs
+import qs.services
 import Quickshell
 import QtQuick
 import QtQuick.Effects

@@ -1,5 +1,6 @@
 import qs
 import qs.widgets
+import qs.services
 import qs.popups.battery
 import Quickshell
 import Quickshell.Services.UPower

@@ -1,4 +1,5 @@
 import qs
+import qs.services
 import Quickshell
 import Quickshell.Wayland
 import Quickshell.Services.Notifications

@@ -1,0 +1,1 @@
+../../bar/services/PowerState.qml

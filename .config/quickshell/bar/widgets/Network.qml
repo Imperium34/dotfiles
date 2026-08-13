@@ -1,6 +1,7 @@
-import "../popups/network"
 import qs
 import qs.widgets
+import qs.services
+import qs.popups.network
 import Quickshell
 import Quickshell.Networking
 import QtQuick

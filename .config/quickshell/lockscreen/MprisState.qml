@@ -1,1 +1,0 @@
-/home/ali/.config/quickshell/bar/MprisState.qml
