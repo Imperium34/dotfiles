@@ -9,14 +9,21 @@ Item {
     property color iconColor: Theme.foreground
     property int fontSize: 15
 
-    signal sliderMoved(real newValue)
+    property color fillColor: iconColor
 
-    readonly property bool expanded: hover.hovered || drag.active
+    property bool alwaysExpanded: false
+
+    signal sliderMoved(real newValue)
+    signal iconActivated()
+
+    readonly property bool expanded: alwaysExpanded || hover.hovered || drag.active
     readonly property real collapsedWidth: fontSize + 8
     readonly property real expandedWidth: collapsedWidth + 120
 
     implicitHeight: 28
-    implicitWidth: expanded ? expandedWidth : collapsedWidth
+    implicitWidth: root.alwaysExpanded
+    ? root.collapsedWidth + 8 + 100
+    : (expanded ? expandedWidth : collapsedWidth)
 
     Behavior on implicitWidth {
         NumberAnimation {
@@ -43,15 +50,19 @@ Item {
             color: root.iconColor
             font.pixelSize: root.fontSize
         }
+
+        TapHandler {
+            onTapped: root.iconActivated()
+        }
     }
 
     Item {
         id: trackContainer
         x: iconContainer.x + iconContainer.width + 8
-        width: root.implicitWidth - x - 4
+        width: root.width - x - 4
         height: 20
         anchors.verticalCenter: parent.verticalCenter
-        opacity: expanded ? 1 : 0
+        opacity: root.expanded ? 1 : 0
         visible: opacity > 0
 
         Behavior on opacity {
@@ -68,7 +79,7 @@ Item {
             width: parent.width * root.value
             height: parent.height
             radius: 10
-            color: root.iconColor
+            color: root.fillColor
 
             Behavior on width {
                 NumberAnimation { duration: 50 }

@@ -286,13 +286,25 @@ BasePopup {
         RowLayout {
             Layout.fillWidth: true
 
-            Text {
-                text: "󰅁"
-                color: Theme.hexToRgba(Theme.foreground, 0.7)
-                font.pixelSize: 18
-                font.family: "Symbols Nerd Font"
-                scale: prevHover.hovered ? 1.2 : 1
-                Behavior on scale { NumberAnimation { duration: 100 } }
+            Item {
+                Layout.preferredWidth: 32
+                Layout.preferredHeight: 32
+
+                Rectangle {
+                    anchors.fill: parent
+                    radius: 8
+                    color: prevHover.hovered ? Theme.hexToRgba(Theme.foreground, 0.09) : "transparent"
+                    Behavior on color { ColorAnimation { duration: 100 } }
+                }
+
+                Text {
+                    anchors.centerIn: parent
+                    text: "󰅁"
+                    color: Theme.hexToRgba(Theme.foreground, 0.7)
+                    font.pixelSize: 18
+                    font.family: "Symbols Nerd Font"
+                }
+
                 HoverHandler { id: prevHover }
                 TapHandler { onTapped: popup.changeMonth(-1) }
             }
@@ -317,19 +329,31 @@ BasePopup {
                     color: Theme.hexToRgba(Theme.color5, todayHover.hovered ? 1 : 0.6)
                     font.pixelSize: 9
                     visible: !popup.onCurrentMonth
-                    HoverHandler { id: todayHover }
                 }
 
+                HoverHandler { id: todayHover }
                 TapHandler { onTapped: popup.resetToToday() }
             }
 
-            Text {
-                text: "󰅂"
-                color: Theme.hexToRgba(Theme.foreground, 0.7)
-                font.pixelSize: 18
-                font.family: "Symbols Nerd Font"
-                scale: nextHover.hovered ? 1.2 : 1
-                Behavior on scale { NumberAnimation { duration: 100 } }
+            Item {
+                Layout.preferredWidth: 32
+                Layout.preferredHeight: 32
+
+                Rectangle {
+                    anchors.fill: parent
+                    radius: 8
+                    color: nextHover.hovered ? Theme.hexToRgba(Theme.foreground, 0.09) : "transparent"
+                    Behavior on color { ColorAnimation { duration: 100 } }
+                }
+
+                Text {
+                    anchors.centerIn: parent
+                    text: "󰅂"
+                    color: Theme.hexToRgba(Theme.foreground, 0.7)
+                    font.pixelSize: 18
+                    font.family: "Symbols Nerd Font"
+                }
+
                 HoverHandler { id: nextHover }
                 TapHandler { onTapped: popup.changeMonth(1) }
             }

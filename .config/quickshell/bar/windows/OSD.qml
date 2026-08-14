@@ -10,6 +10,8 @@ import QtQuick.Layouts
 PanelWindow {
     id: osdWindow
 
+    // Follow focus. Without this the compositor decides which output the layer
+    // surface lands on, which may not be the monitor you're looking at.
     screen: BarRegistry.focusedBar ? BarRegistry.focusedBar.screen : null
 
     anchors {
@@ -31,10 +33,6 @@ PanelWindow {
     property string mode: "volume"
     property bool animIn: false
 
-    property int brightCurrent: 0
-    property int brightMax: 1
-    readonly property real brightness: brightMax > 0 ? brightCurrent / brightMax : 0
-
     readonly property int cardWidth: 280
     readonly property int collapsedWidth: 120
 
@@ -46,6 +44,8 @@ PanelWindow {
     readonly property real volume: audio ? audio.volume : 0
     readonly property bool muted: audio ? audio.muted : false
 
+    readonly property real brightness: Brightness.fraction
+
     Timer {
         id: dismissTimer
         interval: 1500
@@ -56,37 +56,6 @@ PanelWindow {
         osdWindow.mode = newMode
         osdWindow.animIn = true
         dismissTimer.restart()
-    }
-
-    // Brightness processes
-    Process {
-        id: brightGet
-        command: ["/usr/bin/brightnessctl", "get"]
-        running: true
-        stdout: StdioCollector {
-            onStreamFinished: osdWindow.brightCurrent = parseInt(text.trim()) || 0
-        }
-    }
-
-    Process {
-        id: brightMaxProc
-        command: ["/usr/bin/brightnessctl", "max"]
-        running: true
-        stdout: StdioCollector {
-            onStreamFinished: osdWindow.brightMax = parseInt(text.trim()) || 1
-        }
-    }
-
-    Process {
-        id: brightUp
-        command: ["/usr/bin/brightnessctl", "-q", "set", "5%+"]
-        onRunningChanged: if (!running) brightGet.running = true
-    }
-
-    Process {
-        id: brightDown
-        command: ["/usr/bin/brightnessctl", "-q", "set", "5%-"]
-        onRunningChanged: if (!running) brightGet.running = true
     }
 
     IpcHandler {
@@ -110,12 +79,12 @@ PanelWindow {
         }
 
         function brightnessUp(): void {
-            brightUp.running = true
+            Brightness.up()
             osdWindow.show("brightness")
         }
 
         function brightnessDown(): void {
-            brightDown.running = true
+            Brightness.down()
             osdWindow.show("brightness")
         }
     }
@@ -140,10 +109,10 @@ PanelWindow {
             opacity: osdWindow.animIn ? 1 : 0
 
             Behavior on width {
-                NumberAnimation { duration: 500; easing.type: Easing.OutCubic }
+                NumberAnimation { duration: 200; easing.type: Easing.OutCubic }
             }
             Behavior on opacity {
-                NumberAnimation { duration: 500; easing.type: Easing.OutCubic }
+                NumberAnimation { duration: 200; easing.type: Easing.OutCubic }
             }
 
             RowLayout {

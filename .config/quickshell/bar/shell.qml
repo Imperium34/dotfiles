@@ -14,6 +14,7 @@ Scope {
     Launcher {}
     Clipboard {}
     Wallpaper {}
+    QuickSettings {}
 
     LazyLoader {
         id: sysMonitorLoader

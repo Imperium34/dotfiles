@@ -26,8 +26,11 @@ Item {
         : Math.max(listView.count - 1, 0)
     readonly property int _headerOffset: root.header ? 1 : 0
 
-    property string accentColor: Theme.color4
+    property string accentColor: Theme.color5
     property alias emptyText: emptyLabel.text
+
+    readonly property real selectionFillAlpha: 0.22
+    readonly property real selectionBorderAlpha: 0.55
 
     ListView {
         id: listView
@@ -59,9 +62,14 @@ Item {
                     anchors.fill: parent
                     radius: 8
                     color: headerRoot.selected
-                        ? Theme.hexToRgba(root.headerAccentColor, 0.7)
+                        ? Theme.hexToRgba(root.headerAccentColor, root.selectionFillAlpha)
                         : "transparent"
+                    border.color: headerRoot.selected
+                        ? Theme.hexToRgba(root.headerAccentColor, root.selectionBorderAlpha)
+                        : "transparent"
+                    border.width: 1
                     Behavior on color { ColorAnimation { duration: 100 } }
+                    Behavior on border.color { ColorAnimation { duration: 100 } }
                 }
 
                 Loader {
@@ -90,9 +98,14 @@ Item {
                 anchors.fill: parent
                 radius: 8
                 color: rowWrap.selected
-                    ? Theme.hexToRgba(root.accentColor, 0.7)
+                    ? Theme.hexToRgba(root.accentColor, root.selectionFillAlpha)
                     : "transparent"
+                border.color: rowWrap.selected
+                    ? Theme.hexToRgba(root.accentColor, root.selectionBorderAlpha)
+                    : "transparent"
+                border.width: 1
                 Behavior on color { ColorAnimation { duration: 100 } }
+                Behavior on border.color { ColorAnimation { duration: 100 } }
             }
 
             Loader {

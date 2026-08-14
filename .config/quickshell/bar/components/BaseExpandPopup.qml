@@ -27,6 +27,8 @@ PopupWindow {
     property int minIndex: 0
     property int maxIndex: 0
 
+    property bool showSearch: true
+
     property alias searchText: searchField.text
     readonly property bool animIn: controller.animIn
 
@@ -73,7 +75,7 @@ PopupWindow {
         interval: root.openPhaseDuration
         onTriggered: {
             controller.open()
-            Qt.callLater(() => searchField.forceActiveFocus())
+            if (root.showSearch) Qt.callLater(() => searchField.forceActiveFocus())
         }
     }
 
@@ -174,6 +176,8 @@ PopupWindow {
                     ? Theme.hexToRgba(Theme.color4, 0.8)
                     : Theme.hexToRgba(Theme.foreground, 0.1)
                 border.width: 1
+
+                visible: root.showSearch
 
                 Behavior on border.color {
                     ColorAnimation { duration: 150 }

@@ -95,7 +95,7 @@ BaseExpandPopup {
         model: clipboard.filteredEntries
         rowHeight: 32
         headerHeight: 36
-        accentColor: Theme.color4
+        accentColor: Theme.color5
         headerAccentColor: Theme.color1
         emptyText: clipboard.query !== "" ? "No matches found" : "Clipboard is empty"
 
