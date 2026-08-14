@@ -11,12 +11,12 @@ PopupWindow {
     id: root
 
     // ---- public API ----
-    property var barWindow: null
+    property var barWindow: BarRegistry.focusedBar
     property string ipcTarget: ""
     property string placeholder: "Search..."
 
-    property real originX: 0
-    property real originWidth: 200
+    property real originX: barWindow ? barWindow.width / 2 : 0
+    property real originWidth: barWindow ? barWindow.pillWidth : 200
 
     property int searchHeight: 42
     property int columnSpacing: 6
@@ -87,11 +87,12 @@ PopupWindow {
     }
 
     function open() {
+        root.barWindow = BarRegistry.focusedBar
         visible = true
         selectedIndex = 0
         searchField.text = ""
         focusGrab.active = true
-        const startWidth = ExpandPopupCoordinator.expand(root)
+        const startWidth = ExpandPopupCoordinator.expand(root, root.barWindow)
         root.openPhaseDuration = Math.round(
             Math.abs(root.implicitWidth - startWidth) / ExpandPopupCoordinator.growSpeed * 1000)
         widthPhaseTimer.restart()

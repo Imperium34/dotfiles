@@ -13,10 +13,10 @@ PopupWindow {
     visible: false
     color: "transparent"
 
-    property var barWindow: null
     readonly property string homeDir: Quickshell.env("HOME") ?? ""
-    property real originX: 0
-    property real originWidth: 200
+    property var barWindow: BarRegistry.focusedBar
+    property real originX: barWindow ? barWindow.width / 2 : 0
+    property real originWidth: barWindow ? barWindow.pillWidth : 200
 
     implicitWidth: barWindow ? barWindow.width * 0.50 : 1200
     implicitHeight: 190
@@ -70,12 +70,13 @@ PopupWindow {
 
     function open() {
         widthShrinkTimer.stop()
+        root.barWindow = BarRegistry.focusedBar
         visible = true
         applyingIndex = -1
         wallpaperScanner.running = true
         syncPresetSelection()
         focusGrab.active = true
-        const startWidth = ExpandPopupCoordinator.expand(root)
+        const startWidth = ExpandPopupCoordinator.expand(root, root.barWindow)
         root.openPhaseDuration = Math.round(
             Math.abs(root.implicitWidth - startWidth) / ExpandPopupCoordinator.growSpeed * 1000)
         widthPhaseTimer.restart()

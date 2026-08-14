@@ -7,20 +7,28 @@ Singleton {
 
     property var active: null
 
+    property var activeBar: null
+
     property bool expanded: false
     property real targetWidth: 0
 
+    property real previousWidth: 0
+
     property real growSpeed: 2500
 
-    function expand(popup) {
-        const previousWidth = root.expanded ? root.targetWidth : popup.originWidth
+    function expand(popup, bar) {
+        root.previousWidth = root.expanded ? root.targetWidth : popup.originWidth
+
         if (root.active && root.active !== popup) {
             root.active.close()
         }
+
         root.active = popup
+        root.activeBar = bar
         root.targetWidth = popup.implicitWidth
         root.expanded = true
-        return previousWidth
+
+        return root.previousWidth
     }
 
     function collapse(popup) {
@@ -28,6 +36,9 @@ Singleton {
     }
 
     function notifyClosed(popup) {
-        if (root.active === popup) root.active = null
+        if (root.active === popup) {
+            root.active = null
+            root.activeBar = null
+        }
     }
 }

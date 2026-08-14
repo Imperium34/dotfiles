@@ -1,4 +1,5 @@
 import Quickshell
+import Quickshell.Io
 import QtQuick
 import qs.windows
 import qs.services
@@ -10,5 +11,27 @@ Scope {
     OSD {}
     NotifToast {}
     PowerActions {}
+    Launcher {}
+    Clipboard {}
+    Wallpaper {}
+
+    LazyLoader {
+        id: sysMonitorLoader
+        component: SysMonitorWindow {
+            onCloseRequested: sysMonitorLoader.activeAsync = false
+        }
+    }
+
+    IpcHandler {
+        target: "sysmonitor"
+        function open(): void { sysMonitorLoader.activeAsync = true }
+    }
+
+    Binding {
+        target: IdleInhibit
+        property: "window"
+        value: BarRegistry.focusedBar
+    }
+
     Component.onCompleted: BatteryAlert.lowThreshold
 }

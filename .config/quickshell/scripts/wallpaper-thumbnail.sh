@@ -27,6 +27,8 @@ out="$cache_dir/$key.png"
   exit 0
 }
 
+find "$cache_dir" -maxdepth 1 -type f -atime +30 -delete 2>/dev/null || true
+
 tmp="$cache_dir/.tmp.$$.$key.png"
 trap 'rm -f "$tmp"' EXIT
 

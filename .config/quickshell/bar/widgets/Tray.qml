@@ -8,9 +8,6 @@ import QtQuick.Layouts
 Item {
     id: root
 
-    // display() needs a window to anchor the tray menu to. This was undefined,
-    // so right-click and menu-only items silently failed. Passed in from Bar.qml
-    // the same way every other popup-owning widget receives it.
     required property var barWindow
 
     implicitWidth: row.implicitWidth
@@ -25,6 +22,7 @@ Item {
             model: SystemTray.items
 
             delegate: Item {
+                id: trayItem
                 required property var modelData
 
                 implicitWidth: 18
@@ -32,7 +30,7 @@ Item {
 
                 IconImage {
                     anchors.centerIn: parent
-                    source: modelData.icon
+                    source: trayItem.modelData.icon
                     implicitSize: 18
                 }
 
@@ -40,13 +38,11 @@ Item {
                     anchors.fill: parent
                     acceptedButtons: Qt.LeftButton | Qt.RightButton
                     onClicked: (mouse) => {
-                        if (mouse.button === Qt.RightButton || modelData.onlyMenu) {
-                            // use the parameter's coords — bare mouseX/mouseY can
-                            // resolve to 0,0 inside an arrow handler, which gave
-                            // display() a degenerate anchor and the menu never showed.
-                            modelData.display(root.barWindow, mouse.x, mouse.y)
+                        if (mouse.button === Qt.RightButton || trayItem.modelData.onlyMenu) {
+                            const p = mapToItem(null, mouse.x, mouse.y)
+                            trayItem.modelData.display(root.barWindow, p.x, p.y)
                         } else {
-                            modelData.activate()
+                            trayItem.modelData.activate()
                         }
                     }
                 }

@@ -7,6 +7,7 @@ import QtQuick
 Singleton {
     id: root
 
+    // ── LIVE VALUES ────────────────────────────────────────────
     property real cpuUsage: 0
     property real memUsage: 0
 
@@ -14,13 +15,23 @@ Singleton {
     property real memUsedKb: 0
     property real memTotalKb: 0
 
-    property bool gpuPollActive: false
     property real gpuUtil: 0
     property real gpuMemUsedMb: 0
     property real gpuMemTotalMb: 0
     property real gpuTempC: 0
     property real gpuPowerW: 0
 
+    property real cpuTempC: 0
+    property var fans: []
+
+    property var disks: []
+
+    property real netRxKBs: 0
+    property real netTxKBs: 0
+
+    property var processes: []
+
+    // ── SETTINGS ───────────────────────────────────────────────
     FileView {
         id: settingsFile
         path: Quickshell.dataPath("sysmonitor-settings.json")
@@ -35,25 +46,51 @@ Singleton {
     readonly property alias fetchNvidiaEnabled: settings.fetchNvidia
     function setFetchNvidia(enabled) { settings.fetchNvidia = enabled }
 
-    // ---- CPU temp / fan speeds (lm-sensors) ----
-    property bool sensorPollActive: false
-    property real cpuTempC: 0
-    property var fans: []
+    // ── POLLING REFCOUNTS ──────────────────────────────────────
+    property int gpuRequests: 0
+    property int sensorRequests: 0
+    property int diskRequests: 0
+    property int processRequests: 0
 
-    // ---- disk usage ----
-    property bool diskPollActive: false
-    property var disks: []
+    readonly property bool gpuPollActive: gpuRequests > 0
+    readonly property bool sensorPollActive: sensorRequests > 0
+    readonly property bool diskPollActive: diskRequests > 0
+    readonly property bool processPollActive: processRequests > 0
 
-    // ---- network throughput ----
-    property real netRxKBs: 0
-    property real netTxKBs: 0
-    property var _prevNet: null
+    function startGpuPolling() { root.gpuRequests++ }
+    function stopGpuPolling() { root.gpuRequests = Math.max(0, root.gpuRequests - 1) }
 
-    // ---- process list ----
-    property bool processPollActive: false
-    property var processes: []
+    function startSensorPolling() { root.sensorRequests++ }
+    function stopSensorPolling() { root.sensorRequests = Math.max(0, root.sensorRequests - 1) }
+
+    function startDiskPolling() { root.diskRequests++ }
+    function stopDiskPolling() { root.diskRequests = Math.max(0, root.diskRequests - 1) }
+
+    function startProcessPolling() { root.processRequests++ }
+    function stopProcessPolling() { root.processRequests = Math.max(0, root.processRequests - 1) }
+
+    // ── /proc SAMPLING ─────────────────────────────────────────
 
     property var _prevCpu: []
+    property var _prevNet: null
+
+    FileView {
+        id: statFile
+        path: "/proc/stat"
+        onLoaded: root._sampleCpu(text())
+    }
+
+    FileView {
+        id: meminfoFile
+        path: "/proc/meminfo"
+        onLoaded: root._sampleMem(text())
+    }
+
+    FileView {
+        id: netDevFile
+        path: "/proc/net/dev"
+        onLoaded: root._sampleNet(text())
+    }
 
     Timer {
         interval: 1500
@@ -61,49 +98,38 @@ Singleton {
         repeat: true
         triggeredOnStart: true
         onTriggered: {
-            root._sampleCpu(statFile.text())
-            root._sampleMem(meminfoFile.text())
-            root._sampleNet(netDevFile.text())
             statFile.reload()
             meminfoFile.reload()
             netDevFile.reload()
+        }
+    }
 
+    Timer {
+        interval: 4000
+        repeat: true
+        triggeredOnStart: true
+        running: (root.gpuPollActive && root.fetchNvidiaEnabled) || root.sensorPollActive
+        onTriggered: {
             if (root.gpuPollActive && root.fetchNvidiaEnabled) gpuProc.running = true
             if (root.sensorPollActive) sensorsProc.running = true
         }
     }
 
-    FileView {
-        id: netDevFile
-        path: "/proc/net/dev"
-    }
-
     Timer {
-        id: diskTimer
         interval: 5000
-        running: root.diskPollActive
         repeat: true
         triggeredOnStart: true
+        running: root.diskPollActive
         onTriggered: diskProc.running = true
     }
 
     Timer {
         id: processTimer
         interval: 2000
-        running: root.processPollActive
         repeat: true
         triggeredOnStart: true
+        running: root.processPollActive
         onTriggered: processProc.running = true
-    }
-
-    FileView {
-        id: statFile
-        path: "/proc/stat"
-    }
-
-    FileView {
-        id: meminfoFile
-        path: "/proc/meminfo"
     }
 
     function _sampleCpu(text) {
@@ -204,32 +230,7 @@ Singleton {
         root._prevNet = now
     }
 
-    function startSensorPolling() { sensorPollActive = true }
-    function stopSensorPolling() { sensorPollActive = false }
-
-    function startDiskPolling() { diskPollActive = true }
-    function stopDiskPolling() { diskPollActive = false }
-
-    function startProcessPolling() { processPollActive = true }
-    function stopProcessPolling() { processPollActive = false }
-
-    function killProcess(pid) {
-        killProc.command = ["kill", String(pid)]
-        killProc.running = true
-        refreshAfterKillTimer.restart()
-    }
-
-    Timer {
-        id: refreshAfterKillTimer
-        interval: 300
-        onTriggered: if (root.processPollActive) processProc.running = true
-    }
-
-    Process {
-        id: killProc
-        command: []
-    }
-
+    // ── GPU ────────────────────────────────────────────────────
     Process {
         id: gpuProc
         command: [
@@ -252,10 +253,7 @@ Singleton {
         }
     }
 
-    function startGpuPolling() { gpuPollActive = true }
-    function stopGpuPolling() { gpuPollActive = false }
-
-    // ---- CPU temp / fan (lm-sensors, JSON output) ----
+    // ── CPU TEMP / FANS ────────────────────────────────────────
     Process {
         id: sensorsProc
         command: ["sensors", "-j"]
@@ -304,11 +302,13 @@ Singleton {
         root.fans = fanList
     }
 
-    // ---- disk usage (per real mount point) ----
+    // ── DISKS ──────────────────────────────────────────────────
     Process {
         id: diskProc
+        // -x filters out the pseudo-filesystems by type, which is more robust
+        // than prefix matching alone.
         command: ["bash", "-c",
-            "df -B1 --output=target,size,used | tail -n +2"]
+            "df -B1 -x tmpfs -x devtmpfs -x efivarfs --output=target,size,used | tail -n +2"]
         stdout: StdioCollector {
             onStreamFinished: root._sampleDisks(this.text)
         }
@@ -316,7 +316,7 @@ Singleton {
 
     function _sampleDisks(text) {
         if (!text) return
-        const skipPrefixes = ["/dev", "/proc", "/sys", "/run", "/boot/efi"]
+        const skipPrefixes = ["/dev", "/proc", "/sys", "/run", "/boot"]
         const list = []
 
         for (const rawLine of text.trim().split("\n")) {
@@ -338,11 +338,19 @@ Singleton {
         root.disks = list
     }
 
-    // ---- process list (top by CPU, capped for sanity) ----
+    // ── PROCESSES ──────────────────────────────────────────────
+    property var _prevProcCpu: ({})
+    property real _prevProcTotal: 0
+
+    readonly property int _pageSizeBytes: 4096
+
     Process {
         id: processProc
         command: ["bash", "-c",
-            "ps -eo pid,comm,%cpu,%mem --sort=-%cpu --no-headers | head -n 60"]
+            "head -n1 /proc/stat | awk '{s=0; for(i=2;i<=8;i++) s+=$i; print \"T\", s}'; " +
+            "awk '{ n=split($0, a, \")\"); split(a[n], b, \" \"); " +
+            "name=$0; sub(/^[0-9]+ \\(/, \"\", name); sub(/\\)[^)]*$/, \"\", name); " +
+            "print $1, b[12]+b[13], b[22], name }' /proc/[0-9]*/stat 2>/dev/null"]
         stdout: StdioCollector {
             onStreamFinished: root._sampleProcesses(this.text)
         }
@@ -350,22 +358,92 @@ Singleton {
 
     function _sampleProcesses(text) {
         if (!text) return
-        const list = []
 
-        for (const rawLine of text.trim().split("\n")) {
-            const line = rawLine.trim()
-            if (!line) continue
-            const parts = line.split(/\s+/)
+        const lines = text.trim().split("\n")
+        if (lines.length < 2) return
+
+        // First line is the total jiffies across all CPUs.
+        const totalParts = lines[0].trim().split(/\s+/)
+        if (totalParts[0] !== "T") return
+        const total = Number(totalParts[1])
+
+        const cur = {}
+        const raw = []
+
+        for (let i = 1; i < lines.length; i++) {
+            const parts = lines[i].trim().split(/\s+/)
             if (parts.length < 4) continue
+
             const pid = Number(parts[0])
-            const cpu = Number(parts[parts.length - 2])
-            const mem = Number(parts[parts.length - 1])
-            const comm = parts.slice(1, parts.length - 2).join(" ")
+            const jiffies = Number(parts[1])
+            const rssPages = Number(parts[2])
+            const name = parts.slice(3).join(" ")
             if (!pid) continue
 
-            list.push({ pid: pid, name: comm, cpu: cpu, mem: mem })
+            cur[pid] = jiffies
+            raw.push({ pid: pid, name: name, jiffies: jiffies, rssPages: rssPages })
         }
 
-        root.processes = list
+        const totalDelta = total - root._prevProcTotal
+        root._prevProcTotal = total
+
+        // First sample has nothing to diff against; wait one tick.
+        if (totalDelta <= 0 || Object.keys(root._prevProcCpu).length === 0) {
+            root._prevProcCpu = cur
+            return
+        }
+
+        const cores = Math.max(1, root.perCore.length)
+        const memTotalBytes = root.memTotalKb * 1024
+        const list = []
+
+        for (const p of raw) {
+            const prev = root._prevProcCpu[p.pid]
+            // A pid seen for the first time (or reused) has no baseline.
+            const delta = (prev === undefined) ? 0 : Math.max(0, p.jiffies - prev)
+
+            list.push({
+                pid: p.pid,
+                name: p.name,
+                cpu: (delta / totalDelta) * cores * 100,
+                mem: memTotalBytes > 0
+                    ? (p.rssPages * root._pageSizeBytes / memTotalBytes) * 100
+                    : 0
+            })
+        }
+
+        list.sort((a, b) => b.cpu - a.cpu)
+
+        root._prevProcCpu = cur
+        root.processes = list.slice(0, 60)
+    }
+
+    // ── ACTIONS ────────────────────────────────────────────────
+    signal killFailed(int pid, string message)
+
+    property int _killPid: 0
+
+    function killProcess(pid) {
+        root._killPid = pid
+        killProc.command = ["kill", String(pid)]
+        killProc.running = true
+        refreshAfterKillTimer.restart()
+    }
+
+    Process {
+        id: killProc
+        command: []
+        stderr: StdioCollector {
+            onStreamFinished: {
+                const msg = (this.text || "").trim()
+                if (msg !== "") root.killFailed(root._killPid, msg)
+            }
+        }
+    }
+
+    Timer {
+        id: refreshAfterKillTimer
+        interval: 300
+        onTriggered: if (root.processPollActive) processProc.running = true
     }
 }

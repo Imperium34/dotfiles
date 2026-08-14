@@ -22,7 +22,7 @@ Item {
     property bool expanded: false
     property string errorText: ""
 
-    onIsChangingChanged: if (!isChanging && !isConnected) expanded = true
+    onIsChangingChanged: if (!isChanging && !isConnected && needsPassword) expanded = true
     onIsConnectedChanged: if (isConnected) expanded = false
 
     Connections {
@@ -72,23 +72,23 @@ Item {
 
         Text {
             text: {
-                const s = network ? network.signalStrength : 0
+                const s = root.network ? root.network.signalStrength : 0
                 if (s < 0.25) return "󰤟"
                 if (s < 0.5)  return "󰤢"
                 if (s < 0.75) return "󰤥"
                 return "󰤨"
             }
-            color: isConnected ? Theme.color5 : Theme.hexToRgba(Theme.foreground, 0.7)
+            color: root.isConnected ? Theme.color5 : Theme.hexToRgba(Theme.foreground, 0.7)
             font.pixelSize: 16
             font.family: "Symbols Nerd Font"
         }
 
         Text {
             Layout.fillWidth: true
-            text: network ? network.name : ""
-            color: isConnected ? Theme.foreground : Theme.hexToRgba(Theme.foreground, 0.85)
+            text: root.network ? root.network.name : ""
+            color: root.isConnected ? Theme.foreground : Theme.hexToRgba(Theme.foreground, 0.85)
             font.pixelSize: 13
-            font.bold: isConnected
+            font.bold: root.isConnected
             elide: Text.ElideRight
         }
 
@@ -97,14 +97,14 @@ Item {
             color: Theme.hexToRgba(Theme.foreground, 0.4)
             font.pixelSize: 12
             font.family: "Symbols Nerd Font"
-            visible: network
-                && network.security !== WifiSecurityType.None
-                && network.security !== WifiSecurityType.Unknown
+            visible: root.network
+                && root.network.security !== WifiSecurityType.None
+                && root.network.security !== WifiSecurityType.Unknown
         }
 
         Loader {
-            active: isConnected || isChanging
-            sourceComponent: isChanging ? spinnerComponent : checkComponent
+            active: root.isConnected || root.isChanging
+            sourceComponent: root.isChanging ? spinnerComponent : checkComponent
         }
     }
 
@@ -209,7 +209,7 @@ Item {
                         return
                     }
                     root.errorText = ""
-                    network.connectWithPsk(passwordField.text)
+                    root.network.connectWithPsk(passwordField.text)
                 }
 
                 TapHandler {
@@ -231,16 +231,16 @@ Item {
     TapHandler {
         onTapped: (eventPoint) => {
             if (eventPoint.position.y >= root.baseHeight) return
-            if (isConnected) {
-                network.disconnect()
-            } else if (isChanging) {
-                // do nothing
+            if (root.isConnected) {
+                root.network.disconnect()
+            } else if (root.isChanging) {
+                // in flight -- ignore
             } else if (root.needsPassword) {
                 root.errorText = ""
                 root.expanded = !root.expanded
                 if (root.expanded) Qt.callLater(() => passwordField.forceActiveFocus())
             } else {
-                network.connect()
+                root.network.connect()
             }
         }
     }

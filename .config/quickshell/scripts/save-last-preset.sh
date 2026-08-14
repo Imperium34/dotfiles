@@ -14,6 +14,11 @@ state_file="$3"
 mkdir -p "$(dirname "$state_file")"
 [ -f "$state_file" ] || echo '{}' >"$state_file"
 
+if ! jq -e . "$state_file" >/dev/null 2>&1; then
+  echo "save-last-preset: $state_file was not valid JSON, resetting" >&2
+  echo '{}' >"$state_file"
+fi
+
 tmp=$(mktemp -p "$(dirname "$state_file")")
 trap 'rm -f "$tmp"' EXIT
 

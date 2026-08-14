@@ -5,18 +5,24 @@ import QtQuick
 import QtQuick.Layouts
 
 Item {
+    id: root
+
     required property var screen
     readonly property var hyprMonitor: Hyprland.monitorFor(screen)
 
+    property bool thisMonitorOnly: false
+
     readonly property var sortedWorkspaces: {
-        const ws = Hyprland.workspaces.values.filter(w => !w.name.startsWith("special:"))
+        let ws = Hyprland.workspaces.values.filter(w => !w.name.startsWith("special:"))
+        if (root.thisMonitorOnly && root.hyprMonitor)
+            ws = ws.filter(w => w.monitor === root.hyprMonitor)
         ws.sort((a, b) => a.id - b.id)
         return ws
     }
 
     readonly property var activeWorkspace: {
-        for (const ws of sortedWorkspaces) {
-            if (ws.monitor === hyprMonitor && ws.active) return ws
+        for (const ws of root.sortedWorkspaces) {
+            if (ws.monitor === root.hyprMonitor && ws.active) return ws
         }
         return null
     }
@@ -24,54 +30,19 @@ Item {
     implicitWidth: wsRow.implicitWidth
     implicitHeight: wsRow.implicitHeight
 
-    function updateIndicator() {
-        if (!activeWorkspace) return
-        let targetIdx = -1
-        for (let i = 0; i < sortedWorkspaces.length; i++) {
-            if (sortedWorkspaces[i].id === activeWorkspace.id) {
-                targetIdx = i
-                break
-            }
-        }
-        if (targetIdx < 0) return
-
-        let xPos = 0
-        for (let i = 0; i < targetIdx; i++) {
-            const delegate = wsRepeater.itemAt(i)
-            if (!delegate) return
-            xPos += delegate.width + wsRow.spacing
-        }
-        const activeDelegate = wsRepeater.itemAt(targetIdx)
-        if (!activeDelegate) return
-        indicator.x = xPos
-        indicator.width = activeDelegate.width
-      }
-
-    onActiveWorkspaceChanged: {
-        Qt.callLater(updateIndicator)
-    }
-
-    onSortedWorkspacesChanged: Qt.callLater(updateIndicator)
-
     Rectangle {
         id: indicator
         y: 0
         height: parent.height
         radius: height / 2
         color: Theme.color4
-        visible: activeWorkspace !== null
+        visible: root.activeWorkspace !== null
 
         Behavior on x {
-            NumberAnimation {
-                duration: 200
-                easing.type: Easing.InOutQuart
-            }
+            NumberAnimation { duration: 200; easing.type: Easing.InOutQuart }
         }
         Behavior on width {
-            NumberAnimation {
-                duration: 200
-                easing.type: Easing.InOutQuart
-            }
+            NumberAnimation { duration: 200; easing.type: Easing.InOutQuart }
         }
     }
 
@@ -81,34 +52,42 @@ Item {
 
         Repeater {
             id: wsRepeater
-            model: sortedWorkspaces
-
-            onItemAdded: (index, item) => {
-                if (count === sortedWorkspaces.length) updateIndicator()
-            }
+            model: root.sortedWorkspaces
 
             delegate: Item {
+                id: wsItem
                 required property var modelData
-                readonly property bool isActive: modelData.monitor === hyprMonitor && modelData.active
+
+                readonly property bool isActive: modelData.monitor === root.hyprMonitor && modelData.active
                 readonly property bool isUrgent: modelData.urgent
 
                 width: wsText.implicitWidth + 20
                 height: wsText.implicitHeight + 8
 
+                function claimIndicator() {
+                    if (!wsItem.isActive) return
+                    indicator.x = wsItem.x
+                    indicator.width = wsItem.width
+                }
+
+                onIsActiveChanged: claimIndicator()
+                onXChanged: claimIndicator()
+                onWidthChanged: claimIndicator()
+                Component.onCompleted: claimIndicator()
+
                 Text {
                     id: wsText
                     anchors.centerIn: parent
-                    text: modelData.name
-                    color: isActive ? Theme.background
-                         : isUrgent ? Theme.color1
+                    text: wsItem.modelData.name
+                    color: wsItem.isActive ? Theme.background
+                         : wsItem.isUrgent ? Theme.color1
                          : Theme.foreground
                     font.pixelSize: 14
-                    font.bold: isActive
+                    font.bold: wsItem.isActive
                 }
 
-                MouseArea {
-                    anchors.fill: parent
-                    onClicked: modelData.activate()
+                TapHandler {
+                    onTapped: wsItem.modelData.activate()
                 }
             }
         }

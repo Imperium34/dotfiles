@@ -9,7 +9,7 @@ cd "$ROOT_DIR" 2>/dev/null || exit 0
 
 gen_line() {
   local rel="$1" thumb
-  thumb=$("$SCRIPT_DIR/wallpaper-thumbnail.sh" "$ROOT_DIR/$rel" 2>/dev/null) || return 0
+  thumb=$("$SCRIPT_DIR/wallpaper-thumbnail.sh" "$ROOT_DIR/$rel" 2>/dev/null) || thumb=""
   printf '%s\t%s\n' "$rel" "$thumb"
 }
 export -f gen_line

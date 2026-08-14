@@ -22,6 +22,11 @@ Scope {
             required property var modelData
             screen: modelData
 
+            readonly property real pillWidth: centerPill.implicitWidth
+
+            Component.onCompleted: BarRegistry.register(modelData.name, barWindow)
+            Component.onDestruction: BarRegistry.unregister(modelData.name)
+
             anchors {
                 top: true
                 left: true
@@ -36,8 +41,6 @@ Scope {
 
             exclusionMode: ExclusionMode.Normal
             exclusiveZone: 52
-
-            Component.onCompleted: IdleInhibit.window = barWindow
 
             Item {
                 id: pillRow
@@ -78,15 +81,25 @@ Scope {
                     padding: 10
                     spacing: 10
 
-                    readonly property real growDuration: Math.abs(ExpandPopupCoordinator.targetWidth - implicitWidth)
-                        / ExpandPopupCoordinator.growSpeed * 1000
+                    readonly property bool expandedHere: ExpandPopupCoordinator.expanded
+                        && ExpandPopupCoordinator.activeBar === barWindow
 
-                    width: ExpandPopupCoordinator.expanded ? ExpandPopupCoordinator.targetWidth : implicitWidth
+                    readonly property real growDuration: {
+                        const from = expandedHere
+                            ? ExpandPopupCoordinator.previousWidth
+                            : ExpandPopupCoordinator.targetWidth
+                        const to = expandedHere
+                            ? ExpandPopupCoordinator.targetWidth
+                            : centerPill.implicitWidth
+                        return Math.abs(to - from) / ExpandPopupCoordinator.growSpeed * 1000
+                    }
+
+                    width: expandedHere ? ExpandPopupCoordinator.targetWidth : implicitWidth
                     Behavior on width {
                         NumberAnimation { duration: centerPill.growDuration; easing.type: Easing.OutCubic }
                     }
 
-                    contentOpacity: (!ExpandPopupCoordinator.expanded && !shrinkGuard.running) ? 1 : 0
+                    contentOpacity: (!expandedHere && !shrinkGuard.running) ? 1 : 0
                     Behavior on contentOpacity {
                         NumberAnimation { duration: 150; easing.type: Easing.OutCubic }
                     }
@@ -95,12 +108,8 @@ Scope {
                         id: shrinkGuard
                         interval: centerPill.growDuration
                     }
-                    Connections {
-                        target: ExpandPopupCoordinator
-                        function onExpandedChanged() {
-                            if (!ExpandPopupCoordinator.expanded) shrinkGuard.restart()
-                        }
-                    }
+
+                    onExpandedHereChanged: if (!expandedHere) shrinkGuard.restart()
 
                     SysMonitor { barWindow: barWindow; side: "cpu" }
                     Clock { barWindow: barWindow }
