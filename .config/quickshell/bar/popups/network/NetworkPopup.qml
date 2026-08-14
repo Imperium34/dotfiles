@@ -1,6 +1,7 @@
 import qs
 import qs.services
 import qs.widgets
+import qs.components
 import Quickshell
 import Quickshell.Io
 import Quickshell.Networking

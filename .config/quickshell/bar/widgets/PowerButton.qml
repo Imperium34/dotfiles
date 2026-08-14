@@ -1,6 +1,7 @@
-import "../popups/power"
 import qs
 import qs.widgets
+import qs.components
+import qs.popups.power
 import Quickshell
 import QtQuick
 

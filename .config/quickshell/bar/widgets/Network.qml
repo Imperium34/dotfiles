@@ -1,6 +1,7 @@
 import qs
 import qs.widgets
 import qs.services
+import qs.components
 import qs.popups.network
 import Quickshell
 import Quickshell.Networking

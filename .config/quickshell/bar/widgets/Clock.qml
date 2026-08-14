@@ -1,8 +1,9 @@
 import qs
 import qs.widgets
+import qs.components
+import qs.popups.calendar
 import Quickshell
 import QtQuick
-import "../popups/calendar"
 
 BarButton {
     id: root

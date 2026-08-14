@@ -1,6 +1,7 @@
 import qs
 import qs.widgets
 import qs.services
+import qs.components
 import qs.popups.notifications
 import Quickshell
 import QtQuick

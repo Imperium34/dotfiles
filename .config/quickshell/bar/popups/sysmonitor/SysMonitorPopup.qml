@@ -1,4 +1,5 @@
 import qs
+import qs.components
 import qs.services
 import qs.widgets
 import Quickshell

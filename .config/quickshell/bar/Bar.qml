@@ -1,6 +1,8 @@
 import qs
 import qs.services
+import qs.components
 import qs.widgets
+import qs.windows
 import Quickshell
 import Quickshell.Io
 import Quickshell.Wayland

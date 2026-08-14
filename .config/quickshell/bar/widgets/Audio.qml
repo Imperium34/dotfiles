@@ -1,5 +1,6 @@
 import qs
 import qs.widgets
+import qs.components
 import qs.popups.audio
 import Quickshell
 import Quickshell.Io

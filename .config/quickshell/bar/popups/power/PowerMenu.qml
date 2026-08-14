@@ -1,5 +1,6 @@
 import qs
-import "../../widgets"
+import qs.widgets
+import qs.components
 import Quickshell
 import QtQuick
 import QtQuick.Layouts

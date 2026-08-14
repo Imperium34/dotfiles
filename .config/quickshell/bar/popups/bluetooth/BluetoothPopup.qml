@@ -1,5 +1,6 @@
 import qs
 import qs.services
+import qs.components
 import qs.widgets
 import Quickshell
 import Quickshell.Bluetooth
