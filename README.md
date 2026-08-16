@@ -1,6 +1,6 @@
 # Hyprland + Quickshell Dotfiles
 
-My personal Linux desktop, running Hyprland on CachyOS with a fully custom shell built in [Quickshell](https://quickshell.outfoxxed.me/); bar, OSD, app launcher, clipboard manager, lockscreen, quick settings, and notification center are all native Quickshell/QML, not a patchwork of separate daemons. The entire color scheme is generated live from the current wallpaper via `wallust` and propagated through the shell and (on desktop) synced to RGB peripherals via `openrgb`.
+My personal Linux desktop, running Hyprland on CachyOS with a fully custom shell built with [Quickshell](https://quickshell.outfoxxed.me/); bar, OSD, app launcher, clipboard manager, lockscreen, quick settings, and notification center are all native Quickshell/QML, not a patchwork of separate daemons. The entire color scheme is generated live from the current wallpaper via `wallust` and propagated through the shell and (on desktop) synced to RGB peripherals via `openrgb`.
 
 ## 🚀 Key Features
 
@@ -15,7 +15,7 @@ My personal Linux desktop, running Hyprland on CachyOS with a fully custom shell
   - **Wallpaper picker** — see below; considerably more than a wallpaper list
   - **Calendar** — month view with Google Calendar events, quick-add via natural language, and current weather from open-meteo
   - **System monitor** — per-core CPU, memory, GPU, sensors, disks, network throughput and a process list with real instantaneous CPU usage
-  - **Fallback TUIs** — network module can drop into `nmtui` for anything the custom UI doesn't cover
+  - **Fallback TUIs** — the network and bluetooth modules can drop into `nmtui` / `bluetui` for anything the custom UI doesn't cover
 - **Automated theming** — `wallust` generates colors from the active wallpaper and feeds them into the Quickshell theme, Hyprland, Alacritty, btop, cava, and GTK
 - **Theme presets** — five wallust color-generation moods (vibrant, muted, pastel, dark, mono). The picker generates live preview swatches for every preset against the selected wallpaper in parallel, caches them by wallpaper+preset mtime, and remembers which preset you last used per wallpaper
 - **Video wallpapers** — `.mp4`/`.webm`/`.mkv`/`.mov` are supported alongside stills. `awww` shows an extracted frame during the transition, then `mpvpaper` takes over the layer. Playback pauses automatically on battery and resumes on AC

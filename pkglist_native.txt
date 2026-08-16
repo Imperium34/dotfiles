@@ -1,3 +1,21 @@
+# ─────────────────────────────────────────────────────────────
+# Added: runtime dependencies the shell scripts actually invoke.
+# These were previously arriving transitively (or not at all) --
+# a fresh install could come up with a broken pipeline and no
+# obvious cause.
+#
+#   jq                        update-rgb.sh, save-last-preset.sh
+#   imagemagick               derive-still.sh, wallpaper-thumbnail.sh, post-apply.sh
+#   ffmpeg                    derive-still.sh, wallpaper-thumbnail.sh
+#   libnotify                 every notify-send in the wallust pipeline, BatteryAlert.qml
+#   lm_sensors                SysInfo.qml (`sensors -j`)
+#   playerctl                 XF86AudioPlay/Next/Prev keybinds
+#   hyprsunset                NightLight service
+#   mpvpaper                  video-wallpaper.sh
+#   grim                      screenshots (via grimblast, but relied on directly)
+#   ttf-nerd-fonts-symbols    "Symbols Nerd Font" -- every glyph in the shell
+#   ttf-fira-sans             misc.splash_font_family in theme.lua
+# ─────────────────────────────────────────────────────────────
 7zip
 accountsservice
 acpid
@@ -11,8 +29,6 @@ awesome-terminal-fonts
 base
 base-devel
 bash-completion
-bemenu
-bemenu-wayland
 bind
 bluetui
 bluez
@@ -64,6 +80,7 @@ ex-vi-compat
 exfatprogs
 f2fs-tools
 fastfetch
+ffmpeg
 ffmpegthumbnailer
 file-roller
 flite
@@ -75,6 +92,7 @@ git
 github-cli
 glances
 gpicview
+grim
 gst-libav
 gst-plugin-pipewire
 gst-plugin-va
@@ -91,9 +109,10 @@ hwinfo
 hypridle
 hyprland
 hyprland-protocols
-hyprlock
 hyprpolkitagent
+hyprsunset
 img2pdf
+imagemagick
 inetutils
 intel-gpu-tools
 intel-media-driver
@@ -101,6 +120,7 @@ intel-ucode
 iptables
 iwd
 jfsutils
+jq
 kvantum
 less
 lib32-mesa
@@ -108,6 +128,7 @@ lib32-opencl-mesa
 lib32-vulkan-intel
 libdvdcss
 libgsf
+libnotify
 libopenraw
 libva-intel-driver
 libva-utils
@@ -117,6 +138,7 @@ linux-cachyos-headers
 linux-cachyos-lts
 linux-cachyos-lts-headers
 linux-firmware
+lm_sensors
 logrotate
 lsb-release
 lsscsi
@@ -134,13 +156,13 @@ mpc
 mpd
 mpd-mpris
 mpv
+mpvpaper
 mtools
 nano
 nano-syntax-highlighting
 neovim
 netctl
 networkmanager
-networkmanager-dmenu
 networkmanager-openvpn
 nfs-utils
 nilfs-utils
@@ -169,6 +191,7 @@ perl
 pipewire-alsa
 pipewire-pulse
 pkgfile
+playerctl
 plocate
 poppler-glib
 powertop
@@ -200,7 +223,6 @@ sof-firmware
 steam
 stow
 sudo
-swaybg
 syncthing
 sysfsutils
 systemd-boot-manager
@@ -213,7 +235,9 @@ thunar-volman
 tmux
 ttf-bitstream-vera
 ttf-dejavu
+ttf-fira-sans
 ttf-liberation
+ttf-nerd-fonts-symbols
 ttf-opensans
 tumbler
 ufw
