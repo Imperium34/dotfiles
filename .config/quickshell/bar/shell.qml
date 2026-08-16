@@ -11,10 +11,6 @@ Scope {
     OSD {}
     NotifToast {}
     PowerActions {}
-    Launcher {}
-    Clipboard {}
-    Wallpaper {}
-    QuickSettings {}
 
     LazyLoader {
         id: sysMonitorLoader

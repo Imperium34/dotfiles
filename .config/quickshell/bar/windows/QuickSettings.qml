@@ -30,6 +30,7 @@ BaseExpandPopup {
     onOpened: {
         Brightness.refresh()
         NightLight.refresh()
+        UpdatesService.refresh()
     }
 
     onDetailChanged: {
@@ -44,24 +45,34 @@ BaseExpandPopup {
         if (popup.detail === "wifi") return "Wi-Fi"
         if (popup.detail === "bluetooth") return "Bluetooth"
         if (popup.detail === "nightlight") return "Night Light"
+        if (popup.detail === "updates") return "Updates"
+        if (popup.detail === "pomodoro") return "Pomodoro"
         return ""
     }
 
-    ColumnLayout {
+    Item {
         id: contentCol
         anchors {
             top: parent.top
             left: parent.left
             right: parent.right
         }
-        spacing: 10
+
+        implicitHeight: popup.detail === "" ? mainPane.implicitHeight : detailPane.implicitHeight
+        height: implicitHeight
+        clip: true
 
         // ══ GRID ═══════════════════════════════════════════════
         ColumnLayout {
             id: mainPane
-            Layout.fillWidth: true
+            width: contentCol.width
             spacing: 10
-            visible: popup.detail === ""
+
+            x: popup.detail === "" ? 0 : -width
+            opacity: popup.detail === "" ? 1 : 0
+
+            Behavior on x { NumberAnimation { duration: 220; easing.type: Easing.OutCubic } }
+            Behavior on opacity { NumberAnimation { duration: 160; easing.type: Easing.OutCubic } }
 
             GridLayout {
                 Layout.fillWidth: true
@@ -132,7 +143,40 @@ BaseExpandPopup {
                     sublabel: IdleInhibit.inhibiting ? "Idle blocked" : "Idle allowed"
                     active: IdleInhibit.inhibiting
                     interactive: IdleInhibit.window !== null
-                    onActivated: IdleInhibit.inhibiting = !IdleInhibit.inhibiting
+                    onActivated: IdleInhibit.toggle("manual")
+                }
+
+                QuickSettingsTile {
+                    Layout.fillWidth: true
+                    icon: Pomodoro.phase === Pomodoro.phaseIdle ? "󰔛" : "󰔟"
+                    label: "Pomodoro"
+                    sublabel: {
+                        if (Pomodoro.phase === Pomodoro.phaseIdle)
+                            return Pomodoro.focusMinutes + " min focus"
+                        const p = Pomodoro.phase === Pomodoro.phaseFocus
+                            ? "Focus" : (Pomodoro.isLongBreak ? "Long break" : "Break")
+                        return p + " · " + Pomodoro.remainingLabel + (Pomodoro.running ? "" : " (paused)")
+                    }
+                    active: Pomodoro.phase !== Pomodoro.phaseIdle
+                    hasDetail: true
+                    onActivated: Pomodoro.toggleRunning()
+                    onDetailRequested: popup.detail = "pomodoro"
+                }
+
+                QuickSettingsTile {
+                    Layout.fillWidth: true
+                    icon: UpdatesService.checking ? "󰑖" : "󰚰"
+                    label: "Updates"
+                    sublabel: UpdatesService.checking
+                        ? "Checking…"
+                        : (UpdatesService.pendingCount > 0
+                            ? UpdatesService.pendingCount + " available"
+                            : "Up to date")
+                    active: UpdatesService.pendingCount > 0
+                    interactive: UpdatesService.pendingCount > 0 && !UpdatesService.updating
+                    hasDetail: UpdatesService.pendingCount > 0
+                    onActivated: UpdatesService.runUpdate()
+                    onDetailRequested: popup.detail = "updates"
                 }
             }
 
@@ -208,9 +252,14 @@ BaseExpandPopup {
         // ══ DETAIL ═════════════════════════════════════════════
         ColumnLayout {
             id: detailPane
-            Layout.fillWidth: true
+            width: contentCol.width
             spacing: 8
-            visible: popup.detail !== ""
+
+            x: popup.detail === "" ? width : 0
+            opacity: popup.detail === "" ? 0 : 1
+
+            Behavior on x { NumberAnimation { duration: 220; easing.type: Easing.OutCubic } }
+            Behavior on opacity { NumberAnimation { duration: 160; easing.type: Easing.OutCubic } }
 
             RowLayout {
                 Layout.fillWidth: true
@@ -367,6 +416,254 @@ BaseExpandPopup {
                     }
                     color: Theme.hexToRgba(Theme.foreground, 0.4)
                     font.pixelSize: 10
+                }
+            }
+
+            // ---- updates ----
+            ColumnLayout {
+                Layout.fillWidth: true
+                spacing: 8
+                visible: popup.detail === "updates"
+
+                ListView {
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: Math.min(contentHeight, 4 * 40)
+                    clip: true
+                    interactive: contentHeight > height
+                    model: popup.detail === "updates" ? UpdatesService.packages : []
+
+                    delegate: RowLayout {
+                        required property var modelData
+                        width: ListView.view.width
+                        spacing: 8
+
+                        Text {
+                            Layout.fillWidth: true
+                            text: modelData.name
+                            color: Theme.foreground
+                            font.pixelSize: 12
+                            elide: Text.ElideRight
+                        }
+
+                        Text {
+                            text: modelData.source === "aur" ? "AUR" : "repo"
+                            color: Theme.hexToRgba(Theme.foreground, 0.4)
+                            font.pixelSize: 9
+                        }
+
+                        Text {
+                            text: modelData.newVersion
+                            color: Theme.hexToRgba(Theme.foreground, 0.5)
+                            font.pixelSize: 10
+                            font.family: "Departure Mono"
+                        }
+                    }
+                }
+
+                Rectangle {
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: 36
+                    radius: 10
+                    color: UpdatesService.updating
+                        ? Theme.hexToRgba(Theme.foreground, 0.05)
+                        : (updateBtnHover.hovered
+                            ? Theme.hexToRgba(Theme.color5, 0.35)
+                            : Theme.hexToRgba(Theme.color5, 0.22))
+                    Behavior on color { ColorAnimation { duration: 120 } }
+
+                    Text {
+                        anchors.centerIn: parent
+                        text: UpdatesService.updating ? "Updating…" : "Update Now"
+                        color: Theme.foreground
+                        font.pixelSize: 12
+                        font.bold: true
+                    }
+
+                    HoverHandler { id: updateBtnHover; enabled: !UpdatesService.updating }
+                    TapHandler {
+                        enabled: !UpdatesService.updating
+                        onTapped: UpdatesService.runUpdate()
+                    }
+                }
+            }
+
+            // ---- pomodoro ----
+            ColumnLayout {
+                Layout.fillWidth: true
+                spacing: 10
+                visible: popup.detail === "pomodoro"
+
+                Text {
+                    Layout.fillWidth: true
+                    text: Pomodoro.remainingLabel
+                    color: Theme.foreground
+                    font.pixelSize: 30
+                    font.bold: true
+                    font.family: "Departure Mono"
+                    horizontalAlignment: Text.AlignHCenter
+                }
+
+                Text {
+                    Layout.fillWidth: true
+                    text: {
+                        if (Pomodoro.phase === Pomodoro.phaseIdle) return "Ready"
+                        if (Pomodoro.phase === Pomodoro.phaseFocus) return "Focus"
+                        return Pomodoro.isLongBreak ? "Long Break" : "Break"
+                    }
+                    color: Theme.hexToRgba(Theme.foreground, 0.5)
+                    font.pixelSize: 11
+                    horizontalAlignment: Text.AlignHCenter
+                }
+
+                Rectangle {
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: 6
+                    radius: 3
+                    color: Theme.hexToRgba(Theme.foreground, 0.08)
+
+                    Rectangle {
+                        width: parent.width * Pomodoro.progress
+                        height: parent.height
+                        radius: 3
+                        color: Theme.color5
+                        Behavior on width { NumberAnimation { duration: 250; easing.type: Easing.OutCubic } }
+                    }
+                }
+
+                RowLayout {
+                    Layout.fillWidth: true
+                    spacing: 8
+
+                    Rectangle {
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: 36
+                        radius: 10
+                        color: startHover.hovered
+                            ? Theme.hexToRgba(Theme.color5, 0.35)
+                            : Theme.hexToRgba(Theme.color5, 0.22)
+                        Behavior on color { ColorAnimation { duration: 120 } }
+                        Text {
+                            anchors.centerIn: parent
+                            text: Pomodoro.running
+                                ? "Pause"
+                                : (Pomodoro.phase === Pomodoro.phaseIdle ? "Start" : "Resume")
+                            color: Theme.foreground
+                            font.pixelSize: 12
+                            font.bold: true
+                        }
+                        HoverHandler { id: startHover }
+                        TapHandler { onTapped: Pomodoro.toggleRunning() }
+                    }
+
+                    Rectangle {
+                        Layout.preferredWidth: 64
+                        Layout.preferredHeight: 36
+                        radius: 10
+                        visible: Pomodoro.phase !== Pomodoro.phaseIdle
+                        color: skipHover.hovered
+                            ? Theme.hexToRgba(Theme.foreground, 0.12)
+                            : Theme.hexToRgba(Theme.foreground, 0.06)
+                        Behavior on color { ColorAnimation { duration: 120 } }
+                        Text {
+                            anchors.centerIn: parent
+                            text: "Skip"
+                            color: Theme.foreground
+                            font.pixelSize: 12
+                        }
+                        HoverHandler { id: skipHover }
+                        TapHandler { onTapped: Pomodoro.skip() }
+                    }
+
+                    Rectangle {
+                        Layout.preferredWidth: 64
+                        Layout.preferredHeight: 36
+                        radius: 10
+                        visible: Pomodoro.phase !== Pomodoro.phaseIdle
+                        color: resetHover.hovered
+                            ? Theme.hexToRgba(Theme.foreground, 0.12)
+                            : Theme.hexToRgba(Theme.foreground, 0.06)
+                        Behavior on color { ColorAnimation { duration: 120 } }
+                        Text {
+                            anchors.centerIn: parent
+                            text: "Reset"
+                            color: Theme.foreground
+                            font.pixelSize: 12
+                        }
+                        HoverHandler { id: resetHover }
+                        TapHandler { onTapped: Pomodoro.reset() }
+                    }
+                }
+
+                ColumnLayout {
+                    Layout.fillWidth: true
+                    spacing: 6
+                    visible: Pomodoro.phase === Pomodoro.phaseIdle
+
+                    RowLayout {
+                        Layout.fillWidth: true
+                        spacing: 8
+
+                        Text {
+                            Layout.fillWidth: true
+                            text: "Focus"
+                            color: Theme.hexToRgba(Theme.foreground, 0.6)
+                            font.pixelSize: 11
+                        }
+
+                        Rectangle {
+                            width: 24; height: 24; radius: 6
+                            color: Theme.hexToRgba(Theme.foreground, 0.08)
+                            Text { anchors.centerIn: parent; text: "−"; color: Theme.foreground; font.pixelSize: 14 }
+                            TapHandler { onTapped: Pomodoro.setFocusMinutes(Pomodoro.focusMinutes - 5) }
+                        }
+                        Text {
+                            text: Pomodoro.focusMinutes + " min"
+                            color: Theme.foreground
+                            font.pixelSize: 11
+                            font.family: "Departure Mono"
+                            Layout.minimumWidth: 54
+                            horizontalAlignment: Text.AlignHCenter
+                        }
+                        Rectangle {
+                            width: 24; height: 24; radius: 6
+                            color: Theme.hexToRgba(Theme.foreground, 0.08)
+                            Text { anchors.centerIn: parent; text: "+"; color: Theme.foreground; font.pixelSize: 14 }
+                            TapHandler { onTapped: Pomodoro.setFocusMinutes(Pomodoro.focusMinutes + 5) }
+                        }
+                    }
+
+                    RowLayout {
+                        Layout.fillWidth: true
+                        spacing: 8
+
+                        Text {
+                            Layout.fillWidth: true
+                            text: "Break"
+                            color: Theme.hexToRgba(Theme.foreground, 0.6)
+                            font.pixelSize: 11
+                        }
+
+                        Rectangle {
+                            width: 24; height: 24; radius: 6
+                            color: Theme.hexToRgba(Theme.foreground, 0.08)
+                            Text { anchors.centerIn: parent; text: "−"; color: Theme.foreground; font.pixelSize: 14 }
+                            TapHandler { onTapped: Pomodoro.setBreakMinutes(Pomodoro.breakMinutes - 1) }
+                        }
+                        Text {
+                            text: Pomodoro.breakMinutes + " min"
+                            color: Theme.foreground
+                            font.pixelSize: 11
+                            font.family: "Departure Mono"
+                            Layout.minimumWidth: 54
+                            horizontalAlignment: Text.AlignHCenter
+                        }
+                        Rectangle {
+                            width: 24; height: 24; radius: 6
+                            color: Theme.hexToRgba(Theme.foreground, 0.08)
+                            Text { anchors.centerIn: parent; text: "+"; color: Theme.foreground; font.pixelSize: 14 }
+                            TapHandler { onTapped: Pomodoro.setBreakMinutes(Pomodoro.breakMinutes + 1) }
+                        }
+                    }
                 }
             }
         }

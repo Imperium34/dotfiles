@@ -65,8 +65,9 @@ PopupWindow {
     // ---- phase durations, both derived from the same shared speed ----
     readonly property int widthPhaseDuration: Math.round(
         Math.abs(root.implicitWidth - root.originWidth) / ExpandPopupCoordinator.growSpeed * 1000)
+    property real heightPhaseMultiplier: 3000
     readonly property int heightPhaseDuration: Math.round(
-        root.implicitHeight / ExpandPopupCoordinator.growSpeed * 2000)
+        root.implicitHeight / ExpandPopupCoordinator.growSpeed * root.heightPhaseMultiplier)
 
     property int openPhaseDuration: root.widthPhaseDuration
 
@@ -89,6 +90,7 @@ PopupWindow {
     }
 
     function open() {
+        widthShrinkTimer.stop()
         root.barWindow = BarRegistry.focusedBar
         visible = true
         selectedIndex = 0
@@ -122,6 +124,12 @@ PopupWindow {
         id: focusGrab
         windows: [root]
         onCleared: root.close()
+    }
+
+    Shortcut {
+        sequence: "Escape"
+        enabled: root.visible
+        onActivated: root.close()
     }
 
     readonly property bool contentReady: controller.animIn && !growGuard.running
@@ -217,10 +225,6 @@ PopupWindow {
                         Keys.onReturnPressed: (event) => {
                             event.accepted = true
                             root.accepted(root.selectedIndex)
-                        }
-                        Keys.onEscapePressed: (event) => {
-                            event.accepted = true
-                            root.close()
                         }
 
                         Text {

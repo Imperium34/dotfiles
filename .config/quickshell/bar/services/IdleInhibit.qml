@@ -6,9 +6,27 @@ import Quickshell.Wayland
 Singleton {
     id: root
 
-    property bool inhibiting: false
+    property var sources: ({})
+    readonly property bool inhibiting: Object.keys(root.sources).length > 0
 
-    // window must be set externally from Bar.qml after the PanelWindow exists
+    function inhibit(sourceId) {
+        const s = Object.assign({}, root.sources)
+        s[sourceId] = true
+        root.sources = s
+    }
+
+    function release(sourceId) {
+        if (!(sourceId in root.sources)) return
+        const s = Object.assign({}, root.sources)
+        delete s[sourceId]
+        root.sources = s
+    }
+
+    function toggle(sourceId) {
+        if (root.sources[sourceId]) root.release(sourceId)
+        else root.inhibit(sourceId)
+    }
+
     property var window: null
 
     IdleInhibitor {

@@ -139,6 +139,8 @@ Scope {
                 Wallpaper { barWindow: barWindow; originX: barWindow.width / 2; originWidth: centerPill.implicitWidth }
                 Launcher  { barWindow: barWindow; originX: barWindow.width / 2; originWidth: centerPill.implicitWidth }
                 Clipboard { barWindow: barWindow; originX: barWindow.width / 2; originWidth: centerPill.implicitWidth }
+                QuickSettings { barWindow: barWindow; originX: barWindow.width / 2; originWidth: centerPill.implicitWidth }
+                Keybinds  { barWindow: barWindow; originX: barWindow.width / 2; originWidth: centerPill.implicitWidth }
 
                 LazyLoader {
                     id: sysMonitorLoader

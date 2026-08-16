@@ -164,7 +164,6 @@ hl.window_rule({
 hl.window_rule({ match = { tag = "gamestore*" }, workspace = "10" })
 hl.window_rule({ match = { tag = "games*" }, workspace = "5" })
 hl.window_rule({ match = { tag = "screenshare*" }, workspace = "4 silent" })
-hl.window_rule({ match = { class = "^(virt-manager|.virt-manager-wrapped)$" }, workspace = "6 silent" })
 
 -- ============================================================
 -- 8. GAME / PERFORMANCE RULES
