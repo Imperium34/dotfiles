@@ -41,7 +41,7 @@ PopupWindow {
     color: "transparent"
     visible: false
 
-    property int fastCloseDuration: 90
+    property int fastCloseDuration: 300
     property int heightAnimDuration: root.heightPhaseDuration
 
     ExpandPopupController {
@@ -50,6 +50,8 @@ PopupWindow {
         animExit: root.heightAnimDuration
         onClosed: {
             ExpandPopupCoordinator.collapse(root)
+            root.visible = false
+            root.cardCollapsedHeight = 0
             widthShrinkTimer.restart()
         }
     }
@@ -69,6 +71,8 @@ PopupWindow {
     property real heightPhaseMultiplier: 3000
     readonly property int heightPhaseDuration: Math.round(
         root.implicitHeight / ExpandPopupCoordinator.growSpeed * root.heightPhaseMultiplier)
+    readonly property real collapsedHeight: barWindow ? barWindow.pillHeight : 44
+    property real cardCollapsedHeight: 0
 
     // Assigned by open() from the coordinator's computed travel time.
     property int openPhaseDuration: 0
@@ -87,7 +91,6 @@ PopupWindow {
         id: widthShrinkTimer
         interval: ExpandPopupCoordinator.growDuration
         onTriggered: {
-            root.visible = false
             ExpandPopupCoordinator.notifyClosed(root)
         }
     }
@@ -109,6 +112,7 @@ PopupWindow {
         root.heightAnimDuration = fast === true
             ? root.fastCloseDuration
             : root.heightPhaseDuration
+        root.cardCollapsedHeight = root.collapsedHeight
         focusGrab.active = false
         controller.close()
     }
@@ -165,9 +169,9 @@ PopupWindow {
     Rectangle {
         id: bg
         anchors { top: parent.top; left: parent.left; right: parent.right }
-        height: controller.animIn ? root.implicitHeight : 0
+        height: controller.animIn ? root.implicitHeight : root.cardCollapsedHeight
         clip: true
-        radius: Math.min(20, height / 2)
+        radius: Math.min(root.collapsedHeight / 2, height / 2)
         antialiasing: true
         color: Theme.hexToRgba(Theme.background, Theme.surfaceAlpha(0.92))
         border.color: Theme.hexToRgba(Theme.foreground, 0.08)

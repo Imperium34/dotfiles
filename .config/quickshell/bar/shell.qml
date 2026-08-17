@@ -11,10 +11,16 @@ Scope {
     OSD {}
     NotifToast {}
     PowerActions {}
+    Wallpaper {}
+    Launcher {}
+    Clipboard {}
+    QuickSettings {}
+    Keybinds {}
 
     LazyLoader {
         id: sysMonitorLoader
         component: SysMonitorWindow {
+            visible: true
             onCloseRequested: sysMonitorLoader.activeAsync = false
         }
     }

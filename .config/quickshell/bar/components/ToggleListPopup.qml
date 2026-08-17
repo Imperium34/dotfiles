@@ -29,7 +29,8 @@ BasePopup {
     signal footerActivated()
 
     implicitWidth: 320
-    readonly property int _contentHeight: headerRow.height + listView.height + footerItem.height
+    readonly property int _contentHeight: headerRow.height + headerDivider.height
+        + listView.height + footerDivider.height + footerItem.height
     implicitHeight: root.pinMaxHeight && root.maxPopupHeight > 0
         ? root.maxPopupHeight
         : (root.maxPopupHeight > 0 ? Math.min(_contentHeight, root.maxPopupHeight) : _contentHeight)
@@ -50,8 +51,8 @@ BasePopup {
         }
 
         Item {
-            width: 44
-            height: 26
+            Layout.preferredWidth: 44
+            Layout.preferredHeight: 26
 
             Rectangle {
                 anchors.fill: parent
@@ -98,13 +99,14 @@ BasePopup {
         interactive: contentHeight > height
         delegate: root.rowDelegate
 
-        Text {
-            anchors.centerIn: parent
-            text: root.emptyText
-            color: Theme.hexToRgba(Theme.foreground, 0.4)
-            font.pixelSize: 13
-            visible: listView.count === 0
-        }
+    }
+
+    Text {
+        anchors.centerIn: listView
+        text: root.emptyText
+        color: Theme.hexToRgba(Theme.foreground, 0.4)
+        font.pixelSize: 13
+        visible: listView.count === 0 && root.emptyText !== ""
     }
 
     Rectangle {

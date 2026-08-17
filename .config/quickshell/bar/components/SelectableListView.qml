@@ -8,6 +8,7 @@ Item {
     // ---- data ----
     property alias model: listView.model
     property Component delegate: null
+    property point _lastHoverScene: Qt.point(-1, -1)
 
     // ---- optional header row (e.g. Clipboard's "Clear History") ----
     property Component header: null
@@ -32,13 +33,17 @@ Item {
     readonly property real selectionFillAlpha: 0.22
     readonly property real selectionBorderAlpha: 0.55
 
+    onSelectedIndexChanged: {
+        if (root.selectedIndex < root._headerOffset) listView.positionViewAtBeginning()
+        else listView.positionViewAtIndex(root.selectedIndex - root._headerOffset, ListView.Contain)
+    }
+
     ListView {
         id: listView
         anchors.fill: parent
         clip: true
         spacing: 2
-        currentIndex: root.selectedIndex
-        onCurrentIndexChanged: positionViewAtIndex(currentIndex, ListView.Contain)
+        currentIndex: Math.max(0, root.selectedIndex - root._headerOffset)
 
         ScrollBar.vertical: ScrollBar {
             policy: ScrollBar.AsNeeded
@@ -55,7 +60,14 @@ Item {
                 readonly property bool selected: root.selectedIndex === 0
 
                 HoverHandler {
-                    onHoveredChanged: if (hovered) root.selectedIndex = 0
+                    id: headerHover
+                    onPointChanged: {
+                        if (!hovered) return
+                        const p = headerHover.point.scenePosition
+                        if (p.x === root._lastHoverScene.x && p.y === root._lastHoverScene.y) return
+                        root._lastHoverScene = p
+                        root.selectedIndex = 0
+                    }
                 }
 
                 Rectangle {
@@ -91,7 +103,14 @@ Item {
             readonly property bool selected: root.selectedIndex === rowWrap.displayIndex
 
             HoverHandler {
-                onHoveredChanged: if (hovered) root.selectedIndex = rowWrap.displayIndex
+                id: rowHover
+                onPointChanged: {
+                    if (!hovered) return
+                    const p = rowHover.point.scenePosition
+                    if (p.x === root._lastHoverScene.x && p.y === root._lastHoverScene.y) return
+                    root._lastHoverScene = p
+                    root.selectedIndex = rowWrap.displayIndex
+                }
             }
 
             Rectangle {
@@ -114,20 +133,20 @@ Item {
                 sourceComponent: root.delegate
                 onLoaded: {
                     if (item) {
-                        item.modelData = rowWrap.modelData
-                        item.index = rowWrap.displayIndex
+                        item.modelData = Qt.binding(() => rowWrap.modelData)
+                        item.index = Qt.binding(() => rowWrap.displayIndex)
                         item.selected = Qt.binding(() => rowWrap.selected)
                     }
                 }
             }
         }
+    }
 
-        Text {
-            id: emptyLabel
-            anchors.centerIn: parent
-            color: Theme.hexToRgba(Theme.foreground, 0.4)
-            font.pixelSize: 13
-            visible: listView.count === 0 && text !== ""
-        }
+    Text {
+        id: emptyLabel
+        anchors.centerIn: parent
+        color: Theme.hexToRgba(Theme.foreground, 0.4)
+        font.pixelSize: 13
+        visible: listView.count === 0 && text !== ""
     }
 }

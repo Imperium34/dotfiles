@@ -2,9 +2,7 @@ import qs
 import qs.services
 import qs.components
 import qs.widgets
-import qs.windows
 import Quickshell
-import Quickshell.Io
 import Quickshell.Wayland
 import Quickshell.Hyprland
 import Quickshell.Services.SystemTray
@@ -23,6 +21,8 @@ Scope {
             screen: modelData
 
             readonly property real pillCurrentWidth: centerPill.width
+            readonly property real pillWidth: centerPill.implicitWidth
+            readonly property real pillHeight: centerPill.implicitHeight
 
             Component.onCompleted: BarRegistry.register(modelData.name, barWindow)
             Component.onDestruction: BarRegistry.unregister(modelData.name)
@@ -132,28 +132,6 @@ Scope {
                     Tray { barWindow: barWindow }
                     NotificationBell { barWindow: barWindow }
                 }
-
-                Wallpaper { barWindow: barWindow; originX: barWindow.width / 2; originWidth: centerPill.implicitWidth }
-                Launcher  { barWindow: barWindow; originX: barWindow.width / 2; originWidth: centerPill.implicitWidth }
-                Clipboard { barWindow: barWindow; originX: barWindow.width / 2; originWidth: centerPill.implicitWidth }
-                QuickSettings { barWindow: barWindow; originX: barWindow.width / 2; originWidth: centerPill.implicitWidth }
-                Keybinds  { barWindow: barWindow; originX: barWindow.width / 2; originWidth: centerPill.implicitWidth }
-
-                LazyLoader {
-                    id: sysMonitorLoader
-                    active: false
-
-                    SysMonitorWindow {
-                        visible: true
-                        onCloseRequested: sysMonitorLoader.active = false
-                    }
-                }
-
-                IpcHandler {
-                    target: "sysmonitor"
-                    function open(): void { sysMonitorLoader.active = true }
-                }
-
             }
         }
     }

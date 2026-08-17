@@ -12,11 +12,10 @@ PopupWindow {
     property int anchorX: 0
     property real anchorY: barWindow ? barWindow.height : 48
 
-    property var keyboardFocus: WlrKeyboardFocus.OnDemand
-
     // ---- card options ----
     property int animEnter: 220
     property int animExit: 150
+    property int cardAnimDuration: root.animEnter
     property real cardOpacity: Theme.surfaceAlpha(0.7)
     property bool roundedMask: false
     property bool connectToBar: true
@@ -40,30 +39,31 @@ PopupWindow {
         0
     )
 
-    property bool animIn: false
+    readonly property bool animIn: controller.animIn
 
     function open() {
-        closeTimer.stop()
         visible = true
         focusGrab.active = true
-        animIn = true
+        root.cardAnimDuration = root.animEnter
+        controller.open()
     }
 
     function close() {
-        animIn = false
         focusGrab.active = false
-        closeTimer.start()
+        root.cardAnimDuration = root.animExit
+        controller.close()
     }
 
     function toggle() {
-        if (visible && animIn) close()
+        if (visible && controller.animIn) close()
         else open()
     }
 
-    Timer {
-        id: closeTimer
-        interval: root.animExit + 30
-        onTriggered: root.visible = false
+    ExpandPopupController {
+        id: controller
+        animEnter: root.animEnter
+        animExit: root.animExit + 30
+        onClosed: root.visible = false
     }
 
     HyprlandFocusGrab {
@@ -92,25 +92,25 @@ PopupWindow {
 
         Behavior on x {
             NumberAnimation {
-                duration: root.animIn ? root.animEnter : root.animExit
+                duration: root.cardAnimDuration
                 easing.type: Easing.OutCubic
             }
         }
         Behavior on width {
             NumberAnimation {
-                duration: root.animIn ? root.animEnter : root.animExit
+                duration: root.cardAnimDuration
                 easing.type: Easing.OutCubic
             }
         }
         Behavior on height {
             NumberAnimation {
-                duration: root.animIn ? root.animEnter : root.animExit
+                duration: root.cardAnimDuration
                 easing.type: Easing.OutCubic
             }
         }
         Behavior on opacity {
             NumberAnimation {
-                duration: root.animIn ? root.animEnter : root.animExit
+                duration: root.cardAnimDuration
                 easing.type: Easing.OutCubic
             }
         }

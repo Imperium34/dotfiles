@@ -15,6 +15,8 @@ BaseExpandPopup {
     showSearch: false
 
     readonly property string homeDir: Quickshell.env("HOME") ?? ""
+    readonly property string wallpaperRoot: root.homeDir + "/Pictures/wallpapers"
+    readonly property string scriptsDir: root.homeDir + "/.config/quickshell/scripts"
 
     implicitWidth: barWindow ? barWindow.width * 0.50 : 1200
     implicitHeight: 190
@@ -23,11 +25,20 @@ BaseExpandPopup {
 
     property int applyingIndex: -1
     property string pendingFilename: ""
+    property double lastScanTime: 0
 
     onOpened: {
         applyingIndex = -1
-        wallpaperScanner.running = true
+        if (root.wallpapers.length === 0 || Date.now() - root.lastScanTime > 30000) {
+            root.lastScanTime = Date.now()
+            wallpaperScanner.running = true
+        }
         syncPresetSelection()
+    }
+
+    onAnimInChanged: if (!animIn) {
+        applyTimer.stop()
+        root.applyingIndex = -1
     }
 
     property var thumbPaths: ({})
@@ -62,6 +73,7 @@ BaseExpandPopup {
     function generatePresetsFor(wallpaper) {
         root.previewedWallpaper = wallpaper
         root.generatingPresets = true
+        presetWatchdog.restart()
         if (generateAllProc.running) {
             generateAllProc.running = false
         }
@@ -92,6 +104,14 @@ BaseExpandPopup {
     Process {
         id: generateAllProc
         command: []
+        onExited: (exitCode, exitStatus) => {
+            if (exitCode === 0) return
+            // running === true means a newer generation already superseded
+            // this one — its own exit will handle the flag.
+            if (generateAllProc.running) return
+            presetWatchdog.stop()
+            root.generatingPresets = false
+        }
         stdout: StdioCollector {
                 onStreamFinished: {
                   const map = {}
@@ -105,6 +125,7 @@ BaseExpandPopup {
                   if (map["#wallpaper"] !== root.previewedWallpaper) return
                   delete map["#wallpaper"]
 
+                  presetWatchdog.stop()
                   root.presetPreviewPaths = map
                   root.generatingPresets = false
                 }
@@ -112,20 +133,20 @@ BaseExpandPopup {
     }
 
     // ---- last-used preset memory (persisted to disk) ----
-    Process {
-        id: lastPresetReader
-        command: ["bash", "-c", "cat '" + root.lastPresetStateFile + "' 2>/dev/null || echo '{}'"]
-        running: true
-        stdout: StdioCollector {
-            onStreamFinished: {
-                try {
-                    root.lastPresetByWallpaper = text ? JSON.parse(text) : {}
-                } catch (e) {
-                    root.lastPresetByWallpaper = {}
-                }
-                if (root.visible) root.syncPresetSelection()
+    FileView {
+        id: lastPresetFile
+        path: root.lastPresetStateFile
+        watchChanges: true
+        onFileChanged: reload()
+        onLoaded: {
+            try {
+                root.lastPresetByWallpaper = JSON.parse(lastPresetFile.text() || "{}")
+            } catch (e) {
+                root.lastPresetByWallpaper = {}
             }
+            if (root.visible) root.syncPresetSelection()
         }
+        onLoadFailed: root.lastPresetByWallpaper = {}
     }
 
     Process {
@@ -162,7 +183,7 @@ BaseExpandPopup {
 
     Process {
         id: wallpaperScanner
-        command: [root.homeDir + "/.config/quickshell/scripts/scan-wallpapers.sh"]
+        command: [root.scriptsDir + "/scan-wallpapers.sh", root.wallpaperRoot]
         running: false
         stdout: StdioCollector {
             onStreamFinished: {
@@ -186,16 +207,14 @@ BaseExpandPopup {
         }
     }
 
-    Process {
-        id: currentWallpaperReader
-        command: ["bash", "-c",
-            "cat '" + root.currentWallpaperStateFile + "' 2>/dev/null || true"]
-        running: true
-        stdout: StdioCollector {
-            onStreamFinished: {
-                const p = text.trim()
-                if (p) root.currentWallpaper = p
-            }
+    FileView {
+        id: currentWallpaperFile
+        path: root.currentWallpaperStateFile
+        watchChanges: true
+        onFileChanged: reload()
+        onLoaded: {
+            const p = currentWallpaperFile.text().trim()
+            if (p) root.currentWallpaper = p
         }
     }
 
@@ -217,8 +236,14 @@ BaseExpandPopup {
         onTriggered: root.commitWallpaper()
     }
 
+    Timer {
+        id: presetWatchdog
+        interval: 20000
+        onTriggered: root.generatingPresets = false
+    }
+
     function commitWallpaper() {
-        const path = root.homeDir + "/Pictures/wallpapers/" + root.pendingFilename
+        const path = root.wallpaperRoot + "/" + root.pendingFilename
 
         applyWallpaperProc.command = [
             root.homeDir + "/.config/quickshell/scripts/apply-wallpaper.sh",
@@ -347,14 +372,6 @@ BaseExpandPopup {
         flickDeceleration: 3000
         maximumFlickVelocity: 4000
 
-        Text {
-            anchors.centerIn: parent
-            text: "Loading wallpapers…"
-            color: Theme.hexToRgba(Theme.foreground, 0.5)
-            font.pixelSize: 12
-            visible: wallpaperScanner.running && root.wallpapers.length === 0
-        }
-
         Keys.onReturnPressed: {
             if (currentIndex >= 0 && currentIndex < root.filteredWallpapers.length) {
                 root.applyWallpaper(root.filteredWallpapers[currentIndex], currentIndex)
@@ -401,7 +418,7 @@ BaseExpandPopup {
             width: 200
             height: thumbList.height
             readonly property string filename: modelData
-            readonly property bool isCurrent: root.currentWallpaper.endsWith(filename)
+            readonly property bool isCurrent: root.currentWallpaper === root.wallpaperRoot + "/" + filename
             readonly property bool applying: index === root.applyingIndex
 
             scale: applying ? 1.05 : 1.0
@@ -525,6 +542,14 @@ BaseExpandPopup {
                 onTapped: root.applyWallpaper(thumb.filename, index)
             }
         }
+    }
+
+    Text {
+        anchors.centerIn: thumbList
+        text: "Loading wallpapers…"
+        color: Theme.hexToRgba(Theme.foreground, 0.5)
+        font.pixelSize: 12
+        visible: !root.showingThemeTab && wallpaperScanner.running && root.wallpapers.length === 0
     }
 
     ListView {
