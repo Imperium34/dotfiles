@@ -41,10 +41,13 @@ PopupWindow {
     color: "transparent"
     visible: false
 
+    property int fastCloseDuration: 90
+    property int heightAnimDuration: root.heightPhaseDuration
+
     ExpandPopupController {
         id: controller
         animEnter: root.heightPhaseDuration
-        animExit: root.heightPhaseDuration
+        animExit: root.heightAnimDuration
         onClosed: {
             ExpandPopupCoordinator.collapse(root)
             widthShrinkTimer.restart()
@@ -62,19 +65,19 @@ PopupWindow {
         )
     }
 
-    // ---- phase durations, both derived from the same shared speed ----
-    readonly property int widthPhaseDuration: Math.round(
-        Math.abs(root.implicitWidth - root.originWidth) / ExpandPopupCoordinator.growSpeed * 1000)
+    // ---- height phase (width phase duration comes from the coordinator) ----
     property real heightPhaseMultiplier: 3000
     readonly property int heightPhaseDuration: Math.round(
         root.implicitHeight / ExpandPopupCoordinator.growSpeed * root.heightPhaseMultiplier)
 
-    property int openPhaseDuration: root.widthPhaseDuration
+    // Assigned by open() from the coordinator's computed travel time.
+    property int openPhaseDuration: 0
 
     Timer {
         id: widthPhaseTimer
         interval: root.openPhaseDuration
         onTriggered: {
+            root.heightAnimDuration = root.heightPhaseDuration
             controller.open()
             if (root.showSearch) Qt.callLater(() => searchField.forceActiveFocus())
         }
@@ -82,7 +85,7 @@ PopupWindow {
 
     Timer {
         id: widthShrinkTimer
-        interval: root.widthPhaseDuration
+        interval: ExpandPopupCoordinator.growDuration
         onTriggered: {
             root.visible = false
             ExpandPopupCoordinator.notifyClosed(root)
@@ -91,21 +94,35 @@ PopupWindow {
 
     function open() {
         widthShrinkTimer.stop()
+        controller.cancelClose()
         root.barWindow = BarRegistry.focusedBar
         visible = true
         selectedIndex = 0
         searchField.text = ""
-        focusGrab.active = true
-        const startWidth = ExpandPopupCoordinator.expand(root, root.barWindow)
-        root.openPhaseDuration = Math.round(
-            Math.abs(root.implicitWidth - startWidth) / ExpandPopupCoordinator.growSpeed * 1000)
-        widthPhaseTimer.restart()
+        const d = ExpandPopupCoordinator.expand(root, root.barWindow)
+        if (d >= 0) root.startExpandPhase(d)
         root.opened()
     }
 
-    function close() {
+    function close(fast) {
+        widthPhaseTimer.stop()
+        root.heightAnimDuration = fast === true
+            ? root.fastCloseDuration
+            : root.heightPhaseDuration
         focusGrab.active = false
         controller.close()
+    }
+
+    function startExpandPhase(duration) {
+        root.openPhaseDuration = duration
+        focusGrab.active = true
+        widthPhaseTimer.restart()
+    }
+
+    function abortOpen() {
+        widthPhaseTimer.stop()
+        focusGrab.active = false
+        root.visible = false
     }
 
     function toggle() {
@@ -158,7 +175,7 @@ PopupWindow {
 
         Behavior on height {
             NumberAnimation {
-                duration: root.heightPhaseDuration
+                duration: root.heightAnimDuration
                 easing.type: Easing.OutCubic
             }
         }

@@ -22,7 +22,7 @@ Scope {
             required property var modelData
             screen: modelData
 
-            readonly property real pillWidth: centerPill.implicitWidth
+            readonly property real pillCurrentWidth: centerPill.width
 
             Component.onCompleted: BarRegistry.register(modelData.name, barWindow)
             Component.onDestruction: BarRegistry.unregister(modelData.name)
@@ -84,19 +84,16 @@ Scope {
                     readonly property bool expandedHere: ExpandPopupCoordinator.expanded
                         && ExpandPopupCoordinator.activeBar === barWindow
 
-                    readonly property real growDuration: {
-                        const from = expandedHere
-                            ? ExpandPopupCoordinator.previousWidth
-                            : ExpandPopupCoordinator.targetWidth
-                        const to = expandedHere
-                            ? ExpandPopupCoordinator.targetWidth
-                            : centerPill.implicitWidth
-                        return Math.abs(to - from) / ExpandPopupCoordinator.growSpeed * 1000
-                    }
-
                     width: expandedHere ? ExpandPopupCoordinator.targetWidth : implicitWidth
                     Behavior on width {
-                        NumberAnimation { duration: centerPill.growDuration; easing.type: Easing.OutCubic }
+                        NumberAnimation { id: pillWidthAnim; easing.type: Easing.OutCubic }
+                    }
+
+                    Connections {
+                        target: ExpandPopupCoordinator
+                        function onGrowDurationChanged() {
+                            pillWidthAnim.duration = ExpandPopupCoordinator.growDuration
+                        }
                     }
 
                     contentOpacity: (!expandedHere && !shrinkGuard.running) ? 1 : 0
@@ -106,7 +103,7 @@ Scope {
 
                     Timer {
                         id: shrinkGuard
-                        interval: centerPill.growDuration
+                        interval: pillWidthAnim.duration
                     }
 
                     onExpandedHereChanged: if (!expandedHere) shrinkGuard.restart()

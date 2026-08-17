@@ -20,9 +20,9 @@ My personal Linux desktop, running Hyprland on CachyOS with a fully custom shell
 - **Theme presets** — five wallust color-generation moods (vibrant, muted, pastel, dark, mono). The picker generates live preview swatches for every preset against the selected wallpaper in parallel, caches them by wallpaper+preset mtime, and remembers which preset you last used per wallpaper
 - **Video wallpapers** — `.mp4`/`.webm`/`.mkv`/`.mov` are supported alongside stills. `awww` shows an extracted frame during the transition, then `mpvpaper` takes over the layer. Playback pauses automatically on battery and resumes on AC
 - **Power-aware effects** — blur and video wallpaper are disabled on battery and restored on AC, driven from UPower. Shell surfaces compensate with slightly higher opacity so translucency doesn't look flat without blur
-- **Dual-machine ready** — `install.sh` detects GPU (Nvidia → desktop profile, Intel → laptop profile) and installs the right package set automatically:
-  - **Desktop:** Nvidia drivers + `openrgb` for RGB sync
-  - **Laptop:** Intel drivers, `tlp`/`tlp-rdw`/`tlp-pd` for battery/profile management, `fprintd` for fingerprint unlock
+- **Dual-machine ready** — install.sh detects machine type from battery presence (no battery → desktop profile, battery found → laptop profile) and detects GPU vendor (Nvidia/Intel/AMD) independently, installing the correct driver package set for whichever GPU is actually present regardless of machine type
+  - **Desktop:** GPU drivers + `openrgb` for RGB sync
+  - **Laptop:** GPU drivers, `tlp`/`tlp-rdw`/`tlp-pd` for battery/profile management, `fprintd` for fingerprint unlock
   - The Hyprland config also branches at runtime (`hypr/lua/machine.lua`): gaps, rounding, blur, VRR, animation speeds, touchpad gestures and GPU env vars all differ per machine from the same repo
 - **Fish shell** as default, launched into Hyprland via `uwsm`
 
