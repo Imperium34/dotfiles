@@ -14,6 +14,11 @@ hl.bind(
 	{ description = "Apps: Toggle launcher" }
 )
 hl.bind(
+	mod .. " + M",
+	hl.dsp.exec_cmd("qs --config bar ipc call musiclibrary toggle"),
+	{ description = "Apps: Toggle quickshell music player" }
+)
+hl.bind(
 	mod .. " + S",
 	hl.dsp.exec_cmd("qs --config bar ipc call quicksettings toggle"),
 	{ description = "Apps: Toggle quick settings" }
@@ -40,9 +45,9 @@ hl.bind(
 )
 hl.bind(mod .. " + N", hl.dsp.exec_cmd("nwg-displays"), { description = "Apps: Open display settings" })
 hl.bind(
-	mod .. " + M",
+	mod .. " + SHIFT + M",
 	hl.dsp.exec_cmd("~/.config/hypr/scripts/toggle-music.sh"),
-	{ description = "Apps: Toggle music player" }
+	{ description = "Apps: Toggle youtube music player" }
 )
 
 -- ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓

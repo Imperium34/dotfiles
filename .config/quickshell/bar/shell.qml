@@ -14,6 +14,7 @@ Scope {
     Wallpaper {}
     Launcher {}
     Clipboard {}
+    MusicLibraryPopup {}
     QuickSettings {}
     Keybinds {}
 

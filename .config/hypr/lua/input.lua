@@ -10,5 +10,7 @@ hl.config({
 		float_switch_override_focus = 2,
 		kb_layout = "tr, us",
 		kb_options = "grp:alt_shift_toggle",
+		accel_profile = "flat",
+		sensitivity = 0.0,
 	},
 })

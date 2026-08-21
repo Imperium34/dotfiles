@@ -27,3 +27,7 @@ wallpapers
 .config/quickshell/bar/popups/calendar/weather.json
 .config/quickshell/scripts/credentials.json
 .config/quickshell/scripts/token.json
+
+# ignore spotify stuff
+.config/quickshell/scripts/spotify_credentials.json
+.config/quickshell/scripts/spotify_token.json

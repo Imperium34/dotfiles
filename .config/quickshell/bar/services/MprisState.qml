@@ -9,6 +9,10 @@ Singleton {
 
     readonly property var activePlayer: {
         const players = Mpris.players.values
+        const preferred = players.find(p => 
+            (p.identity === "mpv" || p.identity === "Spotifyd") && p.isPlaying
+        )
+        if (preferred) return preferred
         return players.find(p => p.isPlaying) ?? players[0] ?? null
     }
 

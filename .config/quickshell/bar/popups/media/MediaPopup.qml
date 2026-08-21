@@ -21,6 +21,7 @@ BasePopup {
         value: popup.visible
     }
 
+    // ── BLURRED ART BACKDROP ───────────────────────────────────
     Image {
         id: artSource
         anchors.fill: parent
@@ -68,6 +69,7 @@ BasePopup {
         }
     }
 
+    // ── CONTENT ────────────────────────────────────────────────
     RowLayout {
         anchors {
             fill: parent
@@ -120,145 +122,14 @@ BasePopup {
                 elide: Text.ElideRight
             }
 
-            RowLayout {
+            TransportControls {
                 Layout.alignment: Qt.AlignHCenter
-                spacing: 20
-
-                Text {
-                    id: prevBtn
-                    text: "󰒮"
-                    color: MprisState.canGoPrevious
-                        ? Theme.foreground
-                        : Theme.hexToRgba(Theme.foreground, 0.3)
-                    font.pixelSize: 20
-                    font.family: "Symbols Nerd Font"
-                    Layout.alignment: Qt.AlignVCenter
-
-                    scale: prevTap.pressed ? 0.85 : 1
-                    Behavior on scale {
-                        NumberAnimation { duration: 120; easing.type: Easing.OutCubic }
-                    }
-
-                    TapHandler {
-                        id: prevTap
-                        onTapped: MprisState.previous()
-                    }
-                }
-
-                Rectangle {
-                    id: playButton
-                    Layout.preferredWidth: 40
-                    Layout.preferredHeight: 40
-                    radius: 20
-                    color: Theme.color5
-                    border.color: Theme.hexToRgba(Theme.foreground, 0.15)
-                    border.width: 1
-                    Layout.alignment: Qt.AlignVCenter
-
-                    scale: playTap.pressed ? 0.9 : 1
-                    Behavior on scale {
-                        NumberAnimation { duration: 120; easing.type: Easing.OutCubic }
-                    }
-
-                    Text {
-                        anchors.centerIn: parent
-                        anchors.horizontalCenterOffset: MprisState.isPlaying ? 0 : 1
-                        text: MprisState.isPlaying ? "󰏤" : "󰐊"
-                        color: Theme.background
-                        font.pixelSize: 18
-                        font.family: "Symbols Nerd Font"
-                    }
-
-                    TapHandler {
-                        id: playTap
-                        onTapped: MprisState.togglePlaying()
-                    }
-                }
-
-                Text {
-                    id: nextBtn
-                    text: "󰒭"
-                    color: MprisState.canGoNext
-                        ? Theme.foreground
-                        : Theme.hexToRgba(Theme.foreground, 0.3)
-                    font.pixelSize: 20
-                    font.family: "Symbols Nerd Font"
-                    Layout.alignment: Qt.AlignVCenter
-
-                    scale: nextTap.pressed ? 0.85 : 1
-                    Behavior on scale {
-                        NumberAnimation { duration: 120; easing.type: Easing.OutCubic }
-                    }
-
-                    TapHandler {
-                        id: nextTap
-                        onTapped: MprisState.next()
-                    }
-                }
             }
 
-            ColumnLayout {
-                id: seekCol
+            SeekBar {
                 Layout.fillWidth: true
-                spacing: 4
-
-                Item {
-                    id: seekArea
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: 20
-
-                    Rectangle {
-                        anchors {
-                            left: parent.left
-                            right: parent.right
-                            verticalCenter: parent.verticalCenter
-                        }
-                        height: 4
-                        radius: 2
-                        color: Theme.hexToRgba(Theme.foreground, 0.15)
-
-                        Rectangle {
-                            width: parent.width * MprisState.progress
-                            height: parent.height
-                            radius: 2
-                            color: Theme.color5
-                            Behavior on width {
-                                NumberAnimation { duration: 200 }
-                            }
-                        }
-                    }
-
-                    TapHandler {
-                        onTapped: (eventPoint) => {
-                            MprisState.seekToRatio(eventPoint.position.x / seekArea.width)
-                        }
-                    }
-
-                    DragHandler {
-                        target: null
-                        yAxis.enabled: false
-                        onCentroidChanged: {
-                            if (active)
-                                MprisState.seekToRatio(centroid.position.x / seekArea.width)
-                        }
-                    }
-                }
-
-                RowLayout {
-                    Layout.fillWidth: true
-                    Text {
-                        text: MprisState.formatTime(MprisState.position)
-                        color: Theme.hexToRgba(Theme.foreground, 0.6)
-                        font.pixelSize: 11
-                    }
-                    Item { Layout.fillWidth: true }
-                    Text {
-                        text: MprisState.formatTime(MprisState.length)
-                        color: Theme.hexToRgba(Theme.foreground, 0.6)
-                        font.pixelSize: 11
-                    }
-                }
             }
         }
     }
 }
+

@@ -32,6 +32,9 @@ PopupWindow {
     property alias searchText: searchField.text
     readonly property bool animIn: controller.animIn
 
+    signal tabPressed()
+    signal backtabPressed()
+
     signal accepted(int index)
     signal searchEdited(string text)
     signal opened()
@@ -83,7 +86,7 @@ PopupWindow {
         onTriggered: {
             root.heightAnimDuration = root.heightPhaseDuration
             controller.open()
-            if (root.showSearch) Qt.callLater(() => searchField.forceActiveFocus())
+            Qt.callLater(() => searchField.forceActiveFocus())
         }
     }
 
@@ -235,6 +238,14 @@ PopupWindow {
 
                         onTextChanged: root.searchEdited(text)
 
+                        Keys.onTabPressed: (event) => {
+                            event.accepted = true
+                            root.tabPressed()
+                        }
+                        Keys.onBacktabPressed: (event) => {
+                            event.accepted = true
+                            root.backtabPressed()
+                        }
                         Keys.onUpPressed: (event) => {
                             event.accepted = true
                             root.selectedIndex = Math.max(root.minIndex, root.selectedIndex - 1)
