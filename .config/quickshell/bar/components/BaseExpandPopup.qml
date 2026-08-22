@@ -30,12 +30,15 @@ PopupWindow {
     property bool showSearch: true
 
     property alias searchText: searchField.text
+    property alias headerContent: headerSlot.data
+    property bool focusSearchOnOpen: true
     readonly property bool animIn: controller.animIn
 
     signal tabPressed()
     signal backtabPressed()
 
     signal accepted(int index)
+    signal playRequested(int index)
     signal searchEdited(string text)
     signal opened()
 
@@ -86,7 +89,7 @@ PopupWindow {
         onTriggered: {
             root.heightAnimDuration = root.heightPhaseDuration
             controller.open()
-            Qt.callLater(() => searchField.forceActiveFocus())
+            if (root.focusSearchOnOpen) Qt.callLater(() => searchField.forceActiveFocus())
         }
     }
 
@@ -198,10 +201,18 @@ PopupWindow {
                 NumberAnimation { duration: 150; easing.type: Easing.OutCubic }
             }
 
+            // ---- header slot ----
+            Item {
+                id: headerSlot
+                Layout.fillWidth: true
+                implicitHeight: childrenRect.height
+                visible: children.length > 0
+            }
+
             // ---- search box ----
             Rectangle {
                 Layout.fillWidth: true
-                height: root.searchHeight
+                Layout.preferredHeight: root.showSearch ? root.searchHeight : 0
                 radius: 10
                 color: Theme.hexToRgba(Theme.foreground, 0.07)
                 border.color: searchField.activeFocus
@@ -209,7 +220,16 @@ PopupWindow {
                     : Theme.hexToRgba(Theme.foreground, 0.1)
                 border.width: 1
 
-                visible: root.showSearch
+                opacity: root.showSearch ? 1 : 0
+                visible: Layout.preferredHeight > 0
+                clip: true
+
+                Behavior on Layout.preferredHeight {
+                    NumberAnimation { duration: 160; easing.type: Easing.OutCubic }
+                }
+                Behavior on opacity {
+                    NumberAnimation { duration: 120; easing.type: Easing.OutCubic }
+                }
 
                 Behavior on border.color {
                     ColorAnimation { duration: 150 }
@@ -256,7 +276,10 @@ PopupWindow {
                         }
                         Keys.onReturnPressed: (event) => {
                             event.accepted = true
-                            root.accepted(root.selectedIndex)
+                            if (event.modifiers & Qt.ShiftModifier)
+                                root.playRequested(root.selectedIndex)
+                            else
+                                root.accepted(root.selectedIndex)
                         }
 
                         Text {
@@ -279,3 +302,4 @@ PopupWindow {
         }
     }
 }
+

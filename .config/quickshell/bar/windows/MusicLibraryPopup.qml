@@ -79,12 +79,23 @@ BaseExpandPopup {
         popup.close()
     }
 
+    function queueTrack(track) {
+        if (!track) return
+        Spotify.queueTrack(track)
+    }
+
+    function playPlaylistMix(playlist) {
+        if (!playlist) return
+        Spotify.playPlaylist(playlist)
+        popup.close()
+    }
+
     // ══ INPUT ════════════════════════════════════════════════════
     onOpened: {
         currentView = "nowPlaying"
         playlistMode = "browse"
         Spotify.clearSearch()
-        Spotify.refreshDevice()
+        if (!Spotify.hasDevice) Spotify.refreshDevice()
     }
 
     onSearchEdited: (text) => {
@@ -104,6 +115,20 @@ BaseExpandPopup {
         }
     }
 
+    onPlayRequested: (index) => {
+        if (!activeModel || index < 0 || index >= activeModel.count) return
+        const item = activeModel.get(index)
+
+        if (currentView === "playlists" && playlistMode === "browse") {
+            playPlaylistMix(item)
+            return
+        }
+        if (currentView === "search" || inPlaylistTracks) {
+            queueTrack(item)
+            return
+        }
+    }
+
     onTabPressed: cycleTab(1)
     onBacktabPressed: cycleTab(-1)
 
@@ -113,80 +138,82 @@ BaseExpandPopup {
         value: popup.currentView === "nowPlaying" && popup.visible
     }
 
-    // ══ UI ═══════════════════════════════════════════════════════
-    ColumnLayout {
-        anchors.fill: parent
+    // ══ TAB BAR ══════════════════════════════════════════════════
+    headerContent: RowLayout {
+        width: parent.width
         spacing: 8
 
-        // ── TAB BAR ──────────────────────────────────────────────
-        RowLayout {
-            Layout.fillWidth: true
-            spacing: 8
+        Repeater {
+            model: popup.tabModel
 
-            Repeater {
-                model: popup.tabModel
+            delegate: Rectangle {
+                required property var modelData
+                readonly property bool active: popup.currentView === modelData.key
 
-                delegate: Rectangle {
-                    required property var modelData
-                    readonly property bool active: popup.currentView === modelData.key
-
-                    Layout.preferredWidth: 90
-                    Layout.preferredHeight: 28
-                    radius: 8
-                    color: active
-                        ? Theme.hexToRgba(Theme.color5, 0.22)
-                        : Theme.hexToRgba(Theme.foreground, 0.05)
-                    border.color: active
-                        ? Theme.hexToRgba(Theme.color5, 0.55)
-                        : "transparent"
-                    border.width: 1
-
-                    Behavior on color { ColorAnimation { duration: 120 } }
-
-                    Text {
-                        anchors.centerIn: parent
-                        text: modelData.label
-                        color: Theme.foreground
-                        font.pixelSize: 12
-                        font.bold: active
-                    }
-
-                    TapHandler {
-                        onTapped: popup.switchTab(modelData.key)
-                    }
-                }
-            }
-
-            Item { Layout.fillWidth: true }
-
-            Rectangle {
-                visible: popup.inPlaylistTracks
-                Layout.preferredWidth: 70
+                Layout.preferredWidth: 90
                 Layout.preferredHeight: 28
                 radius: 8
-                color: Theme.hexToRgba(Theme.foreground, 0.05)
+                color: active
+                    ? Theme.hexToRgba(Theme.color5, 0.22)
+                    : Theme.hexToRgba(Theme.foreground, 0.05)
+                border.color: active
+                    ? Theme.hexToRgba(Theme.color5, 0.55)
+                    : "transparent"
+                border.width: 1
+
+                Behavior on color { ColorAnimation { duration: 120 } }
 
                 Text {
                     anchors.centerIn: parent
-                    text: "\uf060 Back"
-                    font.family: "Symbols Nerd Font"
-                    font.pixelSize: 11
+                    text: modelData.label
                     color: Theme.foreground
+                    font.pixelSize: 12
+                    font.bold: active
                 }
 
                 TapHandler {
-                    onTapped: popup.backToPlaylists()
+                    onTapped: popup.switchTab(modelData.key)
                 }
             }
         }
 
-        // ── SEARCH ───────────────────────────────────────────────
+        Item { Layout.fillWidth: true }
+
+        Rectangle {
+            visible: popup.inPlaylistTracks
+            Layout.preferredWidth: 70
+            Layout.preferredHeight: 28
+            radius: 8
+            color: Theme.hexToRgba(Theme.foreground, 0.05)
+
+            Text {
+                anchors.centerIn: parent
+                text: "\uf060 Back"
+                font.family: "Symbols Nerd Font"
+                font.pixelSize: 11
+                color: Theme.foreground
+            }
+
+            TapHandler {
+                onTapped: popup.backToPlaylists()
+            }
+        }
+    }
+
+    // ══ UI ═══════════════════════════════════════════════════════
+    Item {
+        id: viewArea
+        anchors.fill: parent
+        clip: true
+
+        // ── SEARCH ───────────────────────────────────────────
         SelectableListView {
             id: searchList
+            anchors.fill: parent
 
-            visible: popup.currentView === "search"
-            Layout.fillWidth: true
-            Layout.fillHeight: true
+            opacity: popup.currentView === "search" ? 1 : 0
+            visible: opacity > 0
+            Behavior on opacity { NumberAnimation { duration: 160; easing.type: Easing.OutCubic } }
 
             model: Spotify.searchResults
             rowHeight: 56
@@ -218,88 +245,108 @@ BaseExpandPopup {
             }
         }
 
-        // ── PLAYLISTS ────────────────────────────────────────────
-        SelectableListView {
-            id: playlistsList
+        // ── PLAYLISTS ────────────────────────────────────────
+        Item {
+            id: playlistsArea
+            anchors.fill: parent
+            clip: true
 
-            visible: popup.currentView === "playlists" && popup.playlistMode === "browse"
-            Layout.fillWidth: true
-            Layout.fillHeight: true
+            opacity: popup.currentView === "playlists" ? 1 : 0
+            visible: opacity > 0
+            Behavior on opacity { NumberAnimation { duration: 160; easing.type: Easing.OutCubic } }
 
-            model: Spotify.playlists
-            rowHeight: 52
-            accentColor: Theme.color5
+            SelectableListView {
+                id: playlistsList
+                anchors { top: parent.top; bottom: parent.bottom }
+                width: parent.width
 
-            emptyText: Spotify.isLoadingPlaylists ? "Loading playlists..." : "No playlists found"
+                x: popup.playlistMode === "tracks" ? -width : 0
+                Behavior on x { NumberAnimation { duration: 220; easing.type: Easing.OutCubic } }
 
-            onSelectedIndexChanged: if (popup.selectedIndex !== selectedIndex) popup.selectedIndex = selectedIndex
-            Connections {
-                target: popup
-                function onSelectedIndexChanged() {
-                    if (playlistsList.selectedIndex !== popup.selectedIndex)
-                        playlistsList.selectedIndex = popup.selectedIndex
+                model: Spotify.playlists
+                rowHeight: 52
+                accentColor: Theme.color5
+
+                emptyText: Spotify.isLoadingPlaylists
+                    ? "Loading playlists..."
+                    : (Spotify.lastError !== "" ? Spotify.lastError : "No playlists found")
+
+                onSelectedIndexChanged: if (popup.selectedIndex !== selectedIndex) popup.selectedIndex = selectedIndex
+                Connections {
+                    target: popup
+                    function onSelectedIndexChanged() {
+                        if (playlistsList.selectedIndex !== popup.selectedIndex)
+                            playlistsList.selectedIndex = popup.selectedIndex
+                    }
+                }
+
+                delegate: Component {
+                    TrackRow {
+                        thumbnailSize: 36
+                        thumbnailSource: modelData ? (modelData.thumbnail ?? "") : ""
+                        primaryText: modelData ? (modelData.name ?? "") : ""
+                        secondaryText: modelData ? ((modelData.trackCount ?? 0) + " tracks") : ""
+                        showPlayButton: true
+                        onActivated: popup.openPlaylist(modelData)
+                        onPlayRequested: popup.playPlaylistMix(modelData)
+                    }
                 }
             }
 
-            delegate: Component {
-                TrackRow {
-                    thumbnailSize: 36
-                    thumbnailSource: modelData ? (modelData.thumbnail ?? "") : ""
-                    primaryText: modelData ? (modelData.name ?? "") : ""
-                    secondaryText: modelData ? ((modelData.trackCount ?? 0) + " tracks") : ""
-                    onActivated: popup.openPlaylist(modelData)
+            SelectableListView {
+                id: playlistTracksList
+                anchors { top: parent.top; bottom: parent.bottom }
+                width: parent.width
+
+                x: popup.playlistMode === "tracks" ? 0 : width
+                Behavior on x { NumberAnimation { duration: 220; easing.type: Easing.OutCubic } }
+
+                model: Spotify.playlistTracks
+                rowHeight: 56
+                accentColor: Theme.color5
+
+                emptyText: Spotify.isLoadingTracks
+                    ? "Loading tracks..."
+                    : (Spotify.lastError !== "" ? Spotify.lastError : "No tracks found")
+
+                onSelectedIndexChanged: if (popup.selectedIndex !== selectedIndex) popup.selectedIndex = selectedIndex
+                Connections {
+                    target: popup
+                    function onSelectedIndexChanged() {
+                        if (playlistTracksList.selectedIndex !== popup.selectedIndex)
+                            playlistTracksList.selectedIndex = popup.selectedIndex
+                    }
+                }
+
+                delegate: Component {
+                    TrackRow {
+                        showThumbnail: false
+                        primaryText: modelData ? (modelData.title ?? "") : ""
+                        secondaryText: modelData ? (modelData.artist ?? "") : ""
+                        trailingText: modelData ? Spotify.formatDuration(modelData.durationMs ?? 0) : ""
+                        onActivated: popup.playTrack(modelData)
+                    }
                 }
             }
         }
 
-        // ── PLAYLIST TRACKS ──────────────────────────────────────
-        SelectableListView {
-            id: playlistTracksList
-
-            visible: popup.inPlaylistTracks
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-
-            model: Spotify.playlistTracks
-            rowHeight: 56
-            accentColor: Theme.color5
-
-            emptyText: Spotify.isLoadingTracks ? "Loading tracks..." : "No tracks found"
-
-            onSelectedIndexChanged: if (popup.selectedIndex !== selectedIndex) popup.selectedIndex = selectedIndex
-            Connections {
-                target: popup
-                function onSelectedIndexChanged() {
-                    if (playlistTracksList.selectedIndex !== popup.selectedIndex)
-                        playlistTracksList.selectedIndex = popup.selectedIndex
-                }
-            }
-
-            delegate: Component {
-                TrackRow {
-                    showThumbnail: false
-                    primaryText: modelData ? (modelData.title ?? "") : ""
-                    secondaryText: modelData ? (modelData.artist ?? "") : ""
-                    trailingText: modelData ? Spotify.formatDuration(modelData.durationMs ?? 0) : ""
-                    onActivated: popup.playTrack(modelData)
-                }
-            }
-        }
-
-        // ── QUEUE ────────────────────────────────────────────────
+        // ── QUEUE ────────────────────────────────────────────
         SelectableListView {
             id: queueList
+            anchors.fill: parent
 
-            visible: popup.currentView === "queue"
-            Layout.fillWidth: true
-            Layout.fillHeight: true
+            opacity: popup.currentView === "queue" ? 1 : 0
+            visible: opacity > 0
+            Behavior on opacity { NumberAnimation { duration: 160; easing.type: Easing.OutCubic } }
 
             model: Spotify.queueList
             rowHeight: 56
             headerHeight: 60
             accentColor: Theme.color5
 
-            emptyText: Spotify.isLoadingQueue ? "Loading queue..." : "Queue is empty"
+            emptyText: Spotify.isLoadingQueue
+                ? "Loading queue..."
+                : (Spotify.lastError !== "" ? Spotify.lastError : "Queue is empty")
 
             onSelectedIndexChanged: if (popup.selectedIndex !== selectedIndex) popup.selectedIndex = selectedIndex
             Connections {
@@ -331,13 +378,16 @@ BaseExpandPopup {
             }
         }
 
-        // ── NOW PLAYING ──────────────────────────────────────────
+        // ── NOW PLAYING ──────────────────────────────────────
         ColumnLayout {
-            visible: popup.currentView === "nowPlaying"
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-            Layout.margins: 8
+            id: nowPlayingView
+            anchors.fill: parent
+            anchors.margins: 8
             spacing: 16
+
+            opacity: popup.currentView === "nowPlaying" ? 1 : 0
+            visible: opacity > 0
+            Behavior on opacity { NumberAnimation { duration: 160; easing.type: Easing.OutCubic } }
 
             Item { Layout.fillHeight: true }
 
@@ -408,4 +458,3 @@ BaseExpandPopup {
         }
     }
 }
-

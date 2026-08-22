@@ -13,6 +13,7 @@ BaseExpandPopup {
 
     ipcTarget: "wallpaper"
     showSearch: false
+    focusSearchOnOpen: false
 
     readonly property string homeDir: Quickshell.env("HOME") ?? ""
     readonly property string wallpaperRoot: root.homeDir + "/Pictures/wallpapers"
@@ -58,6 +59,10 @@ BaseExpandPopup {
         const idx = list.indexOf(root.selectedCategory)
         const next = (idx + step + list.length) % list.length
         root.selectedCategory = list[next]
+    }
+
+    function toggleTab() {
+        root.showingThemeTab = !root.showingThemeTab
     }
 
     // ---- theme presets ----
@@ -378,7 +383,11 @@ BaseExpandPopup {
             }
         }
         Keys.onTabPressed: (event) => {
-            root.showingThemeTab = !root.showingThemeTab
+            root.toggleTab()
+            event.accepted = true
+        }
+        Keys.onBacktabPressed: (event) => {
+            root.toggleTab()
             event.accepted = true
         }
         Keys.onPressed: (event) => {
@@ -574,14 +583,12 @@ BaseExpandPopup {
             }
         }
         Keys.onTabPressed: (event) => {
-            root.showingThemeTab = !root.showingThemeTab
+            root.toggleTab()
             event.accepted = true
         }
-        Keys.onPressed: (event) => {
-            if (event.key === Qt.Key_Space) {
-                root.showingThemeTab = !root.showingThemeTab
-                event.accepted = true
-            }
+        Keys.onBacktabPressed: (event) => {
+            root.toggleTab()
+            event.accepted = true
         }
 
         delegate: Item {

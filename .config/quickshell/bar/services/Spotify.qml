@@ -214,7 +214,37 @@ Singleton {
     }
 
     // ── PLAYBACK ───────────────────────────────────────────────
+
     function playNow(item) {
+        if (!root.hasDevice) {
+            root.refreshDevice()
+            root.lastError = "No Spotify device found"
+            return
+        }
+        playProcess.command = [
+            "python3", root.backendScript, "play", item.uri, root.deviceId
+        ]
+        playProcess.running = true
+    }
+
+    Process {
+        id: playProcess
+        stdout: StdioCollector {
+            onStreamFinished: {
+                try {
+                    const data = JSON.parse(text)
+                    if (!data.ok) {
+                        root.lastError = data.error ?? "Play failed"
+                        console.warn("[Spotify] play failed:", data.error)
+                    }
+                } catch (err) {
+                    console.warn("[Spotify] play parse failed:", err)
+                }
+            }
+        }
+    }
+
+    function queueTrack(item) {
         if (!root.hasDevice) {
             root.refreshDevice()
             root.lastError = "No Spotify device found"
@@ -239,6 +269,62 @@ Singleton {
                 } catch (err) {
                     console.warn("[Spotify] queue parse failed:", err)
                 }
+            }
+        }
+    }
+
+    function playPlaylist(playlist) {
+        if (!root.hasDevice) {
+            root.refreshDevice()
+            root.lastError = "No Spotify device found"
+            return
+        }
+        playContextProcess.command = [
+            "python3", root.backendScript, "play_context", playlist.uri, root.deviceId
+        ]
+        playContextProcess.running = true
+        mixDelay.restart()
+    }
+
+    Process {
+        id: playContextProcess
+        stdout: StdioCollector {
+            onStreamFinished: {
+                try {
+                    const data = JSON.parse(text)
+                    if (!data.ok) {
+                        root.lastError = data.error ?? "Play failed"
+                        console.warn("[Spotify] play_context failed:", data.error)
+                    }
+                } catch (err) {
+                    console.warn("[Spotify] play_context parse failed:", err)
+                }
+            }
+        }
+    }
+
+    Timer {
+        id: mixDelay
+        interval: 700
+        onTriggered: root._enableShuffleThenSkip()
+    }
+
+    function _enableShuffleThenSkip() {
+        shuffleProcess.command = ["python3", root.backendScript, "shuffle", "true", root.deviceId]
+        shuffleProcess.running = true
+    }
+
+    Process {
+        id: shuffleProcess
+        stdout: StdioCollector {
+            onStreamFinished: {
+                try {
+                    const data = JSON.parse(text)
+                    if (!data.ok) console.warn("[Spotify] shuffle failed:", data.error)
+                } catch (err) {
+                    console.warn("[Spotify] shuffle parse failed:", err)
+                }
+                MprisState.next()
             }
         }
     }

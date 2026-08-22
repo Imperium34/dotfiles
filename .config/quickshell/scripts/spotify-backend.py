@@ -7,8 +7,11 @@ Usage:
     spotify-backend.py playlist <playlist_id>
     spotify-backend.py devices
     spotify-backend.py queue <track_uri> <device_id>
+    spotify-backend.py play <track_uri> <device_id>
+    spotify-backend.py play_context <context_uri> <device_id>
+    spotify-backend.py shuffle <true|false> <device_id>
 
-Never runs an interactive flow -- run spotify-auth.py once by hand first.
+Never runs an interactive flow. Run spotify-auth.py once by hand first.
 This only ever refreshes the token silently, same contract as
 calendar-backend.py.
 """
@@ -105,8 +108,10 @@ def api_post(path, token, params=None):
         raise RuntimeError(f"{e.code} {e.reason}: {body}") from None
 
 
-def api_put(path, token, body=None):
+def api_put(path, token, body=None, params=None):
     url = API_BASE + path
+    if params:
+        url += "?" + urllib.parse.urlencode(params)
     data = json.dumps(body).encode() if body is not None else None
     req = urllib.request.Request(
         url,
@@ -200,6 +205,7 @@ def get_playlists(token):
         playlists.append(
             {
                 "id": p.get("id", ""),
+                "uri": p.get("uri", ""),
                 "name": p.get("name", "Untitled"),
                 "thumbnail": (p["images"][0]["url"] if p.get("images") else ""),
                 "trackCount": (p.get("tracks") or {}).get("total", 0),
@@ -243,6 +249,28 @@ def queue_track(token, uri, device_id):
     api_post("/me/player/queue", token, {"uri": uri, "device_id": device_id})
 
 
+def play_track(token, uri, device_id):
+    """Start playback of a single track immediately on the given device."""
+    api_put("/me/player/play", token, {"uris": [uri]}, {"device_id": device_id})
+
+
+def play_context(token, context_uri, device_id, offset_position=None):
+    """Start playback of a playlist/album/artist as a context, in list order
+    (or starting at offset_position if given)."""
+    body = {"context_uri": context_uri}
+    if offset_position is not None:
+        body["offset"] = {"position": offset_position}
+    api_put("/me/player/play", token, body, {"device_id": device_id})
+
+
+def set_shuffle(token, state, device_id):
+    api_put(
+        "/me/player/shuffle",
+        token,
+        params={"state": "true" if state else "false", "device_id": device_id},
+    )
+
+
 def main():
     token = load_token()
     if token is None:
@@ -270,6 +298,15 @@ def main():
             print(json.dumps({"ok": True, "devices": get_devices(token)}))
         elif args[0] == "queue":
             queue_track(token, args[1], args[2])
+            print(json.dumps({"ok": True}))
+        elif args[0] == "play":
+            play_track(token, args[1], args[2])
+            print(json.dumps({"ok": True}))
+        elif args[0] == "play_context":
+            play_context(token, args[1], args[2])
+            print(json.dumps({"ok": True}))
+        elif args[0] == "shuffle":
+            set_shuffle(token, args[1] == "true", args[2])
             print(json.dumps({"ok": True}))
         elif args[0] == "queue_state":
             print(json.dumps({"ok": True, **get_queue(token)}))

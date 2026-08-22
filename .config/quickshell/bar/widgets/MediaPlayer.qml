@@ -84,13 +84,26 @@ BarButton {
 
                 readonly property real overflow: Math.max(0, titleText.implicitWidth - root.marqueeWidth)
 
-                NumberAnimation on x {
+                NumberAnimation {
+                    id: marqueeAnim
+                    target: titleText
+                    property: "x"
                     running: root.isPlaying && titleText.overflow > 0
                     from: 0
                     to: -titleText.overflow
                     duration: Math.max(300, titleText.overflow * 30)
                     loops: Animation.Infinite
                     easing.type: Easing.Linear
+
+                    onRunningChanged: if (!running) titleText.x = 0
+                }
+
+                Connections {
+                    target: MprisState
+                    function onTrackTitleChanged() {
+                        titleText.x = 0
+                        if (marqueeAnim.running) marqueeAnim.restart()
+                    }
                 }
             }
         }

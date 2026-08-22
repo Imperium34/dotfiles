@@ -24,7 +24,12 @@ RowLayout {
     property int thumbnailSize: 40
     property int sideMargin: 10
 
+    // ---- play button (used on the playlists tab: body opens the playlist,
+    // this button plays it as a mix) ----
+    property bool showPlayButton: false
+
     signal activated()
+    signal playRequested()
 
     anchors {
         fill: parent
@@ -103,6 +108,36 @@ RowLayout {
             : Theme.hexToRgba(Theme.foreground, 0.5)
         font.pixelSize: 11
         Layout.alignment: Qt.AlignVCenter
+    }
+
+    Rectangle {
+        visible: root.showPlayButton
+        Layout.preferredWidth: 26
+        Layout.preferredHeight: 26
+        Layout.alignment: Qt.AlignVCenter
+        radius: 13
+        color: playButtonTap.pressed
+            ? Theme.hexToRgba(Theme.color5, 0.35)
+            : Theme.hexToRgba(Theme.foreground, 0.08)
+
+        Behavior on color { ColorAnimation { duration: 100 } }
+
+        Text {
+            anchors.centerIn: parent
+            anchors.horizontalCenterOffset: 1
+            text: "󰐊"
+            color: root.selected ? Theme.background : Theme.foreground
+            font.pixelSize: 12
+            font.family: "Symbols Nerd Font"
+        }
+
+        TapHandler {
+            id: playButtonTap
+            onTapped: (eventPoint) => {
+                eventPoint.accepted = true
+                root.playRequested()
+            }
+        }
     }
 
     TapHandler {
